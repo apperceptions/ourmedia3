@@ -600,7 +600,7 @@ sort -f -u < iamail.txt > iamailsort.txt
 wc -l iamailsort.txt 
 
 
--- sync dev to staging
+-- sync dev to staging on same server -- convert to SELECT INTO and LOAD DATA INFILE for local host usage
 
 REPLACE INTO stage1.users 
 SELECT *
