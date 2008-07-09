@@ -186,6 +186,7 @@ INSERT INTO om.upload (fid, nid, vid, description, list, weight) VALUES (107, 22
 */
 
  -- add new types (just do this once)
+/*
 INSERT INTO om.node_type (type, name, module, description, help, has_title, title_label, has_body, body_label, min_word_count, custom, modified, locked, orig_type) 
 VALUES ("audiomedia", "Audio media", "node", "", "", 1, "Title", 1, "Body", 0, 1, 1, 0, "");
 
@@ -197,7 +198,12 @@ VALUES ("textmedia", "Text media", "node", "", "", 1, "Title", 1, "Body", 0, 1, 
 
 INSERT INTO om.node_type (type, name, module, description, help, has_title, title_label, has_body, body_label, min_word_count, custom, modified, locked, orig_type) 
 VALUES ("videomedia", "Video media", "node", "", "", 1, "Title", 1, "Body", 0, 1, 1, 0, "");
+*/
 
+INSERT INTO om.node_type (type, name, module, description, help, has_title, title_label, has_body, body_label, min_word_count, custom, modified, locked, orig_type) 
+VALUES ("media", "Media", "node", "", "", 1, "Title", 1, "Body", 0, 1, 1, 0, "");
+
+/*
 CREATE TABLE content_type_audiomedia (
   `vid` int(10) unsigned NOT NULL default '0',
   `nid` int(10) unsigned NOT NULL default '0',
@@ -225,9 +231,25 @@ CREATE TABLE content_type_videomedia (
   `field_identifier` longtext,
   PRIMARY KEY  (`vid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+*/
 
 
+
+
+CREATE TABLE `content_type_media` (
+  `vid` int(10) unsigned NOT NULL default '0',
+  `nid` int(10) unsigned NOT NULL default '0',
+  `field_xml_value` longtext,
+  `field_identifier_value` longtext,
+  `field_license_value` longtext,
+  PRIMARY KEY  (`vid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 
+
+
+-- update this
 INSERT INTO om.content_node_field ( field_name, type, global_settings, required, multiple, db_storage, module, db_columns, active) VALUES ('field_identifier', 'text', 'a:4:{s:15:"text_processing";s:1:"0";s:10:"max_length";s:0:"";s:14:"allowed_values";s:0:"";s:18:"allowed_values_php";s:0:"";}', 0, 0, 1, 'text', 'a:1:{s:5:"value";a:4:{s:4:"type";s:4:"text";s:4:"size";s:3:"big";s:8:"not null";b:0;s:8:"sortable";b:1;}}', 1);
+
+/*
 
 INSERT INTO om.content_node_field_instance (field_name, type_name, weight, label, widget_type, widget_settings, display_settings, description, widget_module, widget_active) VALUES ('field_identifier', 'audiomedia', 0, 'Identifer', 'text_textfield', 'a:3:{s:4:"rows";i:1;s:13:"default_value";a:1:{i:0;a:1:{s:5:"value";s:0:"";}}s:17:"default_value_php";N;}
 ', 'a:6:{s:5:"label";a:1:{s:6:"format";s:5:"above";}s:6:"teaser";a:1:{s:6:"format";s:7:"default";}s:4:"full";a:1:{s:6:"format";s:7:"default";}i:4;a:1:{s:6:"format";s:7:"default";}i:2;a:1:{s:6:"format";s:7:"default";}i:3;a:1:{s:6:"format";s:7:"default";}}
@@ -245,6 +267,11 @@ INSERT INTO om.content_node_field_instance (field_name, type_name, weight, label
 ', 'a:6:{s:5:"label";a:1:{s:6:"format";s:5:"above";}s:6:"teaser";a:1:{s:6:"format";s:7:"default";}s:4:"full";a:1:{s:6:"format";s:7:"default";}i:4;a:1:{s:6:"format";s:7:"default";}i:2;a:1:{s:6:"format";s:7:"default";}i:3;a:1:{s:6:"format";s:7:"default";}}
 ', '', 'text', 1);
 
+*/
+
+INSERT INTO om.content_node_field_instance (field_name, type_name, weight, label, widget_type, widget_settings, display_settings, description, widget_module, widget_active) VALUES ('field_identifier', 'media', 0, 'Identifer', 'text_textfield', 'a:3:{s:4:"rows";i:1;s:13:"default_value";a:1:{i:0;a:1:{s:5:"value";s:0:"";}}s:17:"default_value_php";N;}
+', 'a:6:{s:5:"label";a:1:{s:6:"format";s:5:"above";}s:6:"teaser";a:1:{s:6:"format";s:7:"default";}s:4:"full";a:1:{s:6:"format";s:7:"default";}i:4;a:1:{s:6:"format";s:7:"default";}i:2;a:1:{s:6:"format";s:7:"default";}i:3;a:1:{s:6:"format";s:7:"default";}}
+', '', 'text', 1);
 
 
  -- update content nodes
@@ -571,5 +598,130 @@ LOAD DATA INFILE '/tmp/term_data6.txt' REPLACE INTO TABLE om.term_data (nid, lic
 awk 'BEGIN {FS=OFS=","} {print $2}' ia2005.txt ia2006.txt ia2007.txt ia2008.txt > iamail.txt
 sort -f -u < iamail.txt > iamailsort.txt
 wc -l iamailsort.txt 
+
+
+-- sync dev to staging
+
+REPLACE INTO stage1.users 
+SELECT *
+FROM om.users 
+WHERE uid > 1;
+
+REPLACE INTO stage1.node 
+SELECT *
+FROM om.node;
+
+REPLACE INTO stage1.node_revisions 
+SELECT *
+FROM om.node_revisions;
+
+REPLACE INTO stage1.profile_fields 
+SELECT *
+FROM om.profile_fields;
+
+REPLACE INTO stage1.profile_values 
+SELECT *
+FROM om.profile_values;
+
+REPLACE INTO stage1.users_roles 
+SELECT *
+FROM om.users_roles;
+
+REPLACE INTO stage1.url_alias 
+SELECT *
+FROM om.url_alias;
+
+REPLACE INTO stage1.vocabulary 
+SELECT *
+FROM om.vocabulary;
+
+REPLACE INTO stage1.vocabulary_node_types 
+SELECT *
+FROM om.vocabulary_node_types;
+
+REPLACE INTO stage1.term_data 
+SELECT *
+FROM om.term_data;
+
+REPLACE INTO stage1.term_node 
+SELECT *
+FROM om.term_node;
+
+REPLACE INTO stage1.term_hierarchy 
+SELECT *
+FROM om.term_hierarchy;
+
+REPLACE INTO stage1.term_relation 
+SELECT *
+FROM om.term_relation;
+
+REPLACE INTO stage1.files 
+SELECT *
+FROM om.files;
+
+REPLACE INTO stage1.upload 
+SELECT *
+FROM om.upload;
+
+
+REPLACE INTO stage1.content_node_field  
+SELECT *
+FROM om.content_node_field ;
+
+REPLACE INTO stage1.content_node_field_instance 
+SELECT *
+FROM om.content_node_field_instance;
+
+use dev
+CREATE TABLE `content_type_media` (
+  `vid` int(10) unsigned NOT NULL default '0',
+  `nid` int(10) unsigned NOT NULL default '0',
+  `field_xml_value` longtext,
+  `field_identifier_value` longtext,
+  `field_license_value` longtext,
+  PRIMARY KEY  (`vid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8
+
+REPLACE INTO stage1.content_type_media 
+SELECT *
+FROM om.content_type_media;
+
+
+
+REPLACE INTO stage1.variable 
+SELECT *
+FROM om.variable 
+WHERE name like "%ourmedia3%";
+
+REPLACE INTO stage1.variable 
+SELECT *
+FROM om.variable 
+WHERE name LIKE "%front%" OR value LIKE "%front%";
+
+REPLACE INTO stage1.menu_links 
+SELECT *
+FROM om.menu_links 
+WHERE menu_name = "primary-links " OR menu_name = "secondary-links";
+
+REPLACE INTO stage1.role
+SELECT *
+FROM om.role;
+
+REPLACE INTO stage1.boxes 
+SELECT *
+FROM om.boxes;
+
+REPLACE INTO stage1.blocks 
+SELECT *
+FROM om.blocks;
+
+REPLACE INTO stage1.blocks_roles 
+SELECT *
+FROM om.blocks_roles;
+
+
+
+
+
 
 
