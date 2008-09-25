@@ -1,0 +1,13 @@
+#feedback on the Beta site
+
+= User Profile Pages =
+
+* the <div> for right column is set to 615px width, so it can't accommodate wider content. photographs and graphic illustrations frequently exceed this width, and video will eventually begin to exceed this width. perhaps add site ability to resize content? example: http://beta.ourmedia.org/user/145932 (my profile) -Cheryl
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
