@@ -1,14 +1,20 @@
-#feedback on the Beta site
+= Ourmedia Beta Feedback =
 
+= 10/02/08 = 
 
+Jay, Ryanne & Cheryl's notes on  the 8 Tasks
 
-= User Profile Pages =
+#Jay
 
-*visual feedback:* the <div> for right column is set to 615px width, so it can't accommodate wider content. photographs and graphic illustrations frequently exceed this width, and video will eventually begin to exceed this width. perhaps add site ability to resize content? example: http://beta.ourmedia.org/user/145932 (my profile) -Cheryl
+comments here
 
-*usefulness feedback:* when I click the *Channels* tab I am totally overwhelmed. Can channels be tagged or categorized? I'd like to be able to sort the view of the channels by topic, or have some way to help me manage the list (other than by producer or channel name - that doesn't help me discover content unless I already know about it). the channel list is too long, & visually indistinct - I just want to navigate anywhere else -Cheryl
+#Ryanne
 
-*I Can't Make a Channel:* When I try to make a new channel I end up at http://beta.channels.ourmedia.org/node/add/channel and the page says "You are not authorized to access this page." Can you authorize me? I want to learn how and make a how-to tutorial.
+comments here
+
+#Cheryl
+
+comments here
 
 
 = Details =
