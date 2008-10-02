@@ -1,18 +1,18 @@
 = Ourmedia Beta Feedback =
 
-= 10/02/08 = 
+== 10/02/08 == 
 
 Jay, Ryanne & Cheryl's notes on  the 8 Tasks
 
-#Jay
+===Jay===
 
 comments here
 
-#Ryanne
+===Ryanne===
 
 comments here
 
-#Cheryl
+===Cheryl===
 
 comments here
 
