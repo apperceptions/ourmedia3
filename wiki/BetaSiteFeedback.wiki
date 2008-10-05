@@ -26,6 +26,24 @@ we should make sure that when defining 'causes' it does not exclude individuals.
 5- *Claim your Internet Archive Accounts*
 would love ourmedia to have the ability to display all the content i've uploaded on the Archive. i would have an AMAZING profile, as i have about 600 videos there, never have i been able to display that anywhere. WOW.
 
+6- *Showcase being funky*
+under showcase it says:
+"/sites/default/files/missing mediaurl
+No media found for"
+
+7- *Dashboard and Username link to the same thing*
+the ability to edit your profile and look at your stuff in the same place.
+
+8- *User Icons Square Formatted Like Twitter*
+that makes users look more uniform and differnciates them from video icons
+
+9-*Stop video Pages from Auto-Playing
+
+10-*choice of formats on Video Pages, Flash, QT etc*
+
+11- *Featured Producers Links Counter-intuitive*
+user's icon on the featured producers sidebar should link to the user's profile, right now it links to the featured item which is already linked to and a bit counter intuitive.
+
 ===Cheryl===
 
 comments here
