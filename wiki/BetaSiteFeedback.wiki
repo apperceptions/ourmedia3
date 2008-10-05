@@ -44,6 +44,12 @@ that makes users look more uniform and differnciates them from video icons
 11- *Featured Producers Links Counter-intuitive*
 user's icon on the featured producers sidebar should link to the user's profile, right now it links to the featured item which is already linked to and a bit counter intuitive.
 
+12- *Chat with other Users Online*
+would be cool to be able to ping other users who are online
+
+13- *RSS Feeds for Everything*
+users showcase, media, front page, featured producers, in the spotlight, etc.
+
 ===Cheryl===
 
 comments here
