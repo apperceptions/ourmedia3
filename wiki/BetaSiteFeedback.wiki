@@ -10,7 +10,16 @@ comments here
 
 ===Ryanne===
 
-comments here
+1- Notifications Need to Empahsis-
+example:
+    the one that says "Thank you for applying for an account..."
+notification should be in *RED* or have a diff. color background, the plain black blends in too much 'The changes have been saved.'
+
+2- Cause Tab in Profile Editing Section Needs Tweaks-
+    i think it should be defined fields, like Cause Name:    Cause Link:
+    and maybe specify that you can link to outside places? i was a little confused on that
+would be a great place to learn about causes people care about.
+also we should define 'cause' i automatically think of it as a non-profit, but it could (potentially) be a lot of things.
 
 ===Cheryl===
 
