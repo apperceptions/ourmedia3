@@ -10,22 +10,17 @@ comments here
 
 ===Ryanne===
 
-1- Notifications Need to Empahsis-
-example:
-    the one that says "Thank you for applying for an account..."
-notification should be in *RED* or have a diff. color background, the plain black blends in too much 'The changes have been saved.'
+1- *Notifications Need Empahsis*-
+example: the one that says "Thank you for applying for an account..." notification should be in *RED* or have a diff. color background, the plain black blends in too much 'The changes have been saved.'
 
-2- Cause Tab in Profile Editing Section Needs Tweaks-
-    i think it should be defined fields, like Cause Name:    Cause Link:
-    and maybe specify that you can link to outside places? i was a little confused on that
-would be a great place to learn about causes people care about.
-also we should define 'cause' i automatically think of it as a non-profit, but it could (potentially) be a lot of things. 
-also would be cool to have a little sidebar check box option to put your Fav. Causes on your profile sidebar.
+2- *Cause Tab in Profile Editing Section Needs Tweaks*-
+i think it should be defined fields, like Cause Name:    Cause Link:
+and maybe specify that you can link to outside places? i was a little confused on that would be a great place to learn about causes people care about. also we should define 'cause' i automatically think of it as a non-profit, but it could (potentially) be a lot of things. also would be cool to have a little sidebar check box option to put your Fav. Causes on your profile sidebar.
 
-3- Terms of Service Agreement
+3- *Terms of Service Agreement*
 i see that there is a check box for terms of service under 'options', that terms of service should probably get checked when signing up for an account, and that should not be an option IMHO.
 
-4- Marketing OM to Individuals not just 'Causes' or Non-Profits
+4- *Marketing OM to Individuals not just 'Causes' or Non-Profits*
 we should make sure that when defining 'causes' it does not exclude individuals. we want people who are not a part of a non-profit to want to use ourmedia too. but at the same time discourage youtube-y type crazy media. we want to attract people who are about change in the world. action.
 
 ===Cheryl===
