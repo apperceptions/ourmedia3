@@ -35,9 +35,9 @@ No media found for"
 the ability to edit your profile and look at your stuff in the same place.
 
 8- *User Icons Square Formatted Like Twitter*
-that makes users look more uniform and differnciates them from video icons
+that makes users look more uniform and differentiates them from video icons
 
-9-*Stop video Pages from Auto-Playing
+9-*Stop video Pages from Auto-Playing*
 
 10-*choice of formats on Video Pages, Flash, QT etc*
 
@@ -52,7 +52,63 @@ users showcase, media, front page, featured producers, in the spotlight, etc.
 
 ===Cheryl===
 
-comments here
+1- *Login fields need to be labeled*-
+people are used to seeing search fields as well as login fields, may be confused; the search field *is* labeled but it's not as easy to see since it's centered and is a less dominant color
+
+2- *User Profile page media needs resize-ability*
+the <div> for right column is set to 615px width, so it can't accommodate wider content. photographs and graphic illustrations frequently exceed this width, and video will eventually begin to exceed this width. perhaps add site ability to resize content? example: http://beta.ourmedia.org/user/145932 (my profile)
+
+3- *I find "Channels" tab overwhelming*
+Can channels be tagged or categorized? I'd like to be able to sort the view of the channels by topic, or have some way to help me manage the list (other than by producer or channel name - that doesn't help me discover content unless I already know about it). the channel list is too long, & visually indistinct, makes me want to navigate anywhere else
+
+4- *sign on / log in sync*
+beta.channels.ourmedia.org and beta.ourmedia.org are two different sites, need sign-on synced (or when you try to make a channel after logging in, you get "You are not authorized to access this page."
+
+5- *site never finishes loading? Firefox problem?*
+the site seems to slow Firefox to a crawl? I end up having to close other tabs, sometimes restart browser...
+
+6- *site workflows need to be more obvious*
+help users know what to do when they get to Ourmedia. seems like you can (1) upload media, (2) find and share media in Channels and (3) create a producer/user portfolio. Do you need to do these in a particular order? lead people through tasks (like Blogger.com start page you see when not logged in http://www.blogger.com/start)
+
+7- *password security level acceptability could be clarified*
+think it's super cool that the site gives on-the-fly feedback about how secure your password is, but it isn't clear that you can choose a less-secure password - feels like you have to keep changing it until it's "secure enough"
+
+8- *messages & notifications need emphasis*
+Marcus said he could fine-tune CSS to make messages stand out
+
+9- *simplified registration process*
+perhaps registration (sign up) and profile creation could be separated? maybe an "I'll set up my profile later" option, so you can quickly get signed in and start uploading media or playing with channels. some people don't want to add in all that detail for their profile until they're sure they'll be returning and using the site. it's not clear that it's optional, or what will happen if you don't fill it in right away ...
+
+10- *Causes needs clarification*
+I like that "Causes" is a bit open ended, but I think users need guidance - the area for adding "My favorite causes" could use some instruction
+
+11- *My Account > Track*
+if user has not posted any media yet, perhaps that page can say "once you add media you can track it here" - otherwise user can't tell what the page is for. Once media has been added, I do like that I can see when item was updated and if there are replies. But with a media entry I'd want to see things like what Blip.tv offers - statistics on how often item was viewed or downloaded, where viewers found the media, stuff like that
+
+
+12- *Blog Tool needs explanation/tool tips & CSS tweaks*
+I think the "split summary at cursor" feature is cool but will confuse people who don't have a blog and don't know what a post excerpt is. When I view the post, I don't like how it looks, it's hard to read, but I assume you're still working on visual design stuff and this might be improved (more whitespace after the categories would really help, so would differentiating post date and tags from main post somehow - this is all after clicking "read more" to see what came after my post summary
+
+13- *Move Dashboard link up to Login block*
+so all user-specific navigation takes place in same area
+
+14- *improve video thumbnails*
+many are very pixelly looking because a tiny graphic is getting blown up larger than actual size - gives impression that if you click on it, the video will be low quality/low resolution
+
+15- *channel & user subscription within user profiles*
+I think if users could "friend" or "subscribe" to a channel or another producer/user within their profiles it would encourage repeated login - it would sort of "social-media-ize" OurMedia. If I subscribe via RSS, I'm going to interact with the channel through my RSS reader and forget I found it via Ourmedia.
+
+16- *upload/add custom thumbnail option*
+would be nice to have option to submit a thumbnail for media types I upload that can't be displayed in browser... (EPS or PSD files for example), also nice to choose my own video thumbnail if that's possible
+
+
+
+
+
+
+
+
+
 
 
 = Details =
