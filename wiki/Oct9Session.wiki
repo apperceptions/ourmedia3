@@ -35,3 +35,4 @@ since jay kept the list of channels we brainstormed I'm listing them under his n
   * *fix date format* - some of my finds (from searching) showed date of Dec. 31 1969 - somethng wrong with date format
 
   * *check file formats?* - example, found [http://beta.ourmedia.org/node/18612 this] via search but can't play file, follow [http://www.archive.org/details.php?identifier=Raised_Voices_Torinho_on_indigenous_peoples Download Original File] link to Internet Archive, can't play there, follow Resources > [http://ourmedia.org/node/18612  Item at Ourmedia.org] link to old Ourmedia site and the file will play
+  * *clarify Channel Talk* - on channels page, under the player at the top of a channel page, there's a "Channel Talk" area - is there a way to make it clear that's a group blog written by channel participants? I was confused about what it was since it also contained media
