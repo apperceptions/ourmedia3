@@ -26,12 +26,12 @@ since jay kept the list of channels we brainstormed I'm listing them under his n
 
 = Cheryl =
 
-  # *Add ability to search by media type* - would be great if you could restrict an Ourmedia search to only video, or only audio instead of just "Media" and "Image"
+  * *Add ability to search by media type* - would be great if you could restrict an Ourmedia search to only video, or only audio instead of just "Media" and "Image"
 
-  # *Add "your search returned X results" to search results page* - just so you know how much you have to go through, or that you should refine your search
+  * *Add "your search returned X results" to search results page* - just so you know how much you have to go through, or that you should refine your search
 
-  # *migrate old content?* - some video & audio from my search was available on the older Ourmedia site but not newer - is the older content going to be migrated? *let me know if you need an example URL*
+  * *migrate old content?* - some video & audio from my search was available on the older Ourmedia site but not newer - is the older content going to be migrated? *let me know if you need an example URL*
 
-  # *fix date format* - some of my finds (from searching) showed date of Dec. 31 1969 - somethng wrong with date format
+  * *fix date format* - some of my finds (from searching) showed date of Dec. 31 1969 - somethng wrong with date format
 
-  # *check file formats?* - example, found [http://beta.ourmedia.org/node/18612 this] via search but can't play file, follow [http://www.archive.org/details.php?identifier=Raised_Voices_Torinho_on_indigenous_peoples Download Original File] link to Internet Archive, can't play there, follow Resources > [http://ourmedia.org/node/18612  Item at Ourmedia.org] link to old Ourmedia site and the file will play
+  * *check file formats?* - example, found [http://beta.ourmedia.org/node/18612 this] via search but can't play file, follow [http://www.archive.org/details.php?identifier=Raised_Voices_Torinho_on_indigenous_peoples Download Original File] link to Internet Archive, can't play there, follow Resources > [http://ourmedia.org/node/18612  Item at Ourmedia.org] link to old Ourmedia site and the file will play
