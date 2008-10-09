@@ -9,6 +9,8 @@ Add your content here.
 
 since jay kept the list of channels we brainstormed I'm listing them under his name:
 
+== Channels ==
+
   # Rainforest Action Network (RAN)
   # politicalvideo.org
   # Ripe for REMIX (collection mashup source material)
