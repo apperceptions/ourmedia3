@@ -1,4 +1,4 @@
-#summary BHALE 102308BH
+#summary 102308BH BHALE
 
 1. Register and Sign in process:
 
