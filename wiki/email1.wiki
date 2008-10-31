@@ -1,8 +1,4 @@
-#summary One-sentence summary of this page.
-<stephen@pedroff.com> 102408SP
-= Introduction =
-
-Add your content here.
+SPEDROFF 102408SP
 1) Please register (if you're already an Ourmedia member, register a
 2nd dummy account). We want to hear your thoughts on how we can
 simplify the registration process: what info should be included or
@@ -74,12 +70,3 @@ are.) Anything that's as minor as "this link didn't work" would be
 helpful; higher-level observations too.
 
 -- I think I did it, didn't see post right away...
-
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
