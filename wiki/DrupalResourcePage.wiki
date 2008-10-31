@@ -1,11 +1,16 @@
 #summary A list of relevant Drupal resources to this project.
 
-Here's a list of relevant Drupal and other related resources
+== Drupal groups ==
+Here's a list of relevant Drupal and related resources
 
-
-= Drupal groups =
-
- * [http://groups.drupal.org/drupal-dojo Drupal Dojo]- The Drupal Dojo was created for apprentice/journeyman developers who want to increase proficiency, and for experts looking to grow the pool of Drupal talent.
- * [http://groups.drupal.org/drop DROP] is a program dedicated to helping people find easy, short-term ways of making valuable contributions to Drupal, as well as helping them become a part of the Drupal community. 
- * [http://code.google.com/soc/2008/ Google Summer of Code (GSoC)] - is a program that offers student developers stipends to write code for various open source projects. 
  * [http://groups.drupal.org/google-highly-open-participation-contest-ghop/ Google Highly Open Participation Contest (GHOP)] - initiative to get pre-university students involved in open source software development. The contest brought together more than 350 students from around the world to help ten Open Source projects make improvements to their code base, marketing materials, documentation and user experience research.
+  * Note they used an identical system - http://code.google.com/p/google-highly-open-participation-drupal/
+ * [http://groups.drupal.org/drop DROP] is a program dedicated to helping people find easy, short-term ways of making valuable contributions to Drupal, as well as helping them become a part of the Drupal community. 
+  * This group essentially is the continuation of the GHOP project.  
+ * [http://groups.drupal.org/drupal-dojo Drupal Dojo]- The Drupal Dojo was created for apprentice/journeyman developers who want to increase proficiency, and for experts looking to grow the pool of Drupal talent.
+   * Drupal Dojo website - http://drupaldojo.com/
+
+== Process and workflow ==
+
+  * [http://drupal.org/node/206506 Establish guidelines and a workflow for open Drupal development] - This priority task can be revised to integrate this project. 
+  * [http://groups.drupal.org/node/14587 Collective funding, design and development]- We are looking at this system/platform to serve as a conduit for funds. Possibly this also could work for this project.
