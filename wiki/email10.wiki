@@ -1,5 +1,5 @@
-#summary One-sentence summary of this page.
-MBARNES 102408MB
+#summary 102408MB MBARNES
+
 
 On the home page, I could not register. The cursor appears as the
 standard arrow instead of the hand. I was not able to post a comment
