@@ -1,0 +1,76 @@
+#summary One-sentence summary of this page.
+James Precit <jrprecit@gmail.com> 102808
+= Introduction =
+
+Add your content here.
+How's it going JD, my name is James Precit and I am a student of Marie
+Drennan's at SFSU. She asked us to look around your your website
+beta.ourmedia.org to test out it functions and operations. Here are my
+observations of the site as a whole in addition to those regarding the
+specific functions that you asked us to perform.
+Overall, I liked the homepage. I thought it was very clean, organized,
+and free of all the clutter that most sites suffer from. It was also
+very easy for me to navigate from one thing to another, I had no
+problems there. After a brief run through all the main links and
+headings at the top and bottom of the page, which all worked fine for
+me, I created my own portfolio. The registration process was fairly
+simple and quick. I thought it was cool that you could subscribe to
+newsletters and partners, both of which I did. At this point I also
+thought it might be a little more efficient to let users create their
+own password as opposed to generating one for them and then giving
+them access to change it in their account section.
+I then attempted to post a comment on one of the videos in the channel
+section. Unfortunately I was not able to do so. Despite my already
+being logged in on the homepage (it showed me logged in on the top of
+the page) the username and password text boxes showed back up when I
+came to the channel page. After trying to log in again in the
+producers showcase area as well as at the top it would just say that
+either my username or password was invalid. After a few attempts I
+gave up. It just wouldn't let me log in from this page in order to
+post a comment about a movie. I had the same problem on the main page
+when I tried to post one about one of the videos in the spotlight
+section. I would click it and something would start to load but then
+nothing would happen. Of all the various routes I took in order to
+post a comment none of them would work for me.
+Next, I tried to create a channel of my own. I also tried to do this
+in more than one way but none of them allowed me to do so. I first
+went to the channel pages from the main link on the homepage. I then
+clicked the create a channel link but a message came back saying that
+I was not authorized to access this page. I also tried clicking the
+link below 'create your own' and I got the same message. I tried to
+create one again this time from the dashboard link but unfortunately I
+got the same message.
+I thought that the dashboard section was pretty neat. I liked how it
+enabled me as user to navigate and perform different things all from
+only one page as opposed to having to bounce around. I liked how they
+were all put together here.
+It was also from here I went to my portfolio to try and upload a
+profile picture. This definitely worked well. The first picture that I
+chose was successfully uploaded with no problems even though it was a
+few kilobytes too big but it was able to be re sized.
+Also regarding the account/profile section I thought it was a very
+good idea to have all the different options you did in customizing an
+account like causes subscribing to emails and newsletters as well as
+producer information...very cool. I then started to search a bunch of
+different things from the search page. The first thing I searched was
+'McCain' since I had seen that there were a few videos about him in
+the channel section. I was surprised to find that the search yielded
+only three results all articles I thought the videos would have come
+up for sure but they didn't. But maybe the channel section is
+unrelated to the search I'm not sure. I then searched some pretty
+broad things like 'media,' 'copyright' and got vast numbers of results
+back. So overall not too many issues there I feel.
+That's about it from the hour or so I spent messing around on it. I
+sure hope that this helps you work out all the bugs you have
+encountered. I'm looking forward to it being up and running to its
+full potential. It seems like a pretty sweet site.
+Thanks,
+James
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
