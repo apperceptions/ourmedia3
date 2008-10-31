@@ -1,8 +1,5 @@
-#summary One-sentence summary of this page.
-James Precit <jrprecit@gmail.com> 102808
-= Introduction =
+#summary 102808JP JPRECIT
 
-Add your content here.
 How's it going JD, my name is James Precit and I am a student of Marie
 Drennan's at SFSU. She asked us to look around your your website
 beta.ourmedia.org to test out it functions and operations. Here are my
@@ -64,13 +61,3 @@ That's about it from the hour or so I spent messing around on it. I
 sure hope that this helps you work out all the bugs you have
 encountered. I'm looking forward to it being up and running to its
 full potential. It seems like a pretty sweet site.
-Thanks,
-James
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
