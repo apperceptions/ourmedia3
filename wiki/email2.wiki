@@ -1,8 +1,4 @@
-#summary One-sentence summary of this page.
-Bonnie J Hale <bhale@sfsu.edu> 102308BH
-= Introduction =
-
-Add your content here.
+BHALE 102308BH
 1. Register and Sign in process:
 
 Register button in upper right does not open.
@@ -89,12 +85,3 @@ rank Causes?
 Finally something that works well.
 Why would I want to use this site?  What is compelling, or easy?
 Good idea, needs A LOT more work.
-
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
