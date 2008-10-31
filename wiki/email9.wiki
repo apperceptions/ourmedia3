@@ -1,8 +1,5 @@
-#summary One-sentence summary of this page.
-kat nyhan <theysayshesapisces@gmail.com> 103008KN
-= Introduction =
+#summary 103008KN KNYHAN
 
-Add your content here.
 1) The registration process was fine.  No complaints.  I appreciate
 not being forced to put my age, gender, etc.  It really only took one
 minute and the password email came immediately and the link sent me
@@ -39,11 +36,3 @@ direct you to that site.
 that is relevant right now but there were no results for that.  Then I
 searched immigration and a few things came up that were mentioning
 immigration in one way or another.  They were episodes of some series.
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
