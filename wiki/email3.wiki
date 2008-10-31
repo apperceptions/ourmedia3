@@ -1,8 +1,4 @@
 #summary One-sentence summary of this page.
-Conrad Bautista <cb6017@hotmail.com> 102308CB
-= Introduction =
-
-Add your content here.
 Good Morning Mr. Lasica!  I am one of Marie Drennan's students at SF
 State.  I created my own account on your ourmedia website, and was
 able to explore some of the things that your site had to offer.  After
@@ -15,12 +11,3 @@ that it was one of the things that you wanted us to do, but every time
 I tried to create one, it would lead me to a page with a message that
 said I was not authorized to do so.  Other than that, I feel that you
 have a great website on your hands.
-
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
