@@ -1,7 +1,4 @@
-#summary One-sentence summary of this page.
-mailto:buddybibbs@aol.com Matt Piniol 102408MP
-= Introduction =
-
+#summary 102408MP MPINIOL
 Add your content here.
 1. Upon clicking on the register link nothing happened. I tried
 several times and I was never
@@ -31,12 +28,3 @@ dashboard. A section of the dashboard could be used to hold your
 favorite links to open source
 material, similar the links you can find in the learning center.
 6. Finding the location to add your image was intuitive and easy.
-
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
