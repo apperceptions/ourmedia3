@@ -1,0 +1,42 @@
+#summary One-sentence summary of this page.
+mailto:buddybibbs@aol.com Matt Piniol 102408MP
+= Introduction =
+
+Add your content here.
+1. Upon clicking on the register link nothing happened. I tried
+several times and I was never
+redirected. The next day I tried to do the same, but this time I used
+a Mac and it worked!
+2.I like the general layout of the main page, although the Ourmedia
+logo needs some help. The blue
+links (dashboard, forums, etc.) which lie beneath the logo are
+difficult to see. The Open Media
+Directory is my favorite part of the site, I was unaware there were so
+many sites with usable media.
+3.Since I was unable to sign up for an account I did not actually add
+a comment (PC). Posting a
+comment on a video seems very intuitive, the link is placed well, just
+above the video... When
+using a Mac I was able to create an account, but then i found out
+adding a comment was not as
+easy as I previously thought. After watching a video I clicked the add
+my comment link and
+nothing happened.
+4. The create a channel link did not work for me. Clicking the link
+redirected me and I was told I
+was not authorized to create a new channel.
+5. It would be useful if there were options for each individual user
+to customize there own
+dashboard. A section of the dashboard could be used to hold your
+favorite links to open source
+material, similar the links you can find in the learning center.
+6. Finding the location to add your image was intuitive and easy.
+
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
