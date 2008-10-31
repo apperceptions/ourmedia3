@@ -1,0 +1,100 @@
+#summary One-sentence summary of this page.
+Bonnie J Hale <bhale@sfsu.edu> 102308BH
+= Introduction =
+
+Add your content here.
+1. Register and Sign in process:
+
+Register button in upper right does not open.
+I used About link on bottom of page, then Sign up for an Account
+(Typos on Terms of Use and on home page.  You need a good QA!)
+I got an error message that my email address at SF State is not valid.  It is!
+Used alternative email address, which worked, but now login is bad.
+Sign up did not have me create a password.
+Again, I had to go back to About, and Sign up, then click on the Log In tab.
+Password did not work since one was not created.
+Instructions did not tell user that a temporary password or link would
+be emailed to them.
+Finally, I got email. Went to URL.  Error message. Timed out, request
+new password.
+
+This is where I would think that the site was not worth joining.  Too
+much of a hassle to even Register.  I can live without it, thanks.
+Horrible user experience!
+But since I'm doing this for a class, I'll persevere. Arrgh
+
+New Error Message
+You have tried to use a one-time login link which has either been used
+or is no longer valid. Please request a new one using the form below.
+
+So, cutting and pasting the URL into a new browser window does not
+work. Click on the link, then it takes you to page to set up or change
+PW.
+
+Finally in.
+
+2. Front (Home) page:
+Thumbnail graphics are poor quality (viewing site on IE on Windows)
+I'd like to see a better explanation of what the site is about. Social cause?
+Home page graphics and text don't really reflect that well.
+I like your box What's Your Cause
+and subhead: Social media and you,
+But there's not much that would entice me to join at this point.
+
+3. Video
+Why not just embed the video instead of having user select which
+format or download player?  Anyway, I chose Quicktime and it loaded.
+Watched video (Mendelssohn), no place to post comment on same page.
+I'm already logged in, so clicked on Kelsey Z's name a got a big bug:
+Stack overflow. Can't get out.  Clicked Home button, whew
+Clicked on >>Add your comment link at top of Spotlight.  Nada
+
+Moving on . . .
+
+4. Channel
+For starters, when the user clicks on a link that says "Click here to
+create your own Ourmedia channel, It should work!  It did not.  I was
+redirected to a page saying "You are not authorized to access this
+page."
+
+Channels explained should be the first, not third link.
+
+I went to Dasboard, Create a channel and it did not work either.
+
+5. Dashboard
+In general, site navigation looks like it is straightforward, but it's
+not.  Not intuitive once
+user clicks on a tab. Site needs MUCH Better and consistent
+navigation!  For example: How does one get back to Dashboard menu
+without having to click on the Dashboard tab again?
+Did you start with a paper prototype and address navigation at the
+planning stage? Doesn't look like it.
+
+6. Portfolio and pic
+Can't do it. Portfolio link does not work.
+I clicked on next link "View your portfolio"
+At top is Edit link that takes user to:
+
+My Account >> Edit >> Upload picture.
+NOT intuitive, or even semantically logical.
+
+7.  Search
+I put in the word "homeless" and got a bunch of basketball links.  What???
+
+Tried again: "animals":  don't understand irrelevant search results,
+but on page 2 is some kind of PETA link that didn't work.   How do you
+rank Causes?
+
+8. Feedback
+Finally something that works well.
+Why would I want to use this site?  What is compelling, or easy?
+Good idea, needs A LOT more work.
+
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
