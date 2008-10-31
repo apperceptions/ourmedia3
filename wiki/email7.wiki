@@ -1,8 +1,4 @@
-#summary One-sentence summary of this page.
-Jenna Quilalang <jquilalang24@yahoo.com> 102608JQ
-= Introduction =
-
-Add your content here.
+#summary 102608JQ JQUILALANG
 
 1) Please register (if you're already an Ourmedia member, register a
 2nd dummy account). We want to hear your thoughts on how we can
@@ -133,10 +129,3 @@ be kind - we know we have a lot of work in front of us.
 I posted a topic titled Feedback from Jenna Q. Most of it are things
 that I wrote here in this email, but I added a few other things as
 well. You said I can be harsh! haha just kidding, it's not that bad :)
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
