@@ -1,5 +1,5 @@
 #summary One-sentence summary of this page.
-<mbarnes@sfsu.edu> 102408MB
+MBARNES 102408MB
 = Introduction =
 
 Add your content here.
