@@ -1,0 +1,142 @@
+#summary One-sentence summary of this page.
+Jenna Quilalang <jquilalang24@yahoo.com> 102608JQ
+= Introduction =
+
+Add your content here.
+
+1) Please register (if you're already an Ourmedia member, register a
+2nd dummy account). We want to hear your thoughts on how we can
+simplify the registration process: what info should be included or
+left out, etc.
+
+- After registering, it may be a good idea to have a different
+confirmation page that it went through, instead of that little blurb
+on the homepage. I hard a little bit of a hard time figuring out if I
+was actually registered because it looked like I had just went back to
+the homepage.
+
+- The producer information can be left out of the registering process.
+It seems that's better left for the user to fill out once they
+actually have an account.
+
+- Once you log in and use the password provided, the next page says,
+"please change your password," possibly a direct link that says
+"change password here" instead of assuming the user knows its the edit
+button.
+
+2) Go the front page of http://beta.ourmedia.org - what's your general
+impression? Please click around and take notes about what you like or
+what doesn't make sense.
+
+- I like the spotlight video at the very top of the page.(ADD YOUR
+COMMENT link doesn't work) It's eye catching, and draws the user to
+the site.
+
+- Like Youtube, it would be good to add a ratings feature to the
+videos, and then accordingly, a top rated videos category, along with
+the most discussed and in the spotlight
+
+- The learning center tab is pretty interesting. I like that it
+encourages newbies to take a stab at the online video making process.
+
+- It's cool that there's a spot to feature producers. Is there any
+particular way these ones are chosen? It may be a good idea to say how
+in fact you guys choose this, so that way users know what they'd have
+to do to get on the homepage.
+
+- I would like to see a little more information on the homepage
+explaining what exactly ourmedia.org is and what their goal is. The
+"What's you cause?" at the top is a start, but I think it can be a
+little more detailed. I was a little confused at what the site was at
+first. Just some reccomendations: Is it a just another video uploading
+site for producers to create channels? or is it a way for people to
+promote social change? or both? can anyone use it or is it geared
+toward more professional video producers?
+
+- The Rainforest Action Network doesn't quite make sense to me. It
+seems kind of random to be placed on the homepage. Is that a
+particular channel/producer that's being spotlighted? What are their
+videos are about? Can other channels/producers have a spot there as
+well?
+
+- and...I'm not too psyched about the colors...it could be livened up
+just a bit.
+
+3) Please sign in and post a comment about a video that you watched -
+we won't tell you how to do it, so see if you can figure it out.
+
+- Before I watched the video, I got signed out. I clicked on the
+video, and then it signed me out, so I had to sign in again. BUT when
+I tried to sign in, first my new password wasn't recognized, then my
+user name wasn't recognized when I tried to get my password sent to
+me, so I was unable to leave a comment.
+
+- Strangely enough, though, when I returned to the homepage, I was
+signed in. I didn't press the BACK button. I clicked on the ourmedia
+link at the top left, and it returned me to the homepage signed in.
+
+4) Please create a channel and tell us how the process could be improved.
+
+- Again, unable to create a channel because of the problem stated above.
+
+- The channel page could be livelier. A different look to the link
+that says "click here to create an ourmedia channel." A couple of
+sentences to introduce the page would be great i.e. "Do you have a
+cause? Do you create or want to create media about it? Well, here you
+can create your own channel and showcase it to the world..."
+
+- I clicked on the link that explains channels, and I think the
+content on that particular page that it leads me to should be on the
+homepage. If not the direct content, at the very least a link that
+leads users to it. It's very informational and explains things that I
+would have liked to see earlier, rather than through the channels
+page.
+
+5) Please go to your Dashboard (when logged in). Let us know what
+kinds of things you'd like to see in your page of user controls.
+
+- An opportunity to personalize it more. It seems rather dull and
+boring. Put a picture, or customize the colors or theme. Is there a
+difference between your dashboard and profile (i.e. page when you
+click on your username)? That might need some explaining.
+
+6) Please go to your user portfolio page (Dashboard > portfolio) and
+try to add an image or logo to represent you in your user profile.
+
+- Done. Under Edit tab. Change "Edit" to "Edit User Info" so it's more
+specific and precise to what exactly the user is editing. They may
+think it's edit video, edit channel, etc.
+
+7) Please search for something and tell us how the results turned out.
+
+searched for:
+- Obama - no results
+- Sarah Palin - no results
+- Mashup - 3 pages of results
+- Climate change - 1 page
+- Economy - 5 pages
+
+That's it!
+
+The final step is to provide feedback.
+
+To do this, we'd like you to log in and go to the Forums section and
+click on "Feedback and suggestions." Then start your own Forum topic
+within that section, and post all your notes, suggestions and
+criticisms there. Anything that's as minor as "this link didn't work"
+would be helpful; higher-level observations too.
+
+As you'll see, we're not quite there yet in some respects, which is
+why this is called a beta! Don't hold back and don't feel obliged to
+be kind - we know we have a lot of work in front of us.
+
+I posted a topic titled Feedback from Jenna Q. Most of it are things
+that I wrote here in this email, but I added a few other things as
+well. You said I can be harsh! haha just kidding, it's not that bad :)
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
