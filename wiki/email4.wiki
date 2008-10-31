@@ -1,0 +1,57 @@
+#summary One-sentence summary of this page.
+Christine Patacsil <christine.patacsil@gmail.com> 102208CP
+= Introduction =
+
+Add your content here.
+Feedback from Christine P.
+
+1. The registration process was very simple. It was self-explanatory
+from the get go. I one thing that I found irritating was the password
+retrieval. I think it would be better for the user to create their own
+password or even have the option to create their own password.
+
+2. The first thing that I got from the home page was how clean it was.
+But it was sort of odd to me because on some sites, when you create an
+account the dashboard page would automatically open. It was
+interesting that it would directly go to the home page. All of the
+links that I tried on the home page automatically opened which was
+great. It was a bit slow with loading, so I don't know if it's just my
+internet or the site itself. So far, there hadn't been any problems.
+
+3. Posting a comment is where I had the most difficulty. I was already
+logged into my account, but it would say that I have to log in or
+register to post a comment. I would click on the log in link and enter
+my information, but it would say it was wrong. Then I would request
+for a new password and then it would say that the account was not
+valid. So, I was not able to post comments on the videos or podcasts.
+
+4. Creating a channel. This was the same problem as posting the
+comment. I'm already logged in, and the page says that I'm not
+authorized. When I would put in my information, I would get the same
+result from the commenting process.
+
+5. The dashboard doesn't really appeal to me. It may be because it
+looks very plain and not-user-friendly. I think if it had an interface
+similar to tumblr, I would like it more. I really like that it has the
+blog feature though. I know it might be difficult, but it would be
+cool if there was an edit function within the site ala jumpcut.
+
+6. This is another issue similar to 3 and 4.
+
+7. The searches seem pretty reasonable considering it suppose to host
+material that can be shared under creative commons. When I would
+search using general terms such as video games or nba, I would get
+some content varying between podcasts and videos. But when I would
+search for specifics, I would get no search results. I'm guessing it's
+mainly copyrighted material. But I noticed when I would search under
+the internet archive, I would get a few search results. Besides that,
+a majority of the videos played. I noticed that some of the quicktime
+videos didn't fully load.
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
