@@ -1,8 +1,5 @@
-#summary One-sentence summary of this page.
-Christine Patacsil <christine.patacsil@gmail.com> 102208CP
-= Introduction =
+#summary 102208CP CPATACSIL
 
-Add your content here.
 Feedback from Christine P.
 
 1. The registration process was very simple. It was self-explanatory
@@ -47,11 +44,3 @@ mainly copyrighted material. But I noticed when I would search under
 the internet archive, I would get a few search results. Besides that,
 a majority of the videos played. I noticed that some of the quicktime
 videos didn't fully load.
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
