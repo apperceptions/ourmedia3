@@ -9,8 +9,10 @@ Here's a list of relevant Drupal and related resources
   * This group essentially is the continuation of the GHOP project.  
  * [http://groups.drupal.org/drupal-dojo Drupal Dojo]- The Drupal Dojo was created for apprentice/journeyman developers who want to increase proficiency, and for experts looking to grow the pool of Drupal talent.
    * Drupal Dojo website - http://drupaldojo.com/
+   * This channel is essentially open for anyone who wishes to teach a lesson or collaborate on a project. 
 
-== Process and workflow ==
+== Process, workflow, and incentives ==
 
   * [http://drupal.org/node/206506 Establish guidelines and a workflow for open Drupal development] - This priority task can be revised to integrate this project. 
   * [http://groups.drupal.org/node/14587 Collective funding, design and development] - We are looking at this system/platform to serve as a conduit for funds. Possibly this also could work for this project.
+  * [http://drupal.org/node/206158 Support and incentives] - Some pertinent discussion on potential rewards and incentives. Also reference to a draft of a Sponsorship package. 
