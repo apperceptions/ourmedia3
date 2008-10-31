@@ -1,4 +1,5 @@
-BHALE 102308BH
+#summary BHALE 102308BH
+
 1. Register and Sign in process:
 
 Register button in upper right does not open.
