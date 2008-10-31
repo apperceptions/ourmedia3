@@ -1,0 +1,85 @@
+#summary One-sentence summary of this page.
+<stephen@pedroff.com> 102408SP
+= Introduction =
+
+Add your content here.
+1) Please register (if you're already an Ourmedia member, register a
+2nd dummy account). We want to hear your thoughts on how we can
+simplify the registration process: what info should be included or
+left out, etc.
+
+
+--      Not sure if this is a bug, but when I registered, I went back to the
+home page, but no intermediate "an email was sent to..." page.  The message
+- in the header on the home page, wasn't immediately obvious to me.  I think
+the information is fine - the form works, no problem.
+
+2) Go the front page of http://beta.ourmedia.org - what's your general
+impression? Please click around and take notes about what you like or
+what doesn't make sense.
+
+
+--      My first impression is that I'm not sure why I'm 'here.'  What's
+being offered?  There's no context, not even a slogan ("What's your cause?"
+seems kinda vague).  For example:  "Helping Causes Get Videos Produced."
+I'm not suggesting this as a slogan, but something in the nature of
+explaining the context of the site would seem appropriate.
+      I have the impression that this is a community, but my way of
+interacting with it (or even creating my profile) is secondary.  The link,
+"List your favorite causes on your profile page," and the next one, "Discuss
+how to advance a cause," to my mind are the beginnings of a community.
+      I am wondering how the video highlights 'box' that commands most of
+the attention on the page supports the reason that people would be part of
+the community, or use the site?  Why are these videos important?  Will they
+teach me how to make a video, promote a cause, etc.?   I see the text, "Why
+is it spotlighted?" but I don't see the answer.
+      Why do the "Rainforest Action Network," and the "Mashup Madness"
+sections command such a prominent location?  I have the same questions about
+why I should care about these videos.
+      Finally, the section I am inclined to view first is "Featured
+Producers"; not sure how this helps the mission of helping causes, but it's
+interesting.
+
+3) Please sign in and post a comment about a video that you watched -
+we won't tell you how to do it, so see if you can figure it out.
+--      I think the "log in to vote" graphic could be better located,
+larger, and more obvious.  My username and password don't work - perhaps you
+have disabled this beta by now...
+
+4) Please create a channel and tell us how the process could be improved.
+--      Not working.  I received the message, "You are not authorized to
+access this page."
+
+
+5) Please go to your Dashboard (when logged in). Let us know what
+kinds of things you'd like to see in your page of user controls.
+--      I think this covers it.  I might find more as I use the site...
+
+6) Please go to your user portfolio page (Dashboard > portfolio) and
+try to add an image or logo to represent you in your user profile.
+--      Easy.  Site's running slow; assume this is because it's beta.
+
+7) Please search for something and tell us how the results turned out.
+--      I searched on "solar power," and received several results, no videos
+though.
+That's it!
+
+The final step is to provide feedback.
+
+To do this, we'd like you to log in and go to the Forums section and
+click on "Feedback and suggestions." Then start your own Forum topic
+within that section, and post all your notes, suggestions and
+criticisms there. (Sign it with your real name so we know who you
+are.) Anything that's as minor as "this link didn't work" would be
+helpful; higher-level observations too.
+
+-- I think I did it, didn't see post right away...
+
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
