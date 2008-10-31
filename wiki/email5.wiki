@@ -1,8 +1,4 @@
-#summary One-sentence summary of this page.
-Amber Duffy <hotpinkgrass@gmail.com> 102208AD
-= Introduction =
-
-Add your content here.
+#summary 102208AD ADUFFY
 
 This site was interesting. I thought I was going to have a difficult
 time picking out the glitches, but it turned out to be pretty easy.
@@ -59,11 +55,3 @@ topics, so I figure this part of the site works well.
 I can't wait to see this site fixed! It looks like it has great potential.
 
 -Amber Duffy
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
