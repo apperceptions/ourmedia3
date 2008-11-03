@@ -25,14 +25,14 @@ Front Page:
 --can the Showcase change dynamically?
 --can i chat with other users online?
 
-RSS feeds:
---most viewed, latest posted, etc
---add RSS feeds to user profiles
-----can i "Track" a channel like an ebay item
+6- *RSS feeds*
+--most viewed, latest posted, etc <br>
+--add RSS feeds to user profiles <br>
+--can i "Track" a channel like an ebay item
 
 7- *Forum:*
-make voting icon more clear here (http://beta.ourmedia.org/node/445776)
-on reply page, link to other topics: http://beta.ourmedia.org/content/digital-dojo
+Make voting icon more clear here (http://beta.ourmedia.org/node/445776)
+on reply page. Link to other topics: http://beta.ourmedia.org/content/digital-dojo
 
 _
 
