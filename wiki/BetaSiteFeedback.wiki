@@ -6,7 +6,35 @@ Jay, Ryanne & Cheryl's notes on  the 8 Tasks
 
 ===Jay===
 
-comments here
+*Images*
+  thumbnails need to look better
+  profile thumbnails should be square
+
+*Commenting*
+--when i comment on channel page, i shouldnt have to login again
+
+Channels:
+--why on http://beta.ourmedia.org/node/429830, i cant go to full channel?
+--why is date wrong (June 16, 2008, 11:32 pm) on http://beta.ourmedia.org/node/378170
+
+Profile:
+--http://beta.ourmedia.org/node/378170 (my name/profile should link to my profile)
+--be able to link all my archive accounts to ourmedia page
+
+Front Page:
+--can the Showcase change dynamically?
+--can i chat with other users online?
+
+RSS feeds:
+--most viewed, latest posted, etc
+--add RSS feeds to user profiles
+----can i "Track" a channel like an ebay item
+
+Forum:
+--make voting icon more clear here (http://beta.ourmedia.org/node/445776)
+--on reply page, link to other topics: http://beta.ourmedia.org/content/digital-dojo
+
+_
 
 ===Ryanne===
 
