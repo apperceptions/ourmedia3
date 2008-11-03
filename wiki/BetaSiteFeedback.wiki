@@ -8,7 +8,7 @@ Jay, Ryanne & Cheryl's notes on  the 8 Tasks
 
 *Images*
   thumbnails need to look better
-  profile thumbnails should be square
+profile thumbnails should be square
 
 *Commenting*
 --when i comment on channel page, i shouldnt have to login again
