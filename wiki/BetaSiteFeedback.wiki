@@ -30,9 +30,9 @@ RSS feeds:
 --add RSS feeds to user profiles
 ----can i "Track" a channel like an ebay item
 
-Forum:
---make voting icon more clear here (http://beta.ourmedia.org/node/445776)
---on reply page, link to other topics: http://beta.ourmedia.org/content/digital-dojo
+7- *Forum:*
+make voting icon more clear here (http://beta.ourmedia.org/node/445776)
+on reply page, link to other topics: http://beta.ourmedia.org/content/digital-dojo
 
 _
 
