@@ -130,18 +130,100 @@ I think if users could "friend" or "subscribe" to a channel or another producer/
 would be nice to have option to submit a thumbnail for media types I upload that can't be displayed in browser... (EPS or PSD files for example), also nice to choose my own video thumbnail if that's possible
 
 
+=== Beta site feedback from JD and Dave: Short term ===
 
+more [[Beta Site Feedback]]
 
+Following are items that should be addressed before opening the beta review to other parties (not necessarily in order of priority):
 
+* Flash is missing on media pages (on Markus's list)
 
+* the MEDIAmobz sig is far too large and obtrustive on almost every page. Please reduce by 50% and consign to very bottom of the page, not front and center.
 
+* Under "What's your cause" heading, "List your favorite cause on your profile page" doesn't take me to my profile page. What's the url for this?
 
+* I get a garbled page for the Producers Directory:
 
+http://beta.ourmedia.org/producers
 
+* Just created a Forum post (http://beta.ourmedia.org/forums/new-cause-sites) and the date is listed as 1969.
 
-= Details =
+* There should be no left nav on the Learning Center page
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+* There should be no left nav on the Forums page
+
+* There should be no left nav on the Why register page
+
+http://beta.ourmedia.org/why-register
+
+* So on the new site, by default we'll have all the person's media items appear on their profile page?
+
+http://beta.ourmedia.org/user/3
+
+* We agreed to eliminate some of the superfluous items in the left navigation, such as Skills & Services; etc. (don't want to introduce new items that won't carry over to the new Causes site).
+
+* The most discussed tab on front page takes you to a page with zero comments:
+
+http://beta.ourmedia.org/node/359266
+
+* On this media page, the left half of the video player bar is obscured by a white overlay (in Firefox3 on a mac):
+
+http://beta.ourmedia.org/node/39326 
+
+* The Channels page looks unfinished (new channels on right, not left?)
+
+http://beta.channels.ourmedia.org/og
+
+* When I clicked on the Comments: 0 beneath the first thumbnail under Mashup Madness on the front page (for Xmas in NYC), I was instead taken to the page for the 4th thumbnail: Nobody's Perfect.
+
+* Then, when I used the browser button to return to the front page, the entire top right of the front page contained the RAN leopard and Name, Company, Location. (JD has a screenshot.)
+
+* When I clicked on JD Lasica link under Mashup Madness, it took me to Josh Wolf page.
+
+* When I log in, go to my Dashboard and click the first link (Create an Ourmedia Channel), it says: You are not authorized to view this page. 
+
+http://beta.ourmedia.org/dashboard 
+
+* When you're not logged in and click on an item to Comment, it should say:
+
+Please log in to post a comment.
+
+NOT: You are not authorized to post comments.
+
+* The "View more tools" link looks a little off layout (FF3, Seamonkey, Chrome) oddly it looks right in IE7. It is better than it was before.
+
+* Front page breaking completely in IE6. This may be due to some thumbnail images that are actually larger images being scaled with a "max-width"
+
+* On the beta page for channels (http://beta.channels.ourmedia.org/), when you click through to the channel, we're not seeing any media content apart from the default Ourmedia promotional video.
+
+* Clicking the privacy link gives page with formatting issues. http://beta.ourmedia.org/content/markus-sandy ... How can I fix?
+
+* Same with Fair use page: what's with spacing issues?
+
+http://beta.ourmedia.org/rules/fair-use
+
+* The anchor links aren't working on the FAQ pages.
+
+http://beta.ourmedia.org/mission/faq
+
+* Let's lose the "Site map" link in the footer.
+
+=== Dave feedback ===
+
+* Images are fuzzy on the player in the spotlight
+
+* Clicked on Robin Beck, RAN, took me to JD channels, Image is not readable, no verbage, no video , nothing of interest. Clicked on play button and went to channel page, why doesn't it go to media page for RAN?
+
+* Dave experienced same bug with RAN image showing up on home page after hitting back button in browser.
+
+* Set up a channel, not bad, though when I was done there was no “join” button on the channel. Where do I go to add a video or other content to the channel, how do I build it????
+
+* Went to list your favorite causes, didn’t work.
+
+* Where do I upload video?
+
+* Hey it logged me out at some point I just noticed.
+
+* What is the blank area on the left of forums and the learning center?
+
+* None of the product links work at the bottom of the page. FAQ links do not work.
