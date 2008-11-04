@@ -84,7 +84,7 @@ users showcase, media, front page, featured producers, in the spotlight, etc.
 people are used to seeing search fields as well as login fields, may be confused; the search field *is* labeled but it's not as easy to see since it's centered and is a less dominant color
 
 2- *User Profile page media needs resize-ability*
-the <div> for right column is set to 615px width, so it can't accommodate wider content. photographs and graphic illustrations frequently exceed this width, and video will eventually begin to exceed this width. perhaps add site ability to resize content? example: http://beta.ourmedia.org/user/145932 (my profile)
+the div for right column is set to 615px width, so it can't accommodate wider content. photographs and graphic illustrations frequently exceed this width, and video will eventually begin to exceed this width. perhaps add site ability to resize content? example: http://beta.ourmedia.org/user/145932 (my profile)
 
 3- *I find "Channels" tab overwhelming*
 Can channels be tagged or categorized? I'd like to be able to sort the view of the channels by topic, or have some way to help me manage the list (other than by producer or channel name - that doesn't help me discover content unless I already know about it). the channel list is too long, & visually indistinct, makes me want to navigate anywhere else
@@ -132,11 +132,9 @@ would be nice to have option to submit a thumbnail for media types I upload that
 
 === Beta site feedback from JD and Dave ===
 
-Following are items that should be addressed before opening the beta review to other parties (not necessarily in order of priority):
+Following are items that should be addressed before opening the beta review to other parties (not necessarily in order of priority)
 
-* Flash is missing on media pages (on Markus's list)
-
-* the MEDIAmobz sig is far too large and obtrustive on almost every page. Please reduce by 50% and consign to very bottom of the page, not front and center.
+* Flash is missing on media pages 
 
 * Under "What's your cause" heading, "List your favorite cause on your profile page" doesn't take me to my profile page. What's the url for this?
 
