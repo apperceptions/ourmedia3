@@ -130,9 +130,7 @@ I think if users could "friend" or "subscribe" to a channel or another producer/
 would be nice to have option to submit a thumbnail for media types I upload that can't be displayed in browser... (EPS or PSD files for example), also nice to choose my own video thumbnail if that's possible
 
 
-=== Beta site feedback from JD and Dave: Short term ===
-
-more [[Beta Site Feedback]]
+=== Beta site feedback from JD and Dave ===
 
 Following are items that should be addressed before opening the beta review to other parties (not necessarily in order of priority):
 
