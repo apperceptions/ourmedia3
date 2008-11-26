@@ -13,7 +13,7 @@ Instructions:
     ** sudo apt-get update
     ** sudo apt-get upgrade
     ** sudo apt-get install apache2 php5 php5-curl php5-imagick php5-mysql php5-gd mysql-server
-  * Get Drupal 6.4 install
+  * Get Drupal 6.4 install (An installation profile or just a SVN link would do the trick)
   * (Optional) Setup exim email client if you want email notifications
     ** Install and Setup exim4: http://borisbrodsky.com/2007/12/ubuntu-relay-email-server-thro-11.html
     ** Edit authorization credentials in /etc/exim4/passwd.client (*:username:password)
