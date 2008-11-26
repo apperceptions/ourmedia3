@@ -1,0 +1,24 @@
+#summary Instructions for getting ourmedia running on a basic Amazon EC2 image - AMI
+#labels ql
+
+= Development for Ourmedia on EC2 =
+
+This information should get a user from nothing to running a development box of Ourmedia within 15 minutes.
+
+
+= Details =
+
+Instructions:
+  * Get basic ubuntu AMI and run it
+  * Install Apache2, Mysql, PHP-Curl
+  * Get Drupal 6.4 install
+  * (Optional) Setup exim email client if you want email notifications
+    ** Install and Setup exim4: http://borisbrodsky.com/2007/12/ubuntu-relay-email-server-thro-11.html
+    ** Edit authorization credentials in /etc/exim4/passwd.client (*:username:password)
+  * Get current Ourmedia theme and modules from SVN
+  * Get current Ourmedia test database
+  * Play!
+
+I will be updating this page with specifics and command lines as I move along.
+
+Eric
