@@ -2,7 +2,7 @@
 
 = Development for Ourmedia on EC2 =
 
-This information should get a user from nothing to running a development box of Ourmedia within 15 minutes.
+This information should get a user from nothing to running a development box of Ourmedia within 15 minutes.  These instructions assume basic working knowledge of Amazons EC2 platform.
 
 
 = Details =
