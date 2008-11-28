@@ -1,0 +1,1 @@
+<img class='media-image' src='<?php print $mediaurl ?>' />
