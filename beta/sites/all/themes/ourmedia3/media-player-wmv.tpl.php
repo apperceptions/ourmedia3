@@ -1,0 +1,1 @@
+<embed src="<?php print $mediaurl ?>" width="320" height="260" autoplay="false" controller="true" enablejavascript="true"></embed>
