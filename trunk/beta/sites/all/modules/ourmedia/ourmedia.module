@@ -1,0 +1,1015 @@
+<?php
+
+// $Id$
+
+/**
+ * @file
+ * Ourmedia blocks
+ */
+
+/**
+ * Implementation of hook_block().
+ *
+ * This hook both declares to Drupal what blocks are provided by the module, and
+ * generates the contents of the blocks themselves.
+ */
+function ourmedia_block($op = 'list', $delta = 0, $edit = array()) {
+  // The $op parameter determines what piece of information is being requested.
+  switch ($op) {
+    case 'list':
+      $blocks[0] = array(
+        'info'       => t('Ourmedia Showcase Player'),
+        'pages'      => '<front>',
+        'visibility' => 1,
+      );
+      $blocks[1] = array(
+        'info'       => t('Ourmedia Media Player'),
+        'pages'      => 'content/*',
+        'visibility' => 1,
+      );
+      $blocks[2] = array(
+        'info'       => t('Ourmedia Media Details'),
+        'pages'      => 'content/*',
+        'visibility' => 1,
+      );
+      $blocks[3] = array(
+        'info'       => t('Ourmedia Share Media'),
+        'pages'      => 'content/*',
+        'visibility' => 1,
+      );
+      $blocks[4] = array(
+        'info'       => t('Ourmedia Related Media'),
+        'pages'      => 'content/*',
+        'visibility' => 1,
+      );
+      $blocks[5] = array(
+        'info'       => t('Ourmedia Media Comments'),
+        'pages'      => 'content/*',
+        'visibility' => 1,
+      );
+      $blocks[6] = array(
+        'info'       => t('Ourmedia Channel 1'),
+        'pages'      => '<front>',
+        'visibility' => 1,
+      );
+      $blocks[7] = array(
+        'info'       => t('Ourmedia Channel 2'),
+        'pages'      => '<front>',
+        'visibility' => 1,
+      );
+      $blocks[8] = array(
+        'info'       => t('Ourmedia Channel 3'),
+        'pages'      => '<front>',
+        'visibility' => 1,
+      );
+      $blocks[9] = array(
+        'info'       => t('Ourmedia Featured Producers'),
+        'pages'      => '<front>',
+        'visibility' => 1,
+      );
+
+      // A block can provide default settings. In this case we'll enable the
+      // block and make it visible only on the 'node/*' pages.
+      // $blocks[1] = array(
+      //   'info'       => t('Ourmedia: empty block'),
+      //   'status'     => TRUE,
+      //   // 'weight'     => 0,
+      //   'visibility' => 1,
+      //   //'pages'      => 'node/*',
+      // );
+      return $blocks;
+
+    case 'configure':
+      if ($delta == 0)
+        $form = _ourmedia_block_configure_showcase_player();
+      elseif ($delta == 1)
+        $form = _ourmedia_block_configure_media_player();
+      elseif ($delta == 2)
+        $form = _ourmedia_block_configure_media_details();
+      elseif ($delta == 3)
+        $form = _ourmedia_block_configure_media_share();
+      elseif ($delta == 4)
+        $form = _ourmedia_block_configure_media_related();
+      elseif ($delta == 5)
+        $form = _ourmedia_block_configure_media_comments();
+      elseif ($delta == 6)
+        $form = _ourmedia_block_configure_channel1();
+      elseif ($delta == 7)
+        $form = _ourmedia_block_configure_channel2();
+      elseif ($delta == 8)
+        $form = _ourmedia_block_configure_channel3();
+      elseif ($delta == 9)
+        $form = _ourmedia_block_configure_featured();
+      return $form;
+
+    case 'save':
+      if ($delta == 0)
+        _ourmedia_block_save_showcase_player($edit);
+      elseif ($delta == 1)
+        _ourmedia_block_save_media_player($edit);
+      elseif ($delta == 2)
+        _ourmedia_block_save_media_details($edit);
+      elseif ($delta == 3)
+        _ourmedia_block_save_media_share($edit);
+      elseif ($delta == 4)
+        _ourmedia_block_save_media_related($edit);
+      elseif ($delta == 5)
+        _ourmedia_block_save_media_comments($edit);
+      elseif ($delta == 6)
+        _ourmedia_block_save_channel1($edit);
+      elseif ($delta == 7)
+        _ourmedia_block_save_channel2($edit);
+      elseif ($delta == 8)
+        _ourmedia_block_save_channel3($edit);
+      elseif ($delta == 9)
+        _ourmedia_block_save_featured($edit);
+      return;
+
+    case 'view': default:
+      if ($delta == 0)
+        $block = _ourmedia_block_view_showcase_player();
+      elseif ($delta == 1)
+        $block = _ourmedia_block_view_media_player();
+      elseif ($delta == 2)
+        $block = _ourmedia_block_view_media_details();
+      elseif ($delta == 3)
+        $block = _ourmedia_block_view_media_share();
+      elseif ($delta == 4)
+        $block = _ourmedia_block_view_media_related();
+      elseif ($delta == 5)
+        $block = _ourmedia_block_view_media_comments();
+      elseif ($delta == 6)
+        $block = _ourmedia_block_view_channel1();
+      elseif ($delta == 7)
+        $block = _ourmedia_block_view_channel2();
+      elseif ($delta == 8)
+        $block = _ourmedia_block_view_channel3();
+      elseif ($delta == 9)
+        $block = _ourmedia_block_view_featured();
+      return $block;
+  }
+}
+
+function ourmedia_theme() {
+  return array(
+    // 'ourmedia_block_featured' => array(
+    //   'arguments' => array('items' => NULL),
+    //   'template' => 'ourmedia-block-featured',
+    // ),
+    'ourmedia_block_featured_item' => array(
+      'arguments' => array('item' => NULL),
+     // 'template' => 'ourmedia-block-featured-item',
+    ),
+    'media_player_flv' => array(
+      'arguments' => array('mediaurl' => NULL),
+    ),
+    'media_player_qt' => array(
+      'arguments' => array('mediaurl' => NULL),
+    ),
+    'media_player_wmv' => array(
+      'arguments' => array('mediaurl' => NULL),
+    ),
+    'media_player_youtube' => array(
+      'arguments' => array('identifier' => NULL),
+    ),
+    'media_player_mp3' => array(
+      'arguments' => array('mediaurl' => NULL),
+    ),
+    'media_player_image' => array(
+      'arguments' => array('mediaurl' => NULL),
+    ),
+    'media_player_avi' => array(
+      'arguments' => array('mediaurl' => NULL),
+    ),
+    'media_player_divx' => array(
+      'arguments' => array('mediaurl' => NULL),
+    ),
+    'media_player_mpeg' => array(
+      'arguments' => array('mediaurl' => NULL),
+    ),
+    'media_player_swf' => array(
+      'arguments' => array('mediaurl' => NULL),
+    ),
+    // 'ia_preview' => array(
+    //   'arguments' => array('identifier' => NULL),
+    //  // 'template' => 'ourmedia-block-featured-item',
+    // ),
+    // 'producer_portfolio' => array(
+    //   'arguments' => array('account' => NULL, 'fields' => NULL, 'showcase_reel' => NULL, 'reels' => NULL, 'user' => NULL),
+    //  // 'template' => 'ourmedia-block-featured-item',
+    // ),
+    // 'producer_showcase' => array(
+    //   'arguments' => array('account' => NULL, 'reels' => NULL, 'user' => NULL),
+    //  // 'template' => 'ourmedia-block-featured-item',
+    // ),
+    // 'producer_reels' => array(
+    //   'arguments' => array('account' => NULL, 'reels' => NULL, 'user' => NULL),
+    //  // 'template' => 'ourmedia-block-featured-item',
+    // ),
+    // 'ourmedia_block_showcase' => array(
+    //   'arguments' => array('item' => NULL, 'feed' => 0),
+    //   'template' => 'ourmedia-block-showcase',
+    // ),
+  );
+}
+
+function ourmedia_menu() {
+  return $items;
+}
+
+function _ourmedia_block_configure_showcase_player() {
+  $form = array();
+
+  $form['ourmedia_showcase_video'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Video'),
+    '#size' => 70,
+    '#description' => t('URL, path, node id or embed for showcase video. Leave blank for most recent item in first feed.'),
+    '#default_value' => variable_get('ourmedia_showcase_video', 'http://www.youtube.com/v/O-tkqpHnxTI'),
+  );
+  $form['ourmedia_showcase_video_comments'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Comments'),
+    '#size' => 70,
+    '#description' => t('Url, path or node id for showcase comments. Leave blank for most recent item in first feed.'),
+    '#default_value' => variable_get('ourmedia_showcase_video_comments', 'http://www.youtube.com/watch?v=O-tkqpHnxTI&eurl='. $GLOBALS['channels_base_url']),
+  );
+  $form['ourmedia_showcase_video_posterimg'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Poster Image'),
+    '#size' => 70,
+    '#description' => t('Url, path or node id for showcase poster image or preview. Leave blank for default image.'),
+    '#default_value' => variable_get('ourmedia_showcase_video_posterimg', ''),
+  );
+  $form['ourmedia_showcase_feed1'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Feed 1'),
+    '#size' => 70,
+    '#description' => t('Url, path or node id for first showcase tab.'),
+    '#default_value' => variable_get('ourmedia_showcase_feed1', $GLOBALS['channels_base_url'] .'/mediarss/channel/3'),
+  );
+  $form['ourmedia_showcase_feed1num'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Number of items for feed 1'),
+    '#size' => 10,
+    '#description' => t('The number of items to display for the first feed.'),
+    '#default_value' => variable_get('ourmedia_showcase_feed1num', 10),
+  );
+  $form['ourmedia_showcase_feed2'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Feed 2'),
+    '#size' => 70,
+    '#description' => t('Url, path or node id for second showcase tab.'),
+    '#default_value' => variable_get('ourmedia_showcase_feed2', $GLOBALS['channels_base_url'] .'/mediarss/most_discussed'),
+  );
+  $form['ourmedia_showcase_feed2num'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Number of items for feed 2'),
+    '#size' => 10,
+    '#description' => t('The number of items to display for the second feed.'),
+    '#default_value' => variable_get('ourmedia_showcase_feed2num', 10),
+  );
+
+  return $form;
+}
+
+function _ourmedia_block_save_showcase_player($edit = array()) {
+  variable_set('ourmedia_showcase_video', $edit['ourmedia_showcase_video']);
+  variable_set('ourmedia_showcase_video_comments', $edit['ourmedia_showcase_video_comments']);
+  variable_set('ourmedia_showcase_feed1', $edit['ourmedia_showcase_feed1']);
+  variable_set('ourmedia_showcase_feed1num', $edit['ourmedia_showcase_feed1num']);
+  variable_set('ourmedia_showcase_feed2', $edit['ourmedia_showcase_feed2']);
+  variable_set('ourmedia_showcase_feed2num', $edit['ourmedia_showcase_feed2num']);
+}
+
+function _ourmedia_block_view_showcase_player() {
+  $block = array();
+  $block['subject'] = ''; //t('Showcase');
+  $block['content'] = "Ourmedia showcase contents go here"; // over-ride with template?
+  return $block;
+}
+
+
+
+function _ourmedia_block_configure_media_player() {
+  $form = array();
+  // todo: output form
+  return $form;
+}
+
+function _ourmedia_block_save_media_player($edit = array()) {
+  //variable_set('ourmedia_showcase_feed1', $edit['ourmedia_showcase_feed1']);
+  //variable_set('ourmedia_showcase_feed1num', $edit['ourmedia_showcase_feed1num']);
+}
+
+function _ourmedia_block_view_media_player() {
+  $block = array();
+  // test for valid page (e.g., media node/12345 but not node/12345/edit)
+  if ((arg(0) == 'node') && (arg(1) > 0) && (drupal_strlen(arg(2)) == 0)) {
+    //$node = node_load(arg(1));
+    $node = menu_get_object();  // D6
+    if ($node && $node->nid && ($node->type == 'media')) {
+      $block['subject'] = t('Media Player');
+       // over-ride with template?
+      $mediaid = key($node->files);
+      $block['content'] = Ourmedia3_player($node->files[$mediaid]->filepath, $node->files[$mediaid]->filemime);
+    }
+  }
+  return $block;
+}
+
+
+
+function _ourmedia_block_configure_channel1() {
+  $form = array();
+  $form['ourmedia_channel_feed'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Feed'),
+    '#size' => 70,
+    '#description' => t('Url, path or node id for channel.'),
+    '#default_value' => variable_get('ourmedia_channel_feed', $GLOBALS['channels_base_url'] .'/mediarss/channel/3'),
+  );
+  $form['ourmedia_channel_feednum'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Number of items for channel feed'),
+    '#size' => 10,
+    '#description' => t('The number of items to display for the channel feed.'),
+    '#default_value' => variable_get('ourmedia_channel_feednum', 10),
+  );
+  return $form;
+}
+
+function _ourmedia_block_save_channel1($edit = array()) {
+  variable_set('ourmedia_channel_feed', $edit['ourmedia_channel_feed']);
+  variable_set('ourmedia_channel_feednum', $edit['ourmedia_channel_feednum']);
+}
+
+function _ourmedia_block_view_channel1() {
+  $block = array();
+  $block['subject'] = t('Channel');
+  $block['content'] = "Ourmedia Channel goes here"; // over-ride with template?
+  return $block;
+}
+
+
+
+function _ourmedia_block_configure_channel2() {
+  $form = array();
+  $form['ourmedia_channel_feed2'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Feed'),
+    '#size' => 70,
+    '#description' => t('Url, path or node id for channel.'),
+    '#default_value' => variable_get('ourmedia_channel_feed2', $GLOBALS['channels_base_url'] .'/mediarss/channel/171'),
+  );
+  $form['ourmedia_channel_feednum2'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Number of items for channel feed'),
+    '#size' => 10,
+    '#description' => t('The number of items to display for the channel feed.'),
+    '#default_value' => variable_get('ourmedia_channel_feednum2', 10),
+  );
+  return $form;
+}
+
+function _ourmedia_block_save_channel2($edit = array()) {
+  variable_set('ourmedia_channel_feed2', $edit['ourmedia_channel_feed2']);
+  variable_set('ourmedia_channel_feednum2', $edit['ourmedia_channel_feednum2']);
+}
+
+function _ourmedia_block_view_channel2() {
+  $block = array();
+  $block['subject'] = t('Channel');
+  $block['content'] = "Ourmedia Channel 2 goes here"; // over-ride with template?
+  return $block;
+}
+
+
+
+function _ourmedia_block_configure_channel3() {
+  $form = array();
+  $form['ourmedia_channel_feed3'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Feed'),
+    '#size' => 70,
+    '#description' => t('Url, path or node id for channel.'),
+    '#default_value' => variable_get('ourmedia_channel_feed3', $GLOBALS['channels_base_url'] .'/mediarss/channel/2321'),
+  );
+  $form['ourmedia_channel_feednum3'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Number of items for channel feed'),
+    '#size' => 10,
+    '#description' => t('The number of items to display for the channel feed.'),
+    '#default_value' => variable_get('ourmedia_channel_feednum3', 10),
+  );
+  return $form;
+}
+
+function _ourmedia_block_save_channel3($edit = array()) {
+  variable_set('ourmedia_channel_feed3', $edit['ourmedia_channel_feed3']);
+  variable_set('ourmedia_channel_feednum3', $edit['ourmedia_channel_feednum3']);
+}
+
+function _ourmedia_block_view_channel3() {
+  $block = array();
+  $block['subject'] = t('Channel');
+  $block['content'] = "Ourmedia Channel 3 goes here"; // over-ride with template?
+  return $block;
+}
+
+
+
+function _ourmedia_block_configure_featured() {
+  $form = array();
+  $form['ourmedia_featured_feed'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Feed'),
+    '#size' => 70,
+    '#description' => t('Url, path or node id for channel.'),
+    '#default_value' => variable_get('ourmedia_featured_feed', $GLOBALS['channels_base_url'] .'/mediarss/channel/2653'),
+  );
+  $form['ourmedia_channel_feednum'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Number of items for featured feed'),
+    '#size' => 10,
+    '#description' => t('The number of items to display for the featured feed.'),
+    '#default_value' => variable_get('ourmedia_featured_feednum', 10),
+  );
+  return $form;
+}
+
+function _ourmedia_block_save_featured($edit = array()) {
+  variable_set('ourmedia_featured_feed', $edit['ourmedia_featured_feed']);
+  variable_set('ourmedia_featured_feednum', $edit['ourmedia_featured_feednum']);
+}
+
+function _ourmedia_block_view_featured() {
+  $block = array();
+  $block['subject'] = t('Featured Producers');
+  //$block['content'] = "Ourmedia featured oroducers goes here"; // over-ride with template?
+
+  $feedurl = variable_get('ourmedia_featured_feed', $GLOBALS['channels_base_url'] .'/mediarss/channel/2653');
+  $feednum = variable_get('ourmedia_featured_feednum', 12);
+
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_HEADER, FALSE);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+  curl_setopt($ch, CURLOPT_HTTPGET, TRUE);
+  curl_setopt($ch, CURLOPT_URL, $feedurl);
+  $xmlstr = curl_exec($ch);
+  curl_close($ch);
+
+  $items = array();
+
+  // TODO: refactor to make a single method for parsing feeds to items
+  // pass feed and theme name as argument?
+  $xml = ia_parse($xmlstr);
+  $channel = $xml['RSS'][0]['CHANNEL'][0];
+  // todo: use channel title for tab titles?
+  $channelitems = $channel['ITEM'];
+  foreach ($channelitems as $channelitem) {
+    $item->link = $channelitem['LINK'][0]['VALUE'];
+    $item->mediaposturl = $channelitem['OURMEDIA:MEDIAPOST'][0]['VALUE'];
+    $item->mediaurl = $channelitem['MEDIA:CONTENT'][0]['ATTRIBUTES']['URL'];
+    $item->mediatitle = check_plain($channelitem['TITLE'][0]['VALUE']);
+    $item->mediadescription = check_plain($channelitem['DESCRIPTION'][0]['VALUE']);
+    if (strpos($item->mediadescription, '&lt;') === 0)
+      $item->mediadescription = "Click to view media ... ";
+    $item->artistname = check_plain($channelitem['OURMEDIA:ARTIST'][0]['VALUE']);
+    $item->artisturl = $channelitem['OURMEDIA:ARTISTURL'][0]['VALUE'];
+    $item->mediathumbnailurl = $channelitem['MEDIA:THUMBNAIL'][0]['ATTRIBUTES']['URL'];
+    if (drupal_strlen($item->mediathumbnailurl)==0)
+      $item->mediathumbnailurl = $channelitem['OURMEDIA:IMAGE'][0]['VALUE'];
+    $item->mediaposterimg = $channelitem['OURMEDIA:POSTERIMG'][0]['VALUE'];
+    $item->mediatype = $channelitem['MEDIA:CONTENT'][0]['ATTRIBUTES']['TYPE'];
+    $item->commenturl = $channelitem['OURMEDIA:COMMENTS'][0]['VALUE'];
+    $items[] = theme('ourmedia_block_featured_item', $item);
+  }
+
+  // Only display the block if there are items to show.
+  if (count($items) > 0)
+    $block['content'] = theme('item_list', $items);
+
+  return $block;
+}
+
+
+
+/*
+function _ourmedia_block_configure_XXXXXXXX() {
+  $form = array();
+  // todo: output form for XXXXXXXX
+  return $form;
+}
+
+function _ourmedia_block_save_XXXXXXXX() {
+  //variable_set('ourmedia_XXXXXXXX', $edit['ourmedia_XXXXXXXX']);
+  //variable_set('ourmedia_XXXXXXXXnum', $edit['ourmedia_XXXXXXXXnum']);
+}
+
+function _ourmedia_block_view_XXXXXXXX() {
+  $block = array();
+  $block['subject'] = t('XXXXXXXX');
+  $block['content'] = "Ourmedia XXXXXXXX goes here"; // over-ride with template?
+  return $block;
+}
+
+ */
+
+function _ourmedia_block_configure_media_details() {
+  $form = array();
+  // todo: output form for details
+  return $form;
+}
+
+function _ourmedia_block_save_media_details() {
+  //variable_set('ourmedia_details', $edit['ourmedia_details']);
+  //variable_set('ourmedia_detailsnum', $edit['ourmedia_detailsnum']);
+}
+
+function _ourmedia_block_view_media_details() {
+  $block = array();
+  // test for valid page (e.g., media node/12345 but not node/12345/edit)
+  if ((arg(0) == 'node') && (arg(1) > 0) && (drupal_strlen(arg(2)) == 0)) {
+    // $node = node_load(arg(1));
+    $node = menu_get_object();  // D6
+    if ($node && $node->nid && ($node->type == 'media')) {
+      $block['subject'] = t('Media Details');
+       // over-ride with template?
+      //$block['content'] = "Ourmedia media details goes here for " . $node->title;
+      $block['content'] = $node->body;
+    }
+  }
+  return $block;
+}
+
+
+
+function _ourmedia_block_configure_media_share() {
+  $form = array();
+  // todo: output form for media_share
+  return $form;
+}
+
+function _ourmedia_block_save_media_share() {
+  //variable_set('ourmedia_media_share', $edit['ourmedia_media_share']);
+  //variable_set('ourmedia_media_sharenum', $edit['ourmedia_media_sharenum']);
+}
+
+function _ourmedia_block_view_media_share() {
+  $block = array();
+  // test for valid page (e.g., media node/12345 but not node/12345/edit)
+  if ((arg(0) == 'node') && (arg(1) > 0) && (drupal_strlen(arg(2)) == 0)) {
+    //$node = node_load(arg(1));
+    $node = menu_get_object();  // D6
+    if ($node && $node->nid && ($node->type == 'media')) {
+      $block['subject'] = t('Share Media');
+       // over-ride with template?
+      $block['content'] = "Ourmedia share media goes here for " . $node->title;
+    }
+  }
+  return $block;
+}
+
+
+
+function _ourmedia_block_configure_media_comments() {
+  $form = array();
+  // todo: output form for media_comments
+  return $form;
+}
+
+function _ourmedia_block_save_media_comments() {
+  //variable_set('ourmedia_media_comments', $edit['ourmedia_media_share']);
+  //variable_set('ourmedia_media_comments', $edit['ourmedia_media_sharenum']);
+}
+
+function _ourmedia_block_view_media_comments() {
+  $block = array();
+  // test for valid page (e.g., media node/12345 but not node/12345/edit)
+  if ((arg(0) == 'node') && (arg(1) > 0) && (drupal_strlen(arg(2)) == 0)) {
+    //$node = node_load(arg(1));
+    $node = menu_get_object();  // D6
+    if ($node && $node->nid && ($node->type == 'media')) {
+      $block['subject'] = t('Media Comments');
+       // over-ride with template?
+      $block['content'] = "Ourmedia media comments goes here for " . $node->title;
+    }
+  }
+  return $block;
+}
+
+
+
+function _ourmedia_block_configure_media_related() {
+  $form = array();
+  // todo: output form for media_related
+  return $form;
+}
+
+function _ourmedia_block_save_media_related() {
+  //variable_set('ourmedia_media_related', $edit['ourmedia_media_related']);
+  //variable_set('ourmedia_media_relatednum', $edit['ourmedia_media_relatednum']);
+}
+
+function _ourmedia_block_view_media_related() {
+  $block = array();
+  // test for valid page (e.g., media node/12345 but not node/12345/edit)
+  if ((arg(0) == 'node') && (arg(1) > 0) && (drupal_strlen(arg(2)) == 0)) {
+    //$node = node_load(arg(1));
+    $node = menu_get_object();  // D6
+    if ($node && $node->nid && ($node->type == 'media')) {
+      $block['subject'] = t('Related Media');
+       // over-ride with template?
+      $block['content'] = "Ourmedia related media goes here for " . $node->title;
+    }
+  }
+  return $block;
+}
+
+
+function ourmedia_preprocess_block(&$variables) {
+  if (($variables['block']->module == "ourmedia") && ($variables['block']->delta == 6)) {
+    $variables['template_files'][] = 'ourmedia-block-channel';
+    $variables['channel_feed'] = variable_get('ourmedia_channel_feed', $GLOBALS['channels_base_url'] ."/mediarss/channel/3");
+    $variables['channel_feed_num'] = variable_get('ourmedia_channel_feednum', "10");
+  }
+  if (($variables['block']->module == "ourmedia") && ($variables['block']->delta == 7)) {
+    $variables['template_files'][] = 'ourmedia-block-channel';
+    $variables['channel_feed'] = variable_get('ourmedia_channel_feed2', $GLOBALS['channels_base_url'] ."/mediarss/channel/171");
+    $variables['channel_feed_num'] = variable_get('ourmedia_channel_feednum2', "10");
+  }
+  if (($variables['block']->module == "ourmedia") && ($variables['block']->delta == 8)) {
+    $variables['template_files'][] = 'ourmedia-block-channel';
+    $variables['channel_feed'] = variable_get('ourmedia_channel_feed3', $GLOBALS['channels_base_url'] ."/mediarss/channel/2321");
+    $variables['channel_feed_num'] = variable_get('ourmedia_channel_feednum3', "10");
+  }
+  // if (($variables['block']->module == "ourmedia") && ($variables['block']->delta == 9)) {
+  //   $variables['template_files'][] = 'ourmedia-block-featured';
+  //
+  //   //_ourmedia_preprocess_ourmedia_block_featured_item($variables);
+  // }
+  if (($variables['block']->module == "ourmedia") && ($variables['block']->delta == 0)) {
+    $variables['template_files'][] = 'ourmedia-block-showcase';
+
+    $feed1url = variable_get('ourmedia_showcase_feed1', $GLOBALS['channels_base_url'] .'/mediarss/channel/3');
+    $feed2url = variable_get('ourmedia_showcase_feed2', $GLOBALS['channels_base_url'] .'/mediarss/most_discussed');
+    $feed1num = variable_get('ourmedia_showcase_feed1num', 12);
+    $feed2num = variable_get('ourmedia_showcase_feed2num', 12);
+    $showcase_video = variable_get('ourmedia_showcase_video', '');
+    $showcase_video_comments = variable_get('showcase_video_comments', '');
+    $urls = array($feed1url, $feed2url);
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_HEADER, FALSE);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+    curl_setopt($ch, CURLOPT_HTTPGET, TRUE);
+    $cnt = 0;
+    foreach ($urls as $url) {
+      $cnt++;
+      curl_setopt($ch, CURLOPT_URL, $url);
+      $xmlstr = curl_exec($ch);
+
+      $xml = ia_parse($xmlstr);
+      $channel = $xml['RSS'][0]['CHANNEL'][0];
+      // todo: use channel title for tab titles?
+      $channelitems = $channel['ITEM'];
+      foreach ($channelitems as $channelitem) {
+        $item->link = $channelitem['LINK'][0]['VALUE'];
+        $item->mediaposturl = $channelitem['OURMEDIA:MEDIAPOST'][0]['VALUE'];
+        $item->mediaurl = $channelitem['MEDIA:CONTENT'][0]['ATTRIBUTES']['URL'];
+        $item->mediatitle = check_plain($channelitem['TITLE'][0]['VALUE']);
+        $item->mediadescription = check_plain($channelitem['DESCRIPTION'][0]['VALUE']);
+        if (strpos($item->mediadescription, '&lt;') === 0)
+          $item->mediadescription = "Click to view media ... ";
+        $item->artistname = check_plain($channelitem['OURMEDIA:ARTIST'][0]['VALUE']);
+        $item->artisturl = $channelitem['OURMEDIA:ARTISTURL'][0]['VALUE'];
+        $item->mediathumbnailurl = $channelitem['MEDIA:THUMBNAIL'][0]['ATTRIBUTES']['URL'];
+        if (drupal_strlen($item->mediathumbnailurl)==0)
+          $item->mediathumbnailurl = $channelitem['OURMEDIA:IMAGE'][0]['VALUE'];
+        $item->mediaposterimg = $channelitem['OURMEDIA:POSTERIMG'][0]['VALUE'];
+        //  $item->mediaposterimg = $channelitem['OURMEDIA:POSTERIMG'][0]['ATTRIBUTES']['URL'];
+        $item->mediatype = $channelitem['MEDIA:CONTENT'][0]['ATTRIBUTES']['TYPE'];
+        $item->commenturl = $channelitem['OURMEDIA:COMMENTS'][0]['VALUE'];
+        $feeds[$cnt][$channelitem['GUID'][0]['VALUE']] = $item;
+        if (drupal_strlen($showcase_video) == 0) {
+          $showcase_video = $item->mediaurl;
+          $showcase_video_comments = $item->commenturl;
+          $showcase_video_posterimg = $item->mediaposterimg;
+        }
+      }
+    }
+    curl_close($ch);
+    $variables['showcase_feeds'] = $feeds;
+    $variables['showcase_feed1url'] = $feed1url;
+    $variables['showcase_feed2url'] = $feed2url;
+    $variables['showcase_feed1num'] = $feed1num;
+    $variables['showcase_feed2num'] = $feed2num;
+    $variables['showcase_video'] = $showcase_video;
+    $variables['showcase_video_comments'] = $showcase_video_comments;
+    if (drupal_strlen($showcase_video_posterimg)==0)
+      $showcase_video_posterimg = 'images/video320x240.gif';
+    $variables['showcase_video_posterimg'] = $showcase_video_posterimg;
+  }
+}
+
+
+// make this a theme feature?  admin? list of pages to apply to?
+function ourmedia_preprocess_page(&$variables) {
+  //var_dump($variables);
+  //var_dump($variables['template_files']);  
+  // look for og, which may not be most recent
+  // also, producer page
+  if (in_array("page-og", $variables['template_files']) || in_array("page-producers", $variables['template_files'])) {
+    $variables['template_files'][] = 'page-wide';
+  }
+
+  if (in_array("page-user-register", $variables['template_files']) && ($GLOBALS['ourmedia_base_url'] != $GLOBALS['base_url'])) {
+    drupal_goto($GLOBALS['ourmedia_base_url'] ."/user/register");
+  }
+}
+
+function ourmedia_preprocess_ourmedia_block_featured_item(&$variables) {
+  $item = $variables['item'];
+
+  $title = drupal_substr(strip_tags(check_plain($item->mediatitle)), 0, 22);
+  $link = check_url($item->mediaposturl);
+  $description = trim(strip_tags(check_plain($item->mediadescription)));
+  if ((strpos($description, '<') !== FALSE) || (strpos($description, '&lt;') !== FALSE) || (drupal_strlen($description) == 0))
+    $description = "More";
+  $description = drupal_substr($description, 0, 65) ." ... ";
+  $author = $item->artistname;
+  if ($author) {
+    $u = user_load(array("name" => $author));
+    if ($u->uid) {
+      if ($u->picture)
+        $artistpicurl = $u->picture;
+      $artisturl = "/user/" . $u->uid;
+      if (drupal_strlen(trim($u->profile_biography)))
+        $description = drupal_substr($u->profile_biography, 0, 40) ." ... ";
+    }
+  }
+  else
+    $author = "";
+  $author = drupal_substr(strip_tags(check_plain($author)), 0, 20);
+  if (drupal_strlen($artisturl) == 0)
+    $artisturl = $item->artisturl;
+
+  $variables['title'] = $title;
+  $variables['link'] = $link;
+  $variables['description'] = $description;
+  $variables['author'] = $author;
+  $variables['artisturl'] = $artisturl;
+  $variables['artistpicurl'] = $artistpicurl;
+}
+
+
+// IMPORTANT NOTE: players need to be embeddable, so no relative urls please
+function ourmedia_media_player($mediaurl, $extension, $height = "360", $width = "480", $autostart = "false") {
+
+  //init_theme();
+  $theme_path = path_to_theme();
+  global $base_url, $ourmedia_base_url;
+
+  // handle mimetypes as well as extensions
+  if (strpos($extension, "/") > 0)
+    list($media, $extension) = split("/", $extension);
+
+  if (strpos($mediaurl, "http:") === FALSE) {
+    if (strpos($mediaurl, "/") !== 0) {
+      if (strpos($mediaurl, "sites/default/files") === FALSE)
+        $mediaurl = $base_url ."/sites/default/files/". $mediaurl;
+      else
+        $mediaurl = $base_url .'/'. $mediaurl;
+    }
+    else {
+      $mediaurl = $base_url . $mediaurl;
+    }
+  }
+
+  if (($extension == "mov") || ($extension == "mp4") || ($extension == "m4v") || ($extension == "x-m4v") || ($extension == "mpg") || ($extension == "mpv") || ($extension == "quicktime") || ($extension == "3gpp") || ($extension == "dv") || (($media == "video") && ($extension =="mpeg")) || ($extension == "octet-stream")) {
+    $output = "<embed src=\"$mediaurl\" pluginspage=\"http://www.apple.com/quicktime/download/\" width=\"$width\" height=\"$height\" autoplay=\"$autostart\" controller=\"true\" enablejavascript=\"true\" scale=\"aspect\"></embed>";
+    return $output;
+  }
+
+  if ($extension == "divx") {
+    $height = "212";
+    $output = "<object classid=\"clsid:67DABFBF-D0AB-41fa-9C46-CC0F21721616\" width=\"$width\" height=\"$height\" codebase=\"http://go.divx.com/plugin/DivXBrowserPlugin.cab\"><param name=\"src\" value=\"$mediaurl\" /><embed type=\"video/divx\" src=\"$mediaurl\" autoPlay=\"$autostart\" width=\"$width\" height=\"$height\" pluginspage=\"http://go.divx.com/plugin/download/\"></embed></object>";
+    return $output;
+  }
+
+  if (($extension == "avi") || ($extension == "wmv") || ($extension == "x-msvideo") || ($extension == "x-msvideo") || ($extension == "x-ms-wvx") || ($extension == "x-ms-wmv") || ($extension == "x-ms-asf"))  {
+    $output = "<embed src=\"$mediaurl\" type=\"application/x-mplayer2\" pluginspage=\"http://microsoft.com/windows/mediaplayer/en/download/\" id=\"mediaPlayer\" name=\"mediaPlayer\" displaysize=\"4\" autosize=\"-1\" bgcolor=\"darkblue\" showcontrols=\"true\" showtracker=\"-1\" showdisplay=\"0\" showstatusbar=\"-1\" videoborder3d=\"-1\" width=\"$width\" height=\"$height\" autostart=\"$autostart\" designtimesp=\"5311\ loop=\"true\"></embed>";
+  // $output = "<embed src=\"$mediaurl\" width=\"$width\" height=\"$height\" autoplay=\"$autostart\" controller=\"true\" enablejavascript=\"true\"></embed>";
+    return $output;
+  }
+
+  if (($extension == "mp3") || (($media == "audio") && ($extension =="mpeg"))) {
+    $height = "15";
+    $output = "<embed src=\"$mediaurl\" pluginspage=\"http://www.apple.com/quicktime/download/\" width=\"$width\" height=\"$height\" autoplay=\"$autostart\" controller=\"true\" enablejavascript=\"true\"></embed>";
+    return $output;
+  }
+
+  if (($extension == "rm") || ($extension == "ram")) {
+    $output = "<embed src=\"$mediaurl\" type=\"audio/x-pn-realaudio-plugin\" width=\"$width\" height=\"$height\" controls=\"ImageWindow\" console=\"one\" autostart=\"$autostart\"></embed>";
+    return $output;
+  }
+
+  if (($extension == "swf") || ($extension == "x-shockwave-flash")) {
+    $output =  "<object classid=\"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000\" codebase=\"http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0\" width=\"$width\" height=\"$height\"> <param name=\"movie\" value=\"$mediaurl\"> <param name=\"quality\" value=\"high\"><param name=\"bgcolor\" value=\"#FFFFFF\"> <param name=\"loop\" value=\"true\"><embed src=\"$mediaurl\" quality=\"high\" bgcolor=\"#FFFFFF\" width=\"$width\" height=\"$height\" loop=\"true\" type=\"application/x-shockwave-flash\"  pluginspage=\"http://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash\"></embed></object>";
+    return $output;
+  }
+
+  if (($extension == "flv") || ($extension == "x-flv")) {
+    $mediaurl = urlencode($mediaurl);
+    $output = "<embed src=\"$ourmedia_base_url/$theme_path/players/flowplayer/FlowPlayerLight.swf?config=%7Bembedded%3Atrue%2CshowFullScreenButton%3Atrue%2CshowMuteVolumeButton%3Atrue%2CshowMenu%3Atrue%2CautoBuffering%3Atrue%2CautoPlay%3A$autostart%2CinitialScale%3A%27fit%27%2CmenuItems%3A%5Bfalse%2Cfalse%2Cfalse%2Cfalse%2Ctrue%2Ctrue%2Cfalse%5D%2CusePlayOverlay%3Afalse%2CshowPlayListButtons%3Atrue%2CplayList%3A%5B%7Burl%3A%27$mediaurl%27%7D%5D%2CcontrolBarGloss%3A%27high%27%2CshowVolumeSlider%3Atrue%2CbaseURL%3A%27http%3A%2F%2Fwww%2Earchive%2Eorg%2Fdownload%2F%27%2Cloop%3Afalse%2CcontrolBarBackgroundColor%3A%270x000000%27%7D\" width=\"$width\" height=\"$height\" scale=\"noscale\" bgcolor=\"111111\" type=\"application/x-shockwave-flash\" allowFullScreen=\"true\" allowScriptAccess=\"always\" allowNetworking=\"all\" pluginspage=\"http://www.macromedia.com/go/getflashplayer\"></embed>";
+    return $output;
+  }
+  
+  if (($extension == "jpg") || ($extension == "jpeg") || ($extension == "gif") || ($extension == "png") || ($extension == "svg") || ($extension == "tiff") || ($extension == "bmp")) {
+    $output = theme("media_player_image", $mediaurl);
+    return $output;
+  }
+
+}
+
+
+/**
+ * Override or insert PHPTemplate variables into the search_block_form template.
+ *
+ * @param $vars
+ *   A sequential array of variables to pass to the theme template.
+ * @param $hook
+ *   The name of the theme function being called (not used in this case.)
+ */
+function ourmedia_preprocess_search_block_form(&$vars, $hook) {
+  // Modify elements of the search form
+
+  $vars['form']['search_block_form']['#title'] = t('Search');
+
+  // $vars['form']['search_block_form']['select_source'] = array(
+  //   '#type' => 'select',
+  //   '#default_value' => 0,
+  //   '#options' => array(t("Media"), t("Channels"), t("Producers"), t("Learning Center")),
+  // );
+
+// add the option before the submit
+  $newitem = array();
+/*
+  $newitem['select_source'] = array(
+    '#type' => 'select',
+    '#default_value' => 0,
+    '#id' => 'select-source',
+    '#name' => 'select_source',
+    '#options' => array(t("Media"), t("Channels"), t("Producers"), t("Learning Center")),
+    '#attributes' => array('onchange'=>'selectSearchTarget();'),
+    '#suffix' => '<script type="text/javascript"> function selectSearchTarget() { var a = new Array(); a[0] = "/search/node"; a[1] = "'. $GLOBALS['channels_base_url'] .'/og/all"; a[2] =  "/search/profile"; a[3] = "/search/node"; var n = new Array();n[0] = "keys"; n[1] = "filter0"; n[2] =  "keys"; n[3] = "keys"; var m = new Array(); m[0] = "post"; m[1] = "get"; m[2] =  "post"; m[3] = "post"; var s = document.getElementById("select-source"); var f = document.getElementById("search-block-form"); f.action = a[s.selectedIndex]; f.method = m[s.selectedIndex]; var i = document.getElementById("edit-search-block-form-1"); i.name = n[s.selectedIndex]; }</script>',
+  );
+ */
+$newitem['select_source'] = array(
+    '#type' => 'select',
+    '#default_value' => 0,
+    '#id' => 'select-source',
+    '#name' => 'select_source',
+    '#options' => array(t("Media"), t("Channels")),
+    '#attributes' => array('onchange' => 'selectSearchTarget()'),
+    '#suffix' => '<script type="text/javascript"> function selectSearchTarget() { var a = new Array(); a[0] = "/search/node"; a[1] = "'. $GLOBALS['channels_base_url'] .'/og/all"; var n = new Array(); n[0] = "keys"; n[1] = "filter0"; var m = new Array(); m[0] = "post"; m[1] = "get"; var s = document.getElementById("select-source"); /*alert(s.options[s.selectedIndex].text + " = " + s.selectedIndex);*/  var f = document.getElementById("search-block-form"); f.action = a[s.selectedIndex]; f.method = m[s.selectedIndex]; var i = document.getElementById("edit-search-block-form-1"); i.name = n[s.selectedIndex]; }</script>',
+  );
+  $pos = array_search('submit', array_keys($vars['form']));
+  $vars['form'] = array_merge(array_slice($vars['form'], 0, $pos), $newitem, array_slice($vars['form'], $pos));
+
+ //var_dump($vars['form']);
+
+  // Rebuild the rendered version (search form only, rest remains unchanged)
+
+  unset($vars['form']['search_block_form']['#printed']);
+  $vars['search']['search_block_form'] = drupal_render($vars['form']['search_block_form']) . drupal_render($vars['form']['select_source']);
+
+  // Collect all form elements to make it easier to print the whole form.
+
+  $vars['search_form'] = implode($vars['search']);
+
+}
+
+// or function ourmedia_form_user_profile_alter(&$form, $form_state) { ...}
+
+function ourmedia_form_alter(&$form, $form_state, $form_id) {
+  if (('user_profile_form' == $form_id) && isset($form['Producer information'])) {
+    $account = user_load($form['_account']['#value']->uid);
+    if ($account) {
+      //var_dump($form['Producer information']['profile_showcase_reel']);
+      profile_load_profile($account);
+      // TODO: ensure use of ourmedia db
+      $query= "SELECT m.nid, m.field_identifier_value AS identifier, n.title FROM {node} n, {content_type_media} m WHERE n.nid=m.nid AND n.type='media' AND n.uid = %d ORDER BY title";
+      $options = array();
+      $options[''] = t('Showcase my most recent media upload');
+      $result = db_query($query, $account->uid);
+      while ($row = db_fetch_object($result)) {
+        $options[$row->identifier] = $row->title;
+      }
+      // if (count($options)) {
+        $alteration = array(
+          '#type'=> 'select',
+          '#options' => $options,
+          '#default_value'=> $account->profile_showcase_reel,
+          '#description' => t('Please select a media item to showcase.'),
+        );
+      // }
+      // else {
+      //   $alteration = array(
+      //     '#type'=> 'hidden',
+      //     //'#options' => $options,
+      //     //'#default_value'=> $account->profile_showcase_reel,
+      //     '#description' => t('Please upload media in order to set this value.')
+      //   );
+      // }
+
+      $form['Producer information']['profile_showcase_reel'] = array_merge($form['Producer information']['profile_showcase_reel'], $alteration);
+    }
+  }
+}
+
+// sitesync.module?
+// user sync between channels and ourmedia
+
+// master (ourmedia) and slaves (channels, tools, causes)
+// - register on master
+// - create users on slaves
+// - update slave users upon any change to account or url_alias (not profile?)
+// - login and out via master or slave
+
+// todo: allow this to be an array
+
+function ourmedia_user($op, &$edit, &$account, $category = NULL) {
+  $base = $GLOBALS['base_url'];
+  $channels = $GLOBALS['channels_base_url'];
+  $ourmedia = $GLOBALS['ourmedia_base_url'];
+  $other = ($base == $ourmedia ? $channels : $ourmedia);
+  //global $user;
+  //$previoususer = $user;
+  //$previousdb = db_set_active($otherdb);
+  switch ($op) {
+//     case 'after_insert':
+//       user_save($account, $edit, $category);
+//       break;
+//     case 'update':
+//       user_update($account, $edit, $category);
+//       break;
+//     case 'delete':
+//       user_delete($edit, $account);
+//       break;
+    case 'logout':
+      $sessionid = session_id();
+      $result = xmlrpc($other .'/xmlrpc.php', 'ourmedia.rlogout', $sessionid);
+      if ($result === FALSE) 
+        watchdog('ourmedia', "ourmedia_user(logout): xmlrpc error calling $other/xmlrpc - ourmedia.rlogin - ". xmlrpc_error_msg(), WATCHDOG_WARNING);
+      break;
+    case 'login':
+      $sessionid = session_id();
+      $result = xmlrpc($other .'/xmlrpc.php', 'ourmedia.rlogin', $edit['name'], $edit['pass'], $account->uid, $sessionid, $_SERVER['REMOTE_ADDR']);
+      if ($result === FALSE) 
+        watchdog('ourmedia', "ourmedia_user(login): xmlrpc error calling $other/xmlrpc - ourmedia.rlogin - ". xmlrpc_error_msg(), WATCHDOG_WARNING);
+      break;
+  }
+ //db_set_active($previousdb);
+  //$user = $previoususer;
+}
+
+function ourmedia_rlogin($username, $password, $uid, $sessionid, $hostname) {
+  watchdog('ourmedia', "rlogin: $username, $password, $uid, $sessionid, $hostname");
+  $result = db_fetch_object(db_query("SELECT count(sid) AS cnt FROM {sessions} WHERE sid='%s'", $sessionid));
+  if ($result && $result->cnt) 
+    db_query("UPDATE {sessions} SET timestamp=%d, hostname='%s', uid=%d WHERE sid='%s'", time(), $hostname, $uid, $sessionid);
+  else 
+    db_query("INSERT INTO {sessions} (sid, uid, hostname, timestamp) VALUES ('%s', %d, '%s', %d)", $sessionid, $uid, $hostname, time());
+  user_external_login(array('uid' => $uid, 'pass' => $password,  'name' => $username));
+  return TRUE;
+}
+
+function ourmedia_rlogout($sessionid) {
+  watchdog('ourmedia', "rlogout: $sessionid");
+  if (drupal_strlen($sessionid)) 
+    $result = db_query("DELETE FROM {sessions} WHERE sid='%s'", $sessionid);
+  return TRUE;
+}
+
+function ourmedia_xmlrpc () {
+  //watchdog('ourmedia', "xmlrpc called");
+  return array(
+    array(
+      'ourmedia.rlogin',
+      'ourmedia_rlogin',
+      array('boolean', 'string', 'string', 'int', 'string', 'string'),
+      t('Handling remote login request'),
+    ),
+    array(
+      'ourmedia.rlogout',
+      'ourmedia_rlogout',
+      array('boolean', 'string'),
+      t('Handling remote logout request'),
+    )    
+  );
+}
+
+

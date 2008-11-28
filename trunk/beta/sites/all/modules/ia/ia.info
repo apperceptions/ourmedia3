@@ -1,0 +1,4 @@
+; $Id$
+name = "IA module"
+description = "Internet Archive media."
+core = 6.x

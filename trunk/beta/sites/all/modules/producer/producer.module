@@ -1,0 +1,947 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * producer module
+ */
+
+function producer_help($path, $arg) {
+  switch ($path) {
+    case 'admin/modules#description':
+      return '<p>'. t("Display ourmedia mediarss") .'</p>';
+  }
+}
+
+/**
+ * Valid permissions for this module
+ * @return array An array of valid permissions for the onthisdate module
+ */
+
+function producer_user($op, &$edit, &$user, $category = NULL) {
+  switch ($op) {
+    case 'form':
+      if ($category == 'myreels') {
+      }
+      break;
+    case 'view':
+      //$output['myreels'] = 'xxxxxxxxxxxxxxxxx';
+      break;
+    case 'validate':
+      break;
+    case 'login':
+      break;
+    case 'categories':
+      //return array(array('name' => 'myreels', 'title' => t('My reels'), 'weight' => 5));
+      break;
+  }
+  return $output;
+}
+
+function producer_menu() {
+
+  global $user;
+
+  $items = array();
+
+  $items['producers'] = array(
+                     'title' => 'Producers directory',
+                     'page callback' => '_producer_directory_listing',
+                     'type' => MENU_CALLBACK,
+                     'access arguments' => array('access content'));
+
+  $items['dashboard'] = array(
+                     'title' => 'Producers dashboard',
+                     'page callback' => '_producer_dashboard',
+                     'type' => MENU_CALLBACK,
+                     'access arguments' => array('access content'));
+
+  $items['user/'. arg(1) .'/blog'] = array(
+                   'title' => ( $user->uid==arg(1) ? 'my ' : '' ) .'blog' ,
+                   'page callback' => '_producer_blog',
+                   'access arguments' => array('access content'),
+                   'type' => MENU_CALLBACK);
+
+  return $items;
+}
+
+
+function producer_theme() {
+  return array(
+    'producer_dashboard' => array(
+      'arguments' => array('account' => NULL, 'user' => NULL),
+    ),
+    'producer_dashboard_unregistered' => array(
+      'arguments' => array(),
+    ),
+    'producer_showcase' => array(
+      'arguments' => array('account' => NULL, 'reels' => NULL, 'user' => NULL),
+    ),
+    'producer_reels' => array(
+      'arguments' => array('account' => NULL, 'reels' => NULL, 'user' => NULL),
+    ),
+    'producer_blog' => array(
+      'arguments' => array('account' => NULL, 'blog' => NULL,  'omblog' => NULL, 'user' => NULL),
+    ),
+  );
+}
+
+function _producer_dashboard($account = NULL, $user = NULL) {
+  global $user;
+  if ($user->uid > 0) {
+    $output = theme('producer_dashboard', $account, $user);
+  }
+  else {
+    $output = theme('producer_dashboard_unregistered', $account, $user);
+  }
+  return $output;
+}
+
+function producer_utilities() {
+  print "<h1>Utils</h1>";
+  $result = db_query("SELECT DISTINCT n.uid FROM {node} n, {profile_values} pv WHERE n.type='media' AND n.uid=pv.uid AND pv.value<> '' and pv.fid=27");
+  while ($r = db_fetch_object($result)) {
+    print "<iframe src='". $GLOBALS['ourmedia_base_url'] ."/user/$r->uid'></iframe>";
+  }
+}
+
+function producer_update_showcase() {
+  $uid = $_POST["uid"];
+  if (!($uid > 0)) {
+    drupal_set_message(t("Invalid user id."));
+    drupal_goto('/user');
+  }
+  $account = user_load(array("uid" => $uid));
+  if (!$account) {
+    drupal_set_message(t("Unable to load user account."));
+    drupal_goto("/user");
+  }
+
+  $title = $_POST['title'];
+  $preview = $_POST['preview'];    // TODO: handle files[image] upload
+  $media = $_POST['media'];
+  $thumbnail = $_POST['thumbnail'];
+
+  $fid_title = 35;
+  $fid_preview = 36;
+  $fid_media = 37;
+  $fid_thumbnail = 38;
+
+  db_query("DELETE FROM {profile_values} WHERE fid = %d AND uid = %d", $fid_title, $account->uid);
+  db_query("INSERT INTO {profile_values} (fid, uid, value) VALUES (%d, %d, '%s')", $fid_title, $account->uid, $title);
+
+  db_query("DELETE FROM {profile_values} WHERE fid = %d AND uid = %d", $fid_preview, $account->uid);
+  db_query("INSERT INTO {profile_values} (fid, uid, value) VALUES (%d, %d, '%s')", $fid_preview, $account->uid, $preview);
+
+  db_query("DELETE FROM {profile_values} WHERE fid = %d AND uid = %d", $fid_media, $account->uid);
+  db_query("INSERT INTO {profile_values} (fid, uid, value) VALUES (%d, %d, '%s')", $fid_media, $account->uid, $media);
+
+  db_query("DELETE FROM {profile_values} WHERE fid = %d AND uid = %d", $fid_thumbnail, $account->uid);
+  db_query("INSERT INTO {profile_values} (fid, uid, value) VALUES (%d, %d, '%s')", $fid_thumbnail, $account->uid, $thumbnail);
+
+  drupal_set_message(t("Showcase reel updated."));
+
+  drupal_goto("/user/$account->uid");
+
+}
+
+function producer_add_reel() {
+  $uid = $_POST["uid"];
+  if (!($uid > 0)) {
+    drupal_set_message(t("Invalid user id."));
+    drupal_goto('/user');
+    return;
+  }
+  $account = user_load(array("uid" => $uid));
+  if (!$account) {
+    drupal_set_message(t("Unable to load user account."));
+    drupal_goto("/user");
+    return;
+  }
+
+  $rid = $_POST["rid"];
+
+  //if ($_POST['op'] === 'Remove') {
+  //if ($form_values['op'] === 'Remove') {
+
+  if ($form_state['values']['op'] == 'Remove') {
+    if (!($rid > 0)) {
+      drupal_set_message(t("Invalid reel id."));
+      drupal_goto('/user/$account->uid');
+      return;
+    }
+    db_query("DELETE FROM {producer_reel} WHERE rid = %d", $rid);
+    drupal_set_message(t("Reel removed."));
+    drupal_goto("/user/$account->uid");
+    return;
+  }
+
+  $title = mysql_real_escape_string($_POST['title']);
+  $thumbnail = mysql_real_escape_string($_POST['thumbnail']);    // TODO: handle files[image] upload
+  $category = mysql_real_escape_string($_POST['category']);
+  $webpage = mysql_real_escape_string($_POST['webpage']);
+
+  if ($rid > 0) {
+    db_query("UPDATE {producer_reel} SET title='%s', thumbnail='%s', category='%s', webpage='%s' WHERE rid = %d", $title, $thumbnail, $category, $webpage, $rid);
+    drupal_set_message(t("Reel uppdated."));
+  }
+  else {
+    db_query("INSERT INTO {producer_reel} (uid, title, thumbnail, category, webpage) VALUES (%d, '%s', '%s', '%s', '%s')", $uid, $title, $thumbnail, $category, $webpage);
+    drupal_set_message(t("Reel added."));
+  }
+  drupal_goto("/user/$account->uid");
+}
+
+/**
+ * Generate HTML for block
+ * @param op the operation from the URL
+ * @param delta offset
+ * @returns block HTML
+ */
+function producer_block($op='list', $delta=0) {
+  global $user;
+  // listing of blocks, such as on the admin/block page
+  switch ($op) {
+    case 'list':
+      $blocks[0] = array(
+        'info'       => t('Ourmedia Producer: About'),
+      );
+      $blocks[1] = array(
+        'info'       => t('Ourmedia Producer: Skills & services'),
+      );
+      $blocks[2] = array(
+        'info'       => t('Ourmedia Producer: Website'),
+      );
+      $blocks[3] = array(
+        'info'       => t('Ourmedia Producer: Connect or subscribe'),
+      );
+      $blocks[4] = array(
+        'info'       => t('Ourmedia Producer: Featured Producers'),
+      );
+      $blocks[5] = array(
+        'info'       => t('Ourmedia Producer: Producer Favorites'),
+      );
+      $blocks[6] = array(
+        'info'       => t('Ourmedia Producer: Producer\'s Works'),
+      );
+      return $blocks;
+
+    case 'configure':
+      return $form;
+
+    case 'save':
+      return;
+
+    case 'view':
+    default:
+
+      //drupal_set_message("arg(0): ". arg(0));
+
+      $account = NULL;
+      if (arg(0) === "dashboard") {
+        $account = $user;
+      }
+      elseif (arg(0) === "user") {
+        if (arg(1) > 0) {
+          $account = user_load(array('uid' => arg(1)));
+        }
+      }
+      elseif (arg(0) === "node") {
+        if (arg(1) > 0) {
+          //$node = node_load(arg(1));
+          $node = menu_get_object();  // D6
+          if ($node) {
+            if (isset($_GET['uid']) && ($_GET['uid'] > 0))  { // any node passed a uid, eg all media nodes for a user (node 8258)
+              $account = user_load(array('uid' => $_GET['uid']));
+            }
+            elseif ( !$account && ($node->nid > 0) && ($node->type == "media") ) {
+              $account = user_load(array('uid' => $node->uid));
+            }
+            
+          }
+        }
+        elseif (arg(1) === 'add') {
+          $account = $user;
+        }
+      }
+      
+      if ($account && $account->uid) {
+        switch ($delta) {
+            case 0:
+              $block['subject'] =  t('Producer: ') ."<a href='/user/$account->uid'>$account->name</a>";
+              //$block['subject'] = _producer_block_edit_button($block['subject'], $delta);
+              $block['content'] = _producer_block_about($account, $delta);
+            break;
+          case 1:
+            $block['subject'] = t('Skills & services');
+            //$block['subject'] = _producer_block_edit_button($block['subject'], $delta);
+            $block['content'] = _producer_block_services($account, $delta);
+            break;
+          case 2:
+            $block['subject'] = t('Website');
+            //$block['subject'] = _producer_block_edit_button($block['subject'], $delta);
+            $block['content'] = _producer_block_website($account, $delta);
+            break;
+          case 3:
+            $block['subject'] = t('Contact or subscribe');
+            //$block['subject'] = _producer_block_edit_button($block['subject'], $delta);
+            $block['content'] = _producer_block_contact($account, $delta);
+            break;
+        }  // switch
+      } // if $account
+
+      return $block;
+  } // switch
+} // end producer_block
+
+function _producer_block_about($account, $delta = 0) {
+  $content .= get_user_picture2($account);
+  $content .= "<p><b>Name: </b>". ($account->profile_fullname ? $account->profile_fullname : $account->name) ."</p>";
+  $content .= "<p><b>Company: </b>". $account->profile_organization ."</p>";
+  $content .= "<p><b>Location: </b>". $account->profile_region ."</p>";
+  $content .= "<p>". $account->profile_biography ."</p>";
+  
+  //   $content = <<<EOFBLOCKSERVICES
+// <p id='producer_block_display_$delta'>$data</p>
+// <script>
+//   function producer_block_update_display_$delta() {
+//   d = document.getElementById('producer_block_display_$delta');
+//   e = document.getElementById('producer_block_edit_$delta');
+//   b = document.getElementById('producer_block_cmd_$delta');
+//   if (b.value == "Edit") {
+//     b.value = "Update";
+//     d.style.display = 'none';
+//     e.style.display = 'block';
+//   }
+//   else {
+//     b.value = "Edit";
+//     e.style.display = 'none';
+//     d.style.display = 'block';
+// 
+//     d.innerHTML = e.value;
+//     // todo: ajax call to save to profile info
+//   }
+//   }
+// </script>
+// <textarea id='producer_block_edit_$delta' style='display: none;' rows='8' cols='34'>$account->profile_organization</textarea>
+// EOFBLOCKSERVICES;
+  return $content;
+}
+
+
+function _producer_block_services($account, $delta=0) {
+  $value = str_replace(array("\\n"), array("<br/>"), $account->profile_services);
+//   $content = <<<EOFBLOCKSERVICES
+// <p id='producer_block_display_$delta'></p>
+// <script>
+//   function producer_block_update_display_$delta() {
+//   d = document.getElementById('producer_block_display_$delta');
+//   e = document.getElementById('producer_block_edit_$delta');
+//   b = document.getElementById('producer_block_cmd_$delta');
+//   if (b.value == "Edit") {
+//     b.value = "Update";
+//     d.style.display = 'none';
+//     e.style.display = 'block';
+//   }
+//   else {
+//     b.value = "Edit";
+//     e.style.display = 'none';
+//     d.style.display = 'block';
+// 
+//     update_user_profile($account->uid, 27, e.value);
+//   }
+//   }
+// </script>
+// <textarea id='producer_block_edit_$delta' style='display: none;' rows='8' cols='34'>$value</textarea>
+// <script>
+//   d = document.getElementById('producer_block_display_$delta');
+//   e = document.getElementById('producer_block_edit_$delta');
+//   d.innerHTML = e.value;
+// </script>
+// EOFBLOCKSERVICES;
+  return $content;
+}
+
+function _producer_block_website($account, $delta=0) {
+  $homepagetitle = (drupal_strlen($account->profile_homepagetitle) ? $account->profile_homepagetitle : "website");
+  $homepage = (drupal_strlen($account->profile_homepage) ? $account->profile_homepage : $GLOBALS['ourmedia_base_url'] ."/user/$account->uid");
+//   $content = <<<EOFBLOCK
+// <p><a id='producer_block_display_$delta' href='$homepage'>$homepagetitle</a></p>
+// <script>
+//   function producer_block_update_display_$delta() {
+//   d = document.getElementById('producer_block_display_$delta');
+//   e = document.getElementById('producer_block_edit_$delta');
+//   b = document.getElementById('producer_block_cmd_$delta');
+//   if (b.value == "Edit") {
+//     b.value = "Update";
+//     d.style.display = 'none';
+//     e.style.display = 'block';
+//   }
+//   else {
+//     b.value = "Edit";
+//     e.style.display = 'none';
+//     d.style.display = 'block';
+//     d.innerHTML = e.value;
+//     // todo: ajax call to save to profile info
+//   }
+//   }
+// </script>
+// <form id='producer_block_edit_$delta' style='display: none;' >
+// <input type='text' name='homepagetitle' id='homepagetitle' value='$homepagetitle' />
+// <input type='text' name='homepage' id='homepage' value='$homepage' />
+// </form>
+// <script>
+// // todo copy data:
+//   //d = document.getElementById('producer_block_display_$delta');
+//   //e = document.getElementById('producer_block_edit_$delta');
+//   //d.innerHTML = e.value;
+// </script>
+// EOFBLOCK;
+  return $content;
+}
+
+function _producer_block_contact($account, $delta=0) {
+
+  $content = "<div><small>". trim(get_private_msg($account)) ."</small></div>";
+
+//   $content .= <<<EOFBLOCKCONNECT
+// <p id='producer_block_display_$delta'>contact info here</p>
+// <script>
+//   function producer_block_update_display_$delta() {
+//   d = document.getElementById('producer_block_display_$delta');
+//   e = document.getElementById('producer_block_edit_$delta');
+//   b = document.getElementById('producer_block_cmd_$delta');
+//   if (b.value == "Edit") {
+//     b.value = "Update";
+//     d.style.display = 'none';
+//     e.style.display = 'block';
+//   }
+//   else {
+//     b.value = "Edit";
+//     e.style.display = 'none';
+//     d.style.display = 'block';
+//     d.innerHTML = e.value;
+//     update_user_profile($account->uid, 30, e.value);
+//   }
+//   }
+// </script>
+// <textarea id='producer_block_edit_$delta' style='display: none;' rows='8' cols='34'>$account->profile_contact</textarea>
+// <script>
+//   d = document.getElementById('producer_block_display_$delta');
+//   e = document.getElementById('producer_block_edit_$delta');
+//   d.innerHTML = e.value;
+// </script>
+// EOFBLOCKCONNECT;
+  return $content;
+}
+
+function _producer_block_edit_button($content, $delta=0) {
+  global $user;
+  $extra = "";
+  if ((arg(0)=="user") && (arg(1) > 0) && ((44070==$user->uid) || (144427==$user->uid)) && (arg(2) == "edit") && (arg(3) != "myreels") && ((arg(1)==$user->uid) || user_access('administer nodes'))) {
+//     $extra = <<<EOFBLOCKEDITBUTTON
+// <input id="producer_block_cmd_$delta" class="producer_block_edit" style='margin-left: 20px; font-size: 80%;' type='button' value='Edit' onclick="producer_block_update_display_$delta()"/>
+// </span>
+// EOFBLOCKEDITBUTTON;
+  }
+  return $content . $extra;
+}
+
+function get_user_picture2($account) {
+  // init_theme(); // not working?  returns modules/system
+
+  if (variable_get('user_pictures', 0)) {
+    //if ($account->picture && file_exists($account->picture)) {
+    if ($account->picture) {
+      //$picture = file_create_url("images/pictures/". $account->picture);
+      $picture = $account->picture;
+    }
+    else if (variable_get('user_picture_default', '')) {
+      $picture = variable_get('user_picture_default', '');
+    }
+    else
+      $picture = $GLOBALS['theme_path'] ."/images/omprofilegreengrassshadow.jpg";
+
+    if ((drupal_substr($picture, 0, 1) != "/") && (drupal_substr($picture, 0, 5) != "http:"))
+      $picture = $GLOBALS['base_url'] ."/". $picture;
+
+    if ($picture) {
+      $alt = t('%user\'s picture', array('%user' => $account->name ? $account->name : variable_get('anonymous', 'Anonymous')));
+      $output = "<img id=\"profile_picture\" src='". $picture ."' alt='". htmlspecialchars($alt, ENT_QUOTES) ."' onerror=\"this.src='". $GLOBALS['theme_path'] ."/images/omprofilegreengrassshadow.jpg';\" />";
+      return $output;
+    }
+  }
+}
+
+function get_user_picture_tiny($account) {
+  // init_theme();
+  if (variable_get('user_pictures', 0)) {
+    if ($account->picture && file_exists($account->picture)) {
+      $picture = file_create_url("images/pictures/". $account->picture);
+    }
+    else if (variable_get('user_picture_default', '')) {
+      $picture = variable_get('user_picture_default', '');
+    }
+
+    if ($picture) {
+      $alt = t('%user\'s picture', array('%user' => $account->name ? $account->name : variable_get('anonymous', 'Anonymous')));
+      $output = "<img class='tinyicon' src='". $picture ."' alt='". htmlspecialchars($alt, ENT_QUOTES) ."' onerror=\"this.src='". $GLOBALS['theme_path'] ."/images/omprofilegreengrassshadow.jpg';\">";
+      return $output;
+    }
+  }
+}
+
+function _producer_directory_listing() {
+  // init_theme();
+  global $user, $theme_path;   // WARNING: theme globals not set yet
+
+  $headers = array(
+      array('data' => t('Producer'), 'field' => 'u.name', 'sort' => 'asc'),
+      array('data' => t('Showcase reel')),
+      array('data' => t('Services')),
+      array('data' => t('Biography')),
+      array('data' => t('Location'))
+      //array('data' => t('Location'), 'field'  => 'pv3.profile_region')
+  );
+
+  $numrows= isset($_GET['search']) ? $_GET['numrows'] : "25";
+  if (!($numrows > 0)) $numrows = "25";
+  $search = isset($_GET['search']) ? $_GET['search'] : ( arg(1) ? arg(1) : "");
+  if (drupal_strlen($search))
+    $cond = ' AND ((u.name LIKE \'%'. $search .'%\') OR (pv2.value LIKE \'%'. $search .'%\') OR (pv3.value LIKE \'%'. $search .'%\') OR (pv4.value LIKE \'%'. $search .'%\')) ';
+
+  //$profile_is_producer = 26;
+  $profile_services = 27;
+  $profile_bio = 7;
+  $profile_region = 16;
+  $profile_showcase_reel = 28;
+  $profile_showcase_title = 35;
+
+
+  $sql = "SELECT u.name AS Producer, u.uid, u.picture, pv2.value AS Services, pv3.value AS Location, pv4.value AS Biography FROM {users} u, {profile_values} pv2, {profile_values} pv3, {profile_values} pv4, {profile_values} pv5 WHERE (pv2.fid=$profile_services) AND (pv3.fid=$profile_region) AND (pv4.fid=$profile_bio) AND (pv5.fid=$profile_showcase_title) AND (u.uid=pv2.uid) AND (u.uid=pv3.uid) AND (u.uid=pv4.uid) AND (u.uid=pv5.uid) AND (LENGTH(pv5.value) > 0) AND (u.status <> 0) ";
+
+  $sql .= $cond;
+  $sql .= tablesort_sql($headers);
+
+  //$result = db_queryd($sql);
+  $result = pager_query($sql, $numrows);
+
+  $cnt = 0;
+  $trows = array();
+
+  //$dbnumrows = db_num_rows($result);
+  $dbnumrows = db_affected_rows($result);
+
+  if ($result && $dbnumrows) {
+      while ($row = db_fetch_object($result)) {
+
+      $u = user_load(array("uid" => $row->uid));
+
+      $picture = "<a href='/user/$u->uid' title='Click here to view profile for $u->name'><img width='80px' src='". (drupal_strlen($row->picture) ? $row->picture : "$theme_path/images/omprofilegreengrassshadow.jpg") ."' onerror='this.src=\"$theme_path/images/omprofilegreengrassshadow.jpg\"' /></a>";
+
+      $name = "<a href='/user/$u->uid' title='Click here to view profile for  $u->name'>$u->name</a>";
+
+      $reelembed = ""; //"no showcase reel selected";
+
+
+      $r = db_fetch_object(db_query("SELECT value FROM {profile_values} pv WHERE fid=%d AND uid=%d", 35, $row->uid));
+      $rtitle = htmlspecialchars($r->value, ENT_QUOTES);
+      // if (drupal_strlen($rtitle) > 35)
+      //   $rtitle = drupal_substr($rtitle, 0, 35) . " ... ";
+      $r = db_fetch_object(db_query("SELECT value FROM {profile_values} pv WHERE fid=%d AND uid=%d", 38, $row->uid));
+      $rthumbnail = htmlspecialchars($r->value, ENT_QUOTES);
+      $r = db_fetch_object(db_query("SELECT value FROM {profile_values} pv WHERE fid=%d AND uid=%d", 37, $row->uid));
+      $rmedia = htmlspecialchars($r->value, ENT_QUOTES);
+
+
+      if (strpos($rmedia, "http://") === 0) {
+        $onclick = "vPIPPlay(this, 'width=320, height=260, autostart=false, controller=true, name=MyMovie-$cnt, revert=true');";
+        $href = $rmedia;
+      }
+      else {
+        $onclick = "document.getElementById('producer-showcase-$cnt').innerHTML = unescape('". htmlentities(str_replace(array("\n", "\r", "'"), array("", "", "\'"), $rmedia), ENT_QUOTES) ."');";
+        $href = "#";
+      }
+
+      $reelembed =<<<EOFEMBED
+      <div id="producer-showcase-$cnt" style='padding: 0 14px;'><a href="$href" title="Click to play reel '$rtitle'" rel="enclosure" class="hVlogTarget" type="video/quicktime" onclick="$onclick return false;">
+      <img width='140px' src="$rthumbnail" onerror="this.src='$theme_path/images/ourmedia-default-screenshot.jpg'"/></a>
+EOFEMBED;
+
+      $services = str_replace(array("\\n"), array("<br/>"), strip_tags($u->profile_services));
+      if (drupal_strlen($services) > 200)
+        $services = drupal_substr($services, 0, 200) ." ... ";
+
+      $bio = strip_tags($u->profile_biography);
+      if (drupal_strlen($bio) > 200)
+        $bio = drupal_substr($bio, 0, 200) ." ... ";
+
+      $trows[] = array("data" => array("<div><center>". $picture ."<br/>". $name ."</center></div>", $reelembed, "<div style='padding: 0 14px;'>". $services ."</div>",  "<div style='padding: 0 14px;'>". $bio ."</div>", "<div style='padding: 0 14px;'>". $u->profile_region ."</div>"));
+
+      $cnt++;
+    }  // while
+  }
+  else {
+    $output .= "<div style='margin: 10px 0;'>No matching records.</div>";
+  }
+
+  if ($numrows == "10")
+    $sel10 = " selected ";
+  elseif ($numrows == "25")
+    $sel25 = " selected ";
+  elseif ($numrows == "50")
+    $sel50 = " selected ";
+  elseif ($numrows == "100")
+    $sel100 = " selected ";
+
+    if ($user->uid == 0)
+      $headingtext = "<div><a href='/register' title='Click here to register for an account ...'>Sign up</a> to become a producer!  <a href='/why-register' title='Click here to read about member benefits ...'>Here's why</a>.";
+    else
+      $headingtext = "Add yourself to this listing by filling out the services, bio and locations fields in your <a href='/user/$user->uid/edit/Producer%20information'>producer profile</a> and setting up a <a href='/user/$user->uid'>showcase reel</a>.";
+
+
+    $output .= <<< EOFSEARCH
+<div>$headingtext</div>
+<form action='/producers' style='display: block; padding: 20px 0;'>
+  <input type='text' size='45' name='search' value='$search'/>
+  <input type='submit' value='Search...' />
+  Display <select name='numrows' value='$numrows'>
+    <option value='10' $sel10 >10</option>
+    <option value='25' $sel25 >25</option>
+    <option value='50' $sel50 >50</option>
+    <option value='100' $sel100 >100</option>
+  </select>&nbsp;<small>rows/page</small>.
+</form>
+EOFSEARCH;
+
+  if ($dbnumrows) {
+    $pager = theme('pager', NULL, $numrows, 0, theme('pager'));
+    if (!empty($pager))
+      $trows[] = array(array('data' => $pager, 'colspan' => '5'));
+
+    //$output .= "<style>tr.light td * {background-color: #silver;}</style>";
+    $output .= "<style>th {padding-left: 14px;}</style>";
+    $output .= theme('table', $headers, $trows);
+  }
+
+  drupal_set_title('<a href="/producers" title="Click here for complete producer listing ...">Producers</a>');
+
+  print theme('page', $output);
+
+}
+
+function get_producer_portfolio($account) {
+  global $user;
+  if (!$account)
+    $account = $user;
+
+  $channels = array();
+  // no node loads because differing versions of Drupal !!!!
+  $previousdb = db_set_active('channels');
+  $result = db_query("SELECT n.title, n.nid FROM {node} n, {og_uid} ogu WHERE n.nid = ogu.nid AND ogu.uid=%d AND n.status = 1 ORDER BY n.title", $account->uid);
+  while ($gnode = db_fetch_object($result)) {
+    $channels[] = l($gnode->title, $GLOBALS['channels_base_url'] ."/node/$gnode->nid");
+  }
+  db_set_active($previousdb);
+
+  $reels = array();
+
+  $result = db_query("SELECT m.nid, n.title, field_reelcategory_value AS category, field_identifier_value AS identifier, field_thumbnail_value AS thumbnail FROM {node} n, {content_type_media} m WHERE n.nid=m.nid AND n.uid=%d AND field_favorite_value = 'yes' ORDER BY category, title", $account->uid);
+
+
+  while ($reel = db_fetch_object($result)) {
+    $reels[] = $reel;
+    // support legacy showcase reel id (we may reuse in future)
+    if ($account->profile_showcase_reel == $reel->rid)
+      $showcase_reel = $reel;
+  }
+
+  if ((drupal_strlen($showcase_reel)==0) && count($reels)) 
+    $showcase_reel = $reels[0];
+
+  return array('reels' => $reels, 'showcase_reel' => $showcase_reel, 'channels' => $channels);
+}
+
+
+
+function get_group_blog_posts_for_user($account) {
+  $result = pager_query(db_rewrite_sql("SELECT n.nid, n.sticky, n.changed, n.title FROM {node} n WHERE n.promote = 1 AND n.status = 1 AND n.uid = $account->uid ORDER BY n.sticky DESC, n.created DESC"), variable_get('default_nodes_main', 10));
+  $items = array();
+  while ($node = db_fetch_object($result)) {
+    $items[] = array('title' => l($node->title, 'node/'. $node->nid), 'timestamp' => date("m.d.Y H:i", $node->changed));
+  }
+  return $items;
+}
+
+function get_recent_blog_entries($account) {
+  $output = '';
+  if ($account->uid) {
+    $result = pager_query(db_rewrite_sql("SELECT n.nid, n.sticky, n.created FROM {node} n WHERE type = 'blog' AND n.uid = %d AND n.status = 1 ORDER BY n.sticky DESC, n.created DESC"), variable_get('default_nodes_main', 10), 0, NULL, $account->uid);
+    while ($node = db_fetch_object($result)) {
+      $output .= node_view(node_load($node->nid), 1);
+    }
+    $output .= theme('pager', NULL, variable_get('default_nodes_main', 10));
+    //$output .= theme('xml_icon', url("blog/$account->uid/feed"));
+  }
+  return $output;
+}
+
+function _producer_blog() {
+  global $user;
+  if (arg(1)) {
+    $account = user_load(array('uid' => arg(1)));
+    if ($account && $account->uid) {
+      $blog = get_recent_blog_entries($account);
+      $omblog = get_group_blog_posts_for_user($account);
+      drupal_set_title($account->name);
+      $output = theme('producer_blog', $account, $blog, $omblog, $user);
+      //print theme('page', $output);
+      print $output;
+    }
+  }
+}
+
+function get_media_for_user($account, $type) {
+  switch ($type) {
+  case 'videomedia':
+    $table_name = 'video';
+    $file_column_name = 'video_fileid';
+    break;
+  case 'audiomedia':
+    $table_name = 'audio';
+    $file_column_name = 'audio_fileid';
+    break;
+  case 'textmedia':
+    $table_name = 'text';
+    $file_column_name = 'text_fileid';
+    break;
+  case 'imagemedia':
+    $table_name = 'imagemedia';
+    $file_column_name = 'image_fileid';
+    break;
+  }
+
+  $items = array();
+  $attributes = array();
+  $num = db_result(db_query_range("SELECT count(n.nid) FROM {$table_name} t, {node} n, {files} f WHERE n.status='1' AND n.uid=%d AND n.type='%s' AND n.nid = t.nid AND t.$file_column_name = f.fid ORDER BY created DESC", $account->uid, $type, 0, 10));
+
+  if ($num) {
+    $result = db_query_range("SELECT n.nid as nid, title, type, created, f.filesize as filesize, f.filename as filename FROM {$table_name} t, {node} n, {files} f WHERE n.status='1' AND n.uid=%d AND n.type='%s' AND n.nid = t.nid AND t.$file_column_name = f.fid ORDER BY created DESC", $account->uid, $type, 0, 10);
+
+  while ($node = db_fetch_object($result)) {
+      $explosion = explode(".", $node->filename);
+    $ext = $explosion[count($explosion) - 1];
+    $ntitle = ((drupal_strlen($node->title) > 58) ?  drupal_substr($node->title, 0, 55) ."..." : $node->title);
+    $attributes['title'] = $node->title;
+    //$items[] = array('title' => l($ntitle, 'node/'.$node->nid, $attributes), 'filename' => $ext, 'filesize' => $node->filesize, 'downloads' => $node->totalcount);
+    $items[] = array('title' => l($ntitle, 'node/'. $node->nid, $attributes), 'filename' => $ext, 'filesize' => $node->filesize, 'downloads' => '');
+  }
+  }
+  return $items;
+}
+
+function producer_my_links() {
+  global $user;
+  if (arg(1) > 0) {
+    $account = user_load(array('uid' => arg(1)));
+    if ($account && $account->uid) {
+
+      $account = get_profile($account);
+
+      $buddylist = buddylist_get_buddies($account->uid);
+
+      if (user_access('view buddy lists')) {
+        $cnt = variable_get('buddylist_prof_buddies', 5);
+        $sql = 'SELECT b.uid, u.name FROM {buddylist} b INNER JOIN {users} u ON b.uid = u.uid WHERE b.buddy = %d ORDER BY u.changed DESC';
+        $result = db_query_range($sql, $account->uid, 0, $cnt);
+        while ($row = db_fetch_object($result)) {
+          $buddiesof[$account->uid][$row->uid] = (object) array('uid' => $row->uid, 'name' => $row->name, 'mail' => $row->mail);
+        }
+      }
+
+      $previousdb = db_set_active('channels');
+      $result = db_query("SELECT n.title, n.nid FROM {node} n, {og_uid} ogu WHERE n.nid = ogu.nid AND ogu.uid=%d AND n.status = 1 ORDER BY n.title", $account->uid);
+
+      while ($gnode = db_fetch_object($result)) {
+        $channels[] = l($gnode->title, $GLOBALS['channels_base_url'] ."/node/$gnode->nid");
+      }
+      db_set_active($previousdb);
+
+      $audios = get_media_for_user($account, 'audiomedia');
+      $images = get_media_for_user($account, 'imagemedia');
+      $texts = get_media_for_user($account, 'textmedia');
+      $videos = get_media_for_user($account, 'videomedia');
+
+      drupal_set_title($account->name);
+      $output = theme('producer_links', $account, $buddylist, $buddiesof[$account->uid], $channels, $audios, $images, $texts, $videos, $user);
+      print theme('page', $output);
+    }
+  }
+}
+
+// this is same as profile_load_profile in profile core module (except they pass by reference)
+function get_profile($user) {
+  $result = db_query('SELECT f.name, f.type, v.value FROM {profile_fields} f INNER JOIN {profile_values} v ON f.fid = v.fid WHERE uid = %d', $user->uid);
+  while ($field = db_fetch_object($result)) {
+    if (empty($user->{$field->name})) {
+      $user->{$field->name} = _profile_field_serialize($field->type) ? unserialize($field->value) : $field->value;
+    }
+  }
+  return $user;
+}
+
+
+function get_user_picture($account) {
+  if (variable_get('user_pictures', 0)) {
+    if ($account->picture && file_exists($account->picture)) {
+      $picture = file_create_url("pictures/". $account->picture);
+    }
+    else if (variable_get('user_picture_default', '')) {
+      $picture = variable_get('user_picture_default', '');
+    }
+
+    if ($picture) {
+      if ((drupal_substr($picture, 0, 1) != "/") && (drupal_substr($picture, 0, 4) != "http:"))
+        $picture = "/" . $picture;
+      $alt = t('%user\'s picture', array('%user' => $account->name ? $account->name : variable_get('anonymous', 'Anonymous')));
+      $output = "<img id=\"profile_picture\" src='". $picture ."' alt='". htmlspecialchars($alt, ENT_QUOTES) ."'>";
+      return $output;
+    }
+  }
+}
+
+function get_private_msg($thisuser) {
+  global $user;
+  if ($user->uid == $thisuser->uid) {
+    return;
+  }
+  $name = $thisuser->profile_firstname;
+  if (!$name) {
+    $name = $thisuser->name;
+  }
+  if (user_access('access private messages') && (isset($thisuser->privatemsg_allow) ? $thisuser->privatemsg_allow : 1)) {
+    return l(t("Send $name a message"), "privatemsg/msgto/$thisuser->uid");
+  }
+}
+
+function get_add_remove_buddy_link($thisuser) {
+  global $user;
+  $name = $thisuser->profile_firstname;
+  if (!$name) {
+    $name = $thisuser->name;
+  }
+
+  $_SESSION['buddylist_op_destination'] = $_SERVER['HTTP_REFERER'];
+  if (@in_array($thisuser->uid, array_keys(buddylist_get_buddies($user->uid))) && user_access('maintain buddy list')) {
+    return l(t('Remove %name from my buddy list', array('%name' => $name)), 'buddy/delete/'. $thisuser->uid);
+  }
+  else {
+    if ($user->uid != $thisuser->uid && user_access('maintain buddy list')) {
+      return l(t('Add %name to my buddy list', array('%name' => $name)), 'buddy/add/'. $thisuser->uid);
+    }
+  }
+}
+
+
+function addreelform($account) {
+  return $output;
+}
+
+function setshowcaseform($account) {
+
+  global $user;
+  return $output;
+
+}
+
+function producer_update_user_profile_field_values() {
+  if (isset($_GET['uid'])) {
+    $uid = $_GET['uid'];
+    if ($uid > 1) {
+      if (isset($_GET['fid']) && is_array($_GET['fid'])) {
+        $fids = $_GET['fid'];
+        $values = isset($_GET['value']) ? $_GET['value'] : array();
+        $msg = "<batch>\n";
+        foreach ($fids as $key => $fid) {
+          if (is_numeric($fid) && ($fid >= 0)) {
+            $value = isset($values[$key]) ? urldecode($values[$key]) : NULL;
+            $msg .= producer_update_user_profile_field_value($uid, $fid, $value);
+          }
+          else {
+            $msg = "<error>invalid field id</error>\n";
+          }
+        }
+        $msg .= "</batch>\n";
+      }
+      else {
+        $fid = $_GET['fid'];
+        if (is_numeric($fid) && ($fid >= 0)) {
+          $value = isset($_GET['value']) ? urldecode($_GET['value']) : NULL;
+          $msg = producer_update_user_profile_field_value($uid, $fid, $value);
+        }
+        else {
+          $msg = "<error>invalid field id</error>\n";
+        }
+      }
+    }
+    else {
+      $msg = "<error>invalid user id</error>\n";
+    }
+  }
+  else {
+    $msg = "<error>missing user id</error>\n";
+  }
+  drupal_set_header('Content-Type: text/xml; charset=utf-8');
+  print "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n$msg";
+}
+
+function producer_update_user_profile_field_value($uid, $fid, $value = NULL) {
+  if (isset($value)) {
+    $value = mysql_real_escape_string($value);
+    $result = db_query("SELECT uid FROM {profile_values} WHERE fid = %d AND uid = %d", $fid, $uid);
+    if ($result) {
+      $row = db_fetch_object($result);
+      if ($row && $row->uid)
+        $result = db_query("UPDATE {profile_values} SET value = '%s' WHERE fid = %d AND uid = %d", $value, $fid, $uid);
+      else
+        $result = db_query("INSERT INTO {profile_values} (fid, uid, value) VALUES (%d, %d, '%s')", $fid, $uid, $value);
+      if (!$result) {
+        $err = db_error();
+        watchdog("producer", "update error: ". $err, WATCHDOG_ERROR);
+        $msg = "<error>$err</error>\n";
+      }
+      else {
+        $msg = "<success>$value</success>\n";
+      }
+    }
+    else {
+      $msg = "<error>select failed</error>\n";
+    }
+  }
+  else {
+    $result = db_query("SELECT value FROM {profile_values} WHERE fid=%d AND uid=%d", $fid, $uid);
+    if ($result) {
+      $row = db_fetch_object($result);
+      if ($row)
+        $msg = "<value>$row->value</value>";
+      else {
+        $msg = "<error>No rows returned from query: ". sprintf("SELECT value FROM {profile_values} WHERE fid=%d AND uid=%d", $fid, $uid) ."</error>\n";
+        watchdog("producer", "fetch error: ". $msg, WATCHDOG_ERROR);
+      }
+    }
+    else {
+      $err = db_error();
+      watchdog("producer", "select error: ". $err, WATCHDOG_ERROR);
+      $msg = "<error>$err</error>\n";
+    }
+  }
+  return $msg;
+}
+
+
+function producer_preprocess_user_profile(&$variables) {
+  $portfolio = get_producer_portfolio($variables['account']);
+  $variables['profile']['channels'] =  $portfolio['channels'];
+  $variables['profile']['reels'] =  $portfolio['reels'];
+  $variables['profile']['showcase_reel'] =  $portfolio['showcase_reel'];
+}

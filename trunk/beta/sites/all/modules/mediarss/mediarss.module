@@ -1,0 +1,1072 @@
+<?php
+// $Id$
+
+
+/**
+ * @file
+ * mediarss features
+ */
+
+
+/**
+ * Implementation of hook_help().
+ *
+ * Throughout Drupal, hook_help() is used to display help text at the top of
+ * pages. Some other parts of Drupal pages get explanatory text from these hooks
+ * as well. We use it here to illustrate how to add help text to the pages your
+ * module defines.
+ */
+function mediarss_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#mediarss':
+      return '<p>'. t("Display ourmedia mediarss") .'</p>';
+  }
+}
+
+/**
+ * Valid permissions for this module
+ * @return array An array of valid permissions for the onthisdate module
+ */
+function mediarss_perm() {
+  return array('access mediarss content');
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function mediarss_menu() {
+  //$items = array();
+
+  $items['mediarss/userfeed'] = array(
+    'title' => 'Ourmedia mediarss for user',
+    'description' => 'Display the Ourmedia mediarss for a user',
+    'page callback' => 'mediarss_userfeed',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+
+  $items['mediarss/channel'] = array(
+    'title' => 'Ourmedia mediarss for channel',
+    'description' => 'Display the Ourmedia mediarss for a channel',
+    'page callback' => 'mediarss_channel',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+
+  $items['mediarss/most_discussed'] = array(
+    'title' => 'Ourmedia mediarss for the most discussed items',
+    'description' => 'Display the Ourmedia mediarss for most discussed  items',
+    'page callback' => 'mediarss_most_discussed',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+
+  $items['mediarss/popup'] = array(
+    'title' => 'Ourmedia popup for channel',
+    'description' => 'Display the Ourmedia popup for a channel',
+    'page callback' => 'mediarss_channel_popup',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+
+  return $items;
+}
+
+function mediarss_userfeed() {
+  $uid = arg(2);
+  if (!($uid > 0)) {
+    $uid = $_GET['uid'];
+    if (!($uid > 0)) {
+    $items = array();
+      mediarss_output($items, "Invalid Account", "Ourmedia RSS feed");
+      return;
+    }
+  }
+  $account = user_load(array('uid' => $uid, 'status' => 1));
+  if ($account) {
+    $num = db_result(db_query_range("SELECT count(n.nid) FROM {node} n WHERE n.uid = %d AND n.type='channelitem' AND n.status=1 ORDER BY n.created DESC", $uid, 0, 25));
+    if ($num) {
+      $result = db_query_range("SELECT n.nid AS nid FROM {node} n WHERE n.uid = %d AND n.type='channelitem' AND n.status=1 ORDER BY n.created DESC", $uid, 0, 25);
+      while ($onenode = db_fetch_array($result)) {
+        $nodes[] = $onenode['nid'];
+    }
+  }
+    $items = mediarss_get_items($nodes);
+    mediarss_output($items, $account->name, "Ourmedia RSS feed for $account->name", "/user/". $uid);
+  }
+  else {
+    $items = array();
+      mediarss_output($items, "Invalid Account", "Ourmedia RSS feed");
+      return;
+  }
+}
+
+function mediarss_channel() {
+  $gid = arg(2);
+  if (!($gid > 0)) {
+    $gid = $_GET['gid'];
+    if (!($gid > 0)) {
+      $items = array();
+      mediarss_output($items, "Missing channel ID", "Ourmedia RSS feed");
+      return;
+    }
+  }
+  $group = node_load($gid);
+  if ($group && $group->status) {
+    $num = db_result(db_query_range("SELECT count(n.nid) FROM {node} n, {og_ancestry} a WHERE n.nid=a.nid AND a.group_nid= %d AND n.type='channelitem' AND n.status=1 ORDER BY created DESC", $gid, 0, 25));
+    if ($num) {
+      $result = db_query_range("SELECT n.nid, n.uid, n.created FROM {node} n, {og_ancestry} a WHERE n.nid=a.nid AND a.group_nid= %d AND n.type='channelitem' AND n.status=1 ORDER BY created DESC", $gid, 0, 25);
+      while ($onenode = db_fetch_array($result)) {
+        $nodes[] = $onenode['nid'];
+      }
+    }
+    $items = mediarss_get_items($nodes);
+    mediarss_output($items, $group->title, $group->body, "/node/" . $gid);
+  }
+  else {
+      $items = array();
+      mediarss_output($items, "Invalid Channel ID", "Ourmedia RSS feed");
+  }
+}
+
+
+// todo: add parameter for time frame (day, week, month, year, ever)
+function mediarss_most_discussed() {
+    //$result = db_query("select ncs.nid, comment_count, last_comment_timestamp from {node_comment_statistics} ncs inner join {node} n on n.nid=ncs.nid where comment_count>0 and (unix_timestamp() - last_comment_timestamp) < 60*60*24*7 order by comment_count desc, last_comment_timestamp desc limit 25");
+
+/*
+SELECT ncs.nid, comment_count, last_comment_timestamp FROM node_comment_statistics ncs INNER JOIN node n ON n.nid=ncs.nid WHERE (comment_count>0) AND ((UNIX_TIMESTAMP() - last_comment_timestamp) < 60*60*24*1000) AND (n.type = 'channelitem') ORDER BY comment_count DESC, last_comment_timestamp DESC LIMIT 25
+
+ */
+    $num = db_result(db_query_range("SELECT count(ncs.nid) FROM {node_comment_statistics} ncs INNER JOIN {node} n ON n.nid=ncs.nid WHERE (comment_count>0) AND ((UNIX_TIMESTAMP() - last_comment_timestamp) < 60*60*24*360) AND (n.type = 'channelitem') ORDER BY comment_count DESC, last_comment_timestamp DESC", 0, 25));
+
+    if ($num) {
+      $result = db_query("SELECT ncs.nid, comment_count, last_comment_timestamp FROM {node_comment_statistics} ncs INNER JOIN {node} n ON n.nid=ncs.nid WHERE (comment_count>0) AND ((UNIX_TIMESTAMP() - last_comment_timestamp) < 60*60*24*360) AND (n.type = 'channelitem') ORDER BY comment_count DESC, last_comment_timestamp DESC", 0, 25);
+
+      while ($onenode = db_fetch_array($result)) {
+        $nodes[] = $onenode['nid'];
+      }
+    }
+    $items = mediarss_get_items($nodes);
+    mediarss_output($items, t("Most discussed"), t("Most discussed posts to Ourmedia Channels"));
+}
+
+function mediarss_output($items, $title, $description, $link = "") {
+  global $base_url, $locale, $channels_base_url;
+  
+  // clean channel and item title and descriptions
+  $title = check_plain(strip_tags($title));
+  $description = translateString(check_plain(strip_tags($description)));
+  //$description = drupal_convert_to_utf8($description, 'utf-8');
+
+  if ($link == "")
+    $link = $base_url;
+  if (strpos($link, "http:") === FALSE)
+    $link = $base_url . $link;
+  $selflink = $channels_base_url . request_uri();    //  $_SERVER['REQUEST_URI'];
+  $channel = array(
+    'version'     => '2.0',
+    'title'       => $title,
+    'link'        => $link,
+    'description' => $description,
+    'language'    => $locale
+  );
+
+  //mb_internal_encoding("UTF-8");
+  /* $output = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n"; */
+  $output = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+
+  $output .= "<rss version=\"". $channel['version'] ."\" xml:base=\"". $base_url ."\" xmlns:media=\"http://search.yahoo.com/mrss/\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:creativecommons=\"http://backend.userland.com/creativeCommonsRssModule\"  xmlns:ourmedia=\"$channels_base_url/mrss/\" xmlns:atom=\"http://www.w3.org/2005/Atom\" xmlns:content=\"http://purl.org/rss/1.0/modules/content/\" >\n";
+  $extra = array("generator" => $channels_base_url, array('key'=>'atom:link', 'attributes' => array("href" => $selflink, "rel" => "self", "type" => "application/rss+xml") ) ) ;
+  $output .= format_rss_channel($channel['title'], $channel['link'], $channel['description'], $items, $channel['language'], $extra);
+  $output .= "</rss>\n";
+
+  //$output = mb_convert_encoding($output, "UTF-8");
+
+  //drupal_set_header('Content-Type: text/xml; charset=utf-8');
+  drupal_set_header('Content-type: application/xml; charset="utf-8"');
+  //drupal_set_header('Content-type: application/xml; charset="iso-8859-1"');
+  print $output;
+}
+
+function mediarss_get_items($nodes) {
+  if ($nodes) {
+    foreach ($nodes as $value) {
+      $node = node_load($value);
+      // Filter and prepare node teaser
+      if (node_hook($node, 'view'))
+        node_invoke($node, 'view', TRUE, FALSE);
+      else
+        $node = node_prepare($node, TRUE);
+      $link = url("node/$node->nid", array('absolute' => true));
+      $mediarss = mediarss_create_media_rss($node);
+      $thumbnail = mediarss_get_thumbnail($node);
+      $cc = mediarss_create_cc_rss($node);
+      $d = format_date($node->created, 'custom', 'r');
+
+      $extra = array();
+      build_element_data($extra, "pubDate", $d);
+      build_element_data($extra, "dc:creator", $node->field_artist[0]['value']);
+      build_element_data($extra, "ourmedia:author", $node->field_artist[0]['value']);
+      build_element_data($extra, "ourmedia:artist", $node->field_artist[0]['value']);
+      build_element_data($extra, "ourmedia:mediapost", $node->field_mediapost[0]['value']);
+      build_element_data($extra, "ourmedia:image", $thumbnail);
+      build_element_data($extra, "ourmedia:posterimg", $node->field_screenshot[0]['value']);
+      build_element_data($extra, "ourmedia:artisturl", $node->field_artisturl[0]['value']);
+      build_element_data($extra, "ourmedia:height", $node->field_height[0]['value']);
+      build_element_data($extra, "ourmedia:width", $node->field_width[0]['value']);
+      build_element_data($extra, "ourmedia:autostart", $node->field_autostart[0]['value']);
+      build_element_data($extra, "creativecommons:license", $cc);
+      build_element_data($extra, "comments", $node->field_comments[0]['value']);
+      build_element_data($extra, "content:encoded", '<![CDATA[' . $node->body . ']]>');
+      //build_element_data($extra, "player", $node->field_player[0]['value']);
+
+      $items .= mediarss_format_rss_item($node->title, $link, $node->body, $thumbnail, $mediarss, $extra);
+    }
+  }
+  return $items;
+}
+
+function build_element_data(&$extra, $key, $value) {
+  if (strlen($value)) {
+    if ($key == "CONTENT:ENCODED")
+      $extra[$key] = $value;
+    else {
+      $value = trim(check_plain(strip_tags($value)));
+      //$value = _mediarss_filter_base($value);
+      $extra[$key] = $value;
+    }
+  }
+}
+
+function translateString($s) {
+  return $s;
+  
+ //return drupal_convert_to_utf8($s, 'utf-8');
+    // $n = strlen($s);
+    // for ($i = 0; $i < $n; $i++) {
+    //   $c = substr($s, $i, 1);
+    //   $v = ord($c);
+    //   if (($v < 32 ) || ($v > 127))
+    //     $t .= "&#" . $v . ";";
+    //   else
+    //     $t .= $c;
+    //     }
+    //     return $t;
+
+    //
+    // static $trans_array = array();
+    // if (count($trans_array)) {
+    //       for ($i=127; $i<255; $i++) {
+    //     $trans_array[chr($i)] = "&#" . $i . ";";
+    //   }
+    // }
+    // return strtr($s, $trans_array);
+}
+
+function mediarss_create_media_rss($node) {
+  $output = "";
+  $mediaurl = $node->field_media;
+  if ($mediaurl) {
+    $href =  trim($mediaurl[0]['value']);
+    if (strlen($href) > 0) {
+      $mediatype = getMediaType($href);
+      $height = $node->field_height[0]['value'];
+      if ($height > 0)
+        $height = "height=\"$height\"";
+      $width = $node->field_width[0]['value'];
+      if ($width > 0)
+        $width = "width=\"$width\"";
+
+      //$href = urlencode($href);                       // mss - 2008/07/25 - encode url else ampersand in feed
+      $href = str_replace("&", "&amp;", $href);                // mss- 2008/07/26 - less impact
+      $href = str_replace("&amp;amp;", "&amp;", $href);
+
+      $output .= "<media:content url=\"$href\" type=\"$mediatype\" $height $width />\n";    
+      $output .= "<enclosure url=\"$href\" type=\"$mediatype\" length=\"0\"/>\n";
+    }    
+  }
+  return $output;
+}
+
+function mediarss_create_cc_rss($node) {
+  $href = "";
+  $licenseurl = $node->field_license;
+  if ($licenseurl)
+    $href =  trim($licenseurl[0]['value']);
+  return $href;
+}
+
+// return thumbnail or first attached image or first image_attach with name containing .thumb
+function mediarss_get_thumbnail($node) {
+  
+  global $channels_base_url;
+
+  $href = trim($node->field_thumbnail[0]['value']);
+  if (strlen($href))
+    return $href;
+  $files = upload_load($node);
+  foreach ($files as $file) {
+    if (strpos($file->filemime, "image") === 0)
+      return $channels_base_url ."/" . $file->filepath;
+  }
+  if (($node->iid) && ($imagenode = node_load($node->iid))) {
+    $files = upload_load($imagenode);
+    foreach ($files as $file) {
+      if (strpos($file->filepath, ".thumb") > 0)
+        return $channels_base_url ."/". $file->filepath;
+    }
+  }
+  return "";
+}
+
+function mediarss_format_rss_item($title, $link, $description, $thumbnail, $mediarss, $args = array()) {
+
+  //$description = drupal_convert_to_utf8($description, 'iso-8859-1');
+  //$description = translateString(check_plain(strip_tags($description)));
+
+  $output = "<item>\n";
+  $output .= ' <title>' . check_plain(strip_tags($title)) . "</title>\n";
+  $output .= ' <guid>' . check_plain(strip_tags($link)) . "</guid>\n";
+  $output .= ' <link>' . check_plain(strip_tags($link)) . "</link>\n";
+  //$output .= ' <description>' . check_plain(strip_tags($description)) . "</description>\n";
+  $output .= ' <description><![CDATA[' . $description . "]]></description>\n";
+  $output .= ' <media:thumbnail url="' . check_plain($thumbnail) . "\"/>\n";
+  foreach ($args as $key => $value) {
+    if (is_array($value)) {
+      if ($value['key']) {
+        $output .= ' <' .  $value['key'];
+        if (is_array($value['attributes']))
+          $output .= drupal_attributes($value['attributes']);
+        if ($value['value'])
+          $output .= '>' . $value['value'] . '</' . $value['key'] . ">\n";
+        else
+          $output .= " />\n";
+      }
+    } else {
+      $output .= ' <' . $key . '>' . check_plain($value) . "</$key>\n";
+    }
+  }
+  $output .= "$mediarss";
+  $output .= "</item>\n";
+  return $output;
+}
+
+/**
+ * Call-back function used by the XML parser.
+ */
+function aggregator_element_start1($parser, $name, $attributes) {
+  global $items, $item, $element;
+
+  $element = $name;
+
+  if ($name === "ITEM")
+      $item += 1;
+
+  if ($name === "ENCLOSURE") {
+  $items[$item]['ENCLOSURE']['URL'] = $attributes['URL'];
+  $items[$item]['ENCLOSURE']['TYPE'] = $attributes['TYPE'];
+  }
+
+  if ($name === "MEDIA:THUMBNAIL")
+  $items[$item]['MEDIA:THUMBNAIL']['URL'] = $attributes['URL'];
+}
+
+/**
+ * Call-back function used by the XML parser.
+ */
+function aggregator_element_end1($parser, $name) {
+  global $element;
+
+  $element = '';
+}
+
+/**
+ * Call-back function used by the XML parser.
+ */
+function aggregator_element_data1($parser, $data) {
+  global $channel, $element, $items, $item;
+
+ switch ($element) {
+    case 'ITEM':
+      $items[$item][$element] .= $data;
+      break;
+
+    // case 'CREATIVECOMMONS:LICENSE':
+    //   $items[$item]['CREATIVECOMMONS:LICENSE']['URL'] .= $data;
+    //   break;
+    //
+    // case 'MEDIA:WIDTH':
+    //   $items[$item]['MEDIA:WIDTH'] .= $data;
+    //   break;
+    //
+    // case 'MEDIA:HEIGHT':
+    //   $items[$item]['MEDIA:HEIGHT'] .= $data;
+    //   break;
+
+    default:
+    if ($item == 0)
+        $channel[$element] .= $data;
+    else
+    $items[$item][$element] .= $data;
+  }
+}
+
+function aggregator_parse_feed1($data, $title) {
+  $xml_parser = drupal_xml_parser_create($data);
+  xml_set_element_handler($xml_parser, 'aggregator_element_start1', 'aggregator_element_end1');
+  xml_set_character_data_handler($xml_parser, 'aggregator_element_data1');
+
+  if (!xml_parse($xml_parser, $data, 1)) {
+    $message = t('Failed to parse RSS feed %site: %error at line %line.', array('%site' => theme('placeholder', $title), '%error' => xml_error_string(xml_get_error_code($xml_parser)), '%line' => xml_get_current_line_number($xml_parser)));
+    watchdog('aggregator', $message, WATCHDOG_WARNING);
+    drupal_set_message($message, 'error');
+    return 0;
+  }
+  xml_parser_free($xml_parser);
+}
+
+function _read_feed($url) {
+  global $channel, $image, $items, $base_url;
+
+  $items = array();
+  $image = array();
+  $channel = array();
+  $headers = array();
+
+  $result = drupal_http_request($url, $headers);
+
+  switch ($result->code) {
+    case 304:
+      break;
+    case 301:
+      $url = $result->redirect_url;
+       break;
+    case 200:
+    case 302:
+    case 307:
+      aggregator_parse_feed1($result->data, "featured videos feed");
+      foreach ($items as $item) {
+        foreach ($item as $key => $value) {
+          //$value = _mediarss_filter_base($value);
+          $value = decode_entities(trim($value));
+          $item[$key] = $value;
+        }
+      }
+  break;
+  } // switch
+}
+
+function mediarss_channel2array($gid) {
+  global $channels_base_url;
+  if (!($gid > 0))
+    return array();
+
+  //$channels = getChannelsBase();
+  return mediarss_channelrss2array("$channels_base_url/mediarss/channel/$gid");
+}
+
+
+// obsolete
+function mediarss_channelrss2array($url) {
+  global $channel, $image, $items;
+
+  $media = array();
+  _read_feed($url);
+
+  foreach ($items as $item) {
+    $preview_url = trim($item['OURMEDIA:POSTERIMG']);
+    if (strlen($preview_url) == 0)
+      $preview_url = trim($item['MEDIA:THUMBNAIL']['URL']);
+    //if (strlen($preview_url) == 0)
+    //  $preview_url = "default image";
+
+// global $user;
+// if ($user->uid == 1) {
+//   var_dump($item['CONTENT:ENCODED']) . "<br/><br/>";
+// }
+
+    $mediaitem = array(
+      "artist_name" => trim($item['OURMEDIA:ARTIST']),
+      "media_title" => htmlentities(trim($item['TITLE']), ENT_QUOTES),
+      "media_type" => trim($item['ENCLOSURE']['TYPE']),
+      "notes" => $item['DESCRIPTION'],
+      // "notes" => $item['CONTENT:ENCODED'],
+      "preview_url" => trim($preview_url),
+      "video_url" => trim($item['ENCLOSURE']['URL']),
+      "artist_media_page_url" => trim($item['OURMEDIA:ARTISTURL']),
+      "media_page_url" => trim($item['OURMEDIA:MEDIAPOST']),
+      "big_screenshot_url" => trim($item['OURMEDIA:POSTERIMG']),
+      "height" => trim($item['OURMEDIA:HEIGHT']),
+      "width" => trim($item['OURMEDIA:WIDTH']),
+      "autostart" => trim($item['OURMEDIA:AUTOSTART'])
+    );
+    array_push($media, $mediaitem);
+  }
+  return $media;
+}
+
+function display_channel_slider($node, $mediaitems) {
+  if ($node->type != "channel")
+    return "this is not a channel";
+
+  $i = 0;
+  if ($mediaitems) {
+    foreach($mediaitems as $mediaitem) {
+      $output .= display_slider_thumbnail($mediaitem, "id=\"featured_video_$i\" ");
+      $i++;
+      if (msiebrowser() && ($i > 7))
+        break;
+    }
+  }
+  if ($i == 0) {
+    // TO DO: display special message about how to add media here?
+  }
+
+  $thumbWidth = 69;
+  $divwidth = ($thumbWidth + (msiebrowser() ? 1 : 0)) * $i ;
+
+  $output .= <<<scriptstring
+      <script>
+        numThumbnails = $i;
+        slidesWidth = $divwidth;
+        if (slidesWidth < sliderWidth)
+          slidesWidth = sliderWidth;
+        document.getElementById("thumbnail_slider").style.width = "$divwidth"+"px";
+      </script>
+scriptstring;
+
+  return $output;
+}
+
+function display_slider_thumbnail($mediaitem, $attributes) {
+  init_theme();
+  global $theme_path;
+  if (!$mediaitem)
+    return;
+    
+  //$mediaitem = _mediarss_mediaitem_filter_base($mediaitem);
+
+  $img_preview_url = $mediaitem['preview_url'];
+  if (strlen($img_preview_url) == 0)
+    $img_preview_url = $theme_path . "/images/ourmedia-thumbnail.png";
+  $img_preview_url_encoded = urlencode($preview_url);
+  $img_video_url = $mediaitem['video_url'];
+  $img_video_url_encoded = urlencode($img_video_url);
+  $img_title = $mediaitem['media_title'];
+  $img_artist = $mediaitem['artist_name'];
+  $img_media_type = $mediaitem['media_type'];
+  if (strlen($img_media_type) == 0)
+    $img_media_type = "revlog";
+  list($img_media_type, $rest) = split( "/",  $img_media_type, 2);
+  if ($img_media_type == "application")
+    $img_media_type = "video";
+  $img_artist_media_page_url = $mediaitem['artist_media_page_url'];
+  $img_media_page_url = $mediaitem['media_page_url'];
+  $img_notes = urlencode($mediaitem['notes']);
+  $img_height = $mediaitem['height'];
+  if (strlen($img_height)==0)      // TODO: deal with divx and mp3
+    $img_height = "260";
+  $img_width = $mediaitem['width'];
+  if (strlen($img_width)==0)
+    $img_width = "320";
+  $img_autostart = "false";   
+
+  $img_title_artist = (strlen($img_title)>0 ? $img_title : "Untitled Work") . " - " .
+            (strlen($img_artist)>0 ? $img_artist : "Unknown Artist");
+
+  $output = "  <div class=\"featured_video\" $attributes><a title=\"$img_title_artist\" href=\"$img_video_url\" onclick='return updatefeaturedvideo(\"$img_preview_url_encoded\", \"$img_video_url_encoded\", \"$img_title\", \"$img_artist\", \"$img_media_type\", \"$img_artist_media_page_url\", \"$img_media_page_url \", \"$img_height\", \"$img_width\", \"$img_autostart\", \"$img_notes\", \"/$theme_path\")'><img onerror=\"this.src='/$theme_path/images/ourmedia-thumbnail.png'\" border=\"0\" class=\"tmb\" src=\"$img_preview_url\" width=\"64px\" height=\"45px\" /></a><div class=\"thumbnails_media_type_label\">$img_media_type</div></div>\n";
+
+  return $output;
+}
+
+function display_channel_item_viewer($node) {
+  if (!$node)
+    return;
+
+  $mediaitem = array("video_url" => trim($node->field_media[0]['value']),
+            "preview_url" => $node->field_screenshot[0]['value'],
+            "notes" => trim($node->body),
+            "height" => trim($node->field_height[0]['value']),
+            "width" => trim($node->field_width[0]['value']),
+            );
+            
+  //$mediaitem = _mediarss_mediaitem_filter_base($mediaitem);
+            
+  return display_channel_viewer($node, $mediaitem);
+}
+
+function display_channel_viewer($node, $mediaitem) {
+  if ((!$mediaitem) || (!$node))
+    return;
+
+  if (($node->type != "channel") && (($node->type != "channelitem")))
+    return "";
+
+  init_theme();
+  global $theme_path, $channels_base_url;
+  
+  //$mediaitem = _mediarss_mediaitem_filter_base($mediaitem);
+
+  $big_screenshot_url = $mediaitem['preview_url'];
+  if (strlen($big_screenshot_url) == 0)
+    $big_screenshot_url = "$channels_base_url/$theme_path/images/ourmedia-default-screenshot.jpg";
+  $big_screenshot_url = urlencode($big_screenshot_url);
+  $mediaurl = urlencode($mediaitem['video_url']);
+  $notes = urlencode($mediaitem['notes']);
+  $height = $mediaitem['height'];
+  if (strlen($height)==0)      // TODO: deal with divx and mp3
+    $height = "260";
+  $width = $mediaitem['width'];
+  if (strlen($width)==0)
+    $width = "320";
+  $autostart = "false";
+
+  $output .= "<input id='videourl' name='videourl' type='hidden' value='$mediaurl' />\n";
+  $output .= "<input id='height' name='height' type='hidden' value='$height' />\n";
+  $output .= "<input id='width' name='width' type='hidden' value='$width' />\n";
+  $output .= "<input id='notes' name='notes' type='hidden' value='$notes' />\n";
+
+  $output .= "<iframe id='featuredVideo' border='2' bordercolor='#fff' frameborder='0' scrolling='no' src='/$theme_path/featured_video.php?video=$mediaurl&bigscreenshot=$big_screenshot_url&height=$height&width=$width&autostart=$autostart&notes=$notes' width='$width' height='$height'></iframe>\n";
+
+  //$output .= "<div id='displaymedia'>\n";
+  //$output .= display_media($mediaurl, $big_screenshot_url, $height, $width, $autostart, $notes);
+  //$output .= "</div>\n";
+
+  return $output;
+}
+
+function getDefaultMediaitem() {
+  
+  global $ourmedia_base_url;
+
+  $mediaitem = array("video_url" => "http://www.archive.org/download/JDLasicaLawrenceLessigonOurmedia/LessigonOM.mp4",
+            "artist_name" => "JD Lasica",
+            "media_title" => "Welcome To Ourmedia",
+            "media_page_url" => $ourmedia_base_url,
+            "artist_media_page_url" => $ourmedia_base_url,
+            "media_type" => "video",
+            );
+  return $mediaitem;
+}
+
+function display_channel_item_media_description($node) {
+  if (!$node)
+    return;
+
+  $mediaitem = array("video_url" => trim($node->field_media[0]['value']),
+            "artist_name" => $node->field_artist[0]['value'],
+            "media_title" => $node->title,
+            "media_page_url" => trim($node->field_mediapost[0]['value']),
+            "artist_media_page_url" => trim($node->field_artisturl[0]['value']),
+            "media_type" => getMediaType(trim($node->field_media[0]['value'])),
+            );
+  return display_channel_media_description($node, $mediaitem);
+}
+
+function display_channel_media_description($node, $mediaitem) {
+  init_theme();
+  global $theme_path, $channels_base_url;
+  if ((!$mediaitem) || (!$node))
+    return;
+
+  if (($node->type != "channel") && (($node->type != "channelitem")))
+    return "";
+
+  //$mediaitem = _mediarss_mediaitem_filter_base($mediaitem);
+
+  $mediaurl =  trim($mediaitem['video_url']);
+  $artist_name = $mediaitem['artist_name'];
+  $media_title = $mediaitem['media_title'];
+  $media_page_url = $mediaitem['media_page_url'];
+  $artist_media_page_url = $mediaitem['artist_media_page_url'];
+
+  if (strlen($media_title)) {
+    if (strlen($media_page_url))
+      $title_info = "<a href='$media_page_url' title='Visit media page...'>$media_title</a>";
+    else  {
+      if (strlen($mediaurl))
+        $title_info = "<a href='$mediaurl' title='Media link...'>$media_title</a>";
+      else
+        $title_info = $media_title;
+    }
+  } else {
+    if (strlen($media_page_url))
+      $title_info = "<a href='$media_page_url' title='Media link...'>Media Link</a>";
+    else {
+      if (strlen($mediaurl))
+        $title_info = "<a href='$mediaurl' title='Media link...'>Media Link</a>";
+      else
+        $title_info = "Untitled Work";
+    }
+  }
+
+  if (strlen($artist_name)) {
+    if (strlen($artist_media_page_url))
+      $artist_info = "<a href='$artist_media_page_url' title='Visit producer page...'>$artist_name</a>";
+    else
+      $artist_info = $artist_name;
+  } else {
+    if (strlen($artist_media_page_url))
+      $artist_info = "<a href='$artist_media_page_url' title='Visit producer page...'>Producer Page</a>";
+    else {
+      if (strlen($mediaurl))
+        $artist_info = "<a href='$mediaurl' title='Media link...'>Media Link</a>";
+      else
+        $artist_info = "Unknown Producer";
+    }
+  }
+
+  $media_playbtn = "";
+  if ((strlen($mediaurl)>0) && (strpos(strtolower($mediaitem['media_type']), "image")) ==- false)
+    $media_playbtn = "<a href=\"#\" onclick=\"playselectedvideo('$theme_path')\"><img src=\"$channels_base_url/$theme_path/images/playButtonWhiteBkgd.png\" border=\"0\" ></a>";
+
+  $output = "";
+  $output .= "<div id='media_playbtn'>$media_playbtn</div>\n";
+  $output .= "<div id='media_title'>$title_info</div>\n";
+  $output .= "<div id='artist_name'>$artist_info</div>\n";
+
+  return $output;
+}
+
+function stripTeaser($s) {
+  $output = decode_entities(trim($s));
+  //$output = strip_tags($value, '<a> <b> <br/> <dd> <dl> <dt> <em> <i> <li> <ol> <p> <strong> <u> <ul> <img>');
+  $output = strip_tags($output, '<a> <b> <br/> <dd> <dl> <dt> <div> <em> <i> <li> <ol> <p> <strong> <u> <ul> <img> <center> <code> <cite> <span> <label> <legand> <script> <object> <embed> <param>');
+  $output = preg_replace('/\Wstyle\s*=[^>]+?>/i', '>', $output);
+  /*
+  $output = preg_replace('/\Won[a-z]+\s*=[^>]+?>/i', '>', $output);
+  */
+  return $output;
+}
+
+function msiebrowser() {
+  $user_agent = strtolower($_SERVER["HTTP_USER_AGENT"]);
+  return (strpos($user_agent, "msie") > 0);
+}
+
+function hasEmbeddedMedia($content) {
+  $s = strtolower($content);
+  return !((strpos($s, "<embed")===false) && (strpos($s, "<object")===false) && (strpos($s, "<script")===false));
+}
+
+function testMediaType($part, $extensions) {
+  $p = strtolower($part);
+  foreach ($extensions as $ext) {
+    if (strpos($p, $ext)===0)
+      return true;
+  }
+  return false;
+}
+
+function getMediaType($url) {
+  $extension = '';
+  $parts1 = split('\.', $url);
+  $parts = array_reverse($parts1);
+
+  foreach ($parts as $part) {
+    if (testMediaType($part, array("mov", "qt", "m4v", "qtz", "smil", "divx", "div")))
+      return "video/quicktime";
+
+    if (testMediaType($part, array("mp4", "m4v", "mpg", "mpg", "mpeg", "mpa")))
+      return "video/mpeg";
+
+    if (testMediaType($part, array("wmv")))
+      return "video/x-msvideo";
+
+    if (testMediaType($part, array("avi")))
+      return "video/x-msvideo";
+  
+    if (testMediaType($part, array("ram", "ra", "rm")))
+      return "audio/x-pn-realaudio";
+
+    if (testMediaType($part, array("swf")))
+      return "application/x-shockwave-flash r";
+  
+    if (testMediaType($part, array("flv")))
+      return "video/x-flv";
+  
+    if (testMediaType($part, array("ogg")))
+      return "audio/x-ogg ";
+
+    if (testMediaType($part, array("m3u")))
+      return "audio/x-mpegurl";
+
+    if (testMediaType($part, array("wav")))
+      return "audio/x-wav";
+
+    if (testMediaType($part, array("aif", "aiff", "aifc")))
+      return "audio/aiff";
+
+    if (testMediaType($part, array("mp3", "m4a")))
+      return "audio/mpeg";
+
+    if (testMediaType($part, array("jpeg", "jpg")))
+      return "image/jpeg";
+
+    if (testMediaType($part, array("gif")))
+      return "image/gif";
+
+    if (testMediaType($part, array("tif", "tiff")))
+      return "image/tiff";
+
+    if (testMediaType($part, array("png")))
+      return "image/png";
+
+    if (testMediaType($part, array("bmp")))
+      return "image/bmp";
+
+    if (testMediaType($part, array("svg")))
+      return "image/svg+xml";
+
+    if (testMediaType($part, array("xml")))
+      return "text/xml";
+
+    if (testMediaType($part, array("xhtml")))
+      return "application/xhtml+xml";
+
+    if (testMediaType($part, array("html")))
+      return "text/html";
+
+    if (testMediaType($part, array("txt")))
+      return "text/plain";
+  }
+  return "video/quicktime";
+}
+
+function mediarss_channel_popup() {
+  init_theme();
+
+  global $theme_path, $channels_base_url;
+
+  $gid = arg(2);
+  if (!($gid > 0)) {
+      $gid = $_GET['gid'];
+      if (!($gid > 0)) {
+      $items = array();
+        print "Missing popup channel ID";
+        return;
+    }
+  }
+
+   $node = node_load(array('nid' => $gid, 'status' => 1));
+    if (!$node) {
+    print "Invalid popup channel id";
+    return;
+  }
+
+  //$home = getOurmediaBase();
+  //$channels = getChannelsBase();
+
+  $head_title = "Ourmedia Channels - " . $node->title;
+
+  $popupcontent = getPopupTabs($node);
+
+  $output =  <<<endofpopupplayer
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" version="-//W3C//DTD XHTML 1.1//EN" xml:lang="en">
+
+  <head>
+    <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+    <title>$head_title</title>
+
+    <script type="text/javascript" src="/misc/drupal.js"></script>
+        <script type="text/javascript" src="/misc/jquery.js"></script>
+    <script type="text/javascript" src="/sites/all/modules/jstools/jstools.js"></script>
+    <script type="text/javascript" src="/sites/all/modules/jstools/jquery.cookie.js"></script>
+    <script type="text/javascript" src="/sites/all/modules/jstools/tabs/jquery.tabs.pack.js"></script>
+    <script type="text/javascript" src="/sites/all/modules/jstools/jquery.history.pack.js"></script>
+    <script type="text/javascript" src="/sites/all/modules/jstools/tabs/drupal-tabs.js"></script>
+    <script type="text/javascript" src="/sites/all/modules/jstools/tabs/tabs.js"></script>
+    <script type="text/javascript" src = "/$theme_path/homepage.js"></script>
+    <script type="text/javascript" src="/$theme_path/nicetitle.js"></script>
+
+    <link rel="stylesheet" href="/$theme_path/style.css" />
+    <link rel="stylesheet" href="/$theme_path/nicetitle.css" />
+    <style type="text/css" media="all">@import "$channels_base_url/sites/all/modules/jstools/tabs/tabs.css";</style>
+        <!--[if lte IE 7]>
+    <style type="text/css" media="all">@import "$channels_base_url/sites/all/modules/jstools/tabs/tabs-ie.css";</style>
+        <![endif]-->
+    <style type="text/css" media="all">@import "$channels_base_url/sites/all/modules/jstools/tabs/drupal-tabs.css";</style>
+    <link rel="stylesheet" href="$channels_base_url/$theme_path/jquery.tabs.css" type="text/css" media="print, projection, screen">
+
+    <script type="text/javascript">
+      $(function() {
+                $('#popup').tabs({ fxFade: true, fxSpeed: 'fast' });
+            });
+    </script>
+  </head>
+
+<body>
+  <center>
+    <div id="homepage">
+      <div id="featured-videos" style="width: 675px; margin: 0 auto;">
+
+        <div id='logo'><a href="http://$home" title="Ourmedia home page" target="_blank"><img border='0' src="$channels_base_url/$theme_path/images/logo.gif" /></a></div>
+
+        <h2><a href="$channels_base_url/node/$gid" title="Visit the $node->title channel page" target="_blank">$node->title</a></h2>
+
+        $popupcontent
+
+      </div> <!-- featured_videos -->
+    </center>
+  </body>
+</html>
+endofpopupplayer;
+
+  //drupal_set_header('Content-Type: application/xhtml+xml');
+  print $output;
+
+}
+
+function getPopupView($node) {
+  init_theme();
+  global $theme_path;
+
+
+  $mediaitems = mediarss_channel2array($node->nid);
+  if (count($mediaitems) > 0)
+    $mediaitem = $mediaitems[0];
+
+  $channelSlider = display_channel_slider($node, $mediaitems);
+  $channelViewer = display_channel_viewer($node, $mediaitem);
+  $channelMediaDescription = display_channel_media_description($node, $mediaitem);
+
+  $output = <<<endofpopupview
+    <div id='thumbnail_left'>
+      <a href="#" onclick='return(slide_thumbnails(-50))' onmousedown='rew_thumbnails()'  onmouseup='stop_thumbnails()' ><img border='0'  src="/$theme_path/images/stock_media-rew.png"/></a>
+    </div>
+
+    <div id="thumbnail_area">
+      <div id='thumbnail_slider'>
+        $channelSlider
+      </div> <!-- slider -->
+    </div>  <!-- thumbnail_area -->
+
+    <div id='thumbnail_right'>
+      <a href="#" onclick='return(slide_thumbnails(50))' onmousedown='fwd_thumbnails()'  onmouseup='stop_thumbnails()' ><img border='0'  src="/$theme_path/images/stock_media-fwd.png"/></a>
+    </div>
+
+    <div style='clear:both'></div>
+
+    <div id="media_area">
+
+      <div id='movie_media'>
+        $channelViewer
+      </div>
+
+      <div id="media_description">
+        $channelMediaDescription
+       </div>  <!-- media_description -->
+
+    </div> <!-- media_area -->
+
+endofpopupview;
+
+  return $output;
+
+}
+
+function getPopupShare($node) {
+
+  global $channels_base_url;
+
+  $output = <<<endofpopupshare
+    <div class="copychannelplayer">
+      <label>Copy a link to this channel player and stick it on your blog</label>
+      <textarea rows='4' style='width:100%;'><a href="http://$channels_base_url/mediarss/popup/$node->nid" title="Popup channel viewer"  onclick="window.open(this.href, 'channels', 'width=720,  height=535, top=20, left=20, scrollbars=no, resizable=yes, toolbar=no, directories=no, location=no, menubar=no, status=yes, left=0, top=0'); return false" >Launch channel viewer for $node->title</a></textarea>
+    </div>
+endofpopupshare;
+
+  return $output;
+
+}
+
+function getPopupSubscribe($node) {
+  init_theme();
+  global $channels_base_url, $theme_path;
+
+  $output = <<<endofpopupsubscribe
+     <div class="channelrss">RSS media feed for this channel: <a href="$channels_base_url/mediarss/channel/$node->nid" title="Subscribe to this channel"><img border="0" src="$channels_base_url/$theme_path/images/rssIcon.gif"/></a></div>
+endofpopupsubscribe;
+
+  return $output;
+
+}
+
+function getPopupGetMedia($node) {
+  init_theme();
+
+  global $ourmedia_base_url, $theme_path;
+
+  $output = <<<endofpopupgetmedia
+<div style='padding:10px;float:right;'>
+<a href="http://spinxpress.com/"><img border="0" src="http://spinxpress.com/images/sx_graphics/sxlogo_med.png" title="Visit SpinXpress"></a>
+</div>
+
+<div style='padding: 20px; float: left;'>
+<a href="http://creativecommons.org/"><img border="0" src="$ourmedia_base_url/$theme_path/images/cc.gif" title="Visit Creative Commons"></a>
+</div>
+
+<div style='font-size: 150%; padding: 10px;'>Looking for Creative Commons licensed media?</div>
+
+<div style='font-size: 150%; padding: 10px;'>Try the SpinXpress Get Media search...</div>
+
+<div style='padding: 20px;'>
+<form method="post" action="http://www.spinxpress.com/getmedia "><input name="searchwords" type="text" size="50" value="Ourmedia" /><input name="igetmedia" type="submit" id="Search" value="Get Media" /></form>
+</div>
+
+
+endofpopupgetmedia;
+
+  return $output;
+
+}
+
+function getPopupTabs($node) {
+
+  global $channels_base_url;
+
+ $form = array();
+
+  $form['popup'] = array(
+    '#type' => 'tabset',
+  );
+  $form['popup']['view'] = array(
+    '#type' => 'tabpage',
+    '#title' => t('View'),
+    '#content' => getPopupView($node),
+  );
+  $form['popup']['share'] = array(
+    '#type' => 'tabpage',
+    '#title' => t('Share'),
+    '#content' => getPopupShare($node),
+  );
+  $form['popup']['subscribe'] = array(
+    '#type' => 'tabpage',
+    '#title' => t('Subscribe'),
+    '#content' => getPopupSubscribe($node),
+  );
+/*
+  $form['popup']['browse'] = array(
+    '#type' => 'tabpage',
+    '#title' => t('Browse'),
+    '#content' => '<a href="$channels_base_url">Browse the channels directory</a>',
+  );
+  $form['popup']['getmedia'] = array(
+    '#type' => 'tabpage',
+    '#title' => t('Get Media'),
+    '#content' => getPopupGetMedia($node),
+  );
+  $form['popup']['hookup'] = array(
+    '#type' => 'tabpage',
+    '#title' => t('Hookup'),
+    '#content' => '<a href="http://spinxpress.com/hookup">SpinXpress Hookup</a>',
+  );
+*/
+  return tabs_render($form);
+}
+
