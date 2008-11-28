@@ -1,0 +1,105 @@
+<?php
+// $Id: me.module,v 1.3.4.3 2007/04/24 15:18:50 ahoeben Exp $
+
+
+/**
+ * @file
+ * Provides shortcut paths to current user's pages, eg user/me, blog/me, user/me/edit, tracker/me etc.
+ *
+ * This means logged in users no longer have to know/remember their uid, and it
+ * makes it easier to link to user-specific pages from a site help page
+ * (without resorting to using php to put $user->uid in the link).
+ */
+
+/**
+ * Implementation of hook_menu().
+ */
+function me_menu() {
+  //$items=array();
+
+  $aliases = explode("\n", variable_get('me_aliases', 'user/me'));
+  
+  //watchdog('me', 'me_aliases: '. variable_get('me_aliases', 'empty'));
+  
+  $cnt = 0;
+  foreach ($aliases as $alias) {
+    // check to see if there's a 'me' to replace;
+    // either '.../me/...', 'me/...' or '.../me' but eg 'readme/...' does not count
+    $alias = preg_split('/[\?\#]/', $alias);
+    $alias = trim(check_url($alias[0]), "/ \t\n\r\0");
+    $cnt++;
+    if (preg_match('/(\/m|^m)(e$|e\/)/', $alias, $matches)>0) {
+      $items[$alias] = array(
+        // 'path' => $alias,
+        'title' => '\'me\' alias for ' . $alias,
+        'type' => MENU_CALLBACK,
+        'page callback' => 'me_relay',
+        //'page arguments' => array($cnt),
+        'access arguments' => array('access content'),
+        //'access arguments' => array(TRUE),   // we're handing over access control to the destiation page
+      );
+    }
+  }
+
+  $items['admin/settings/me'] = array(
+    'title' => '\'me\' Aliases',
+    'description' => 'Define URL paths for Me aliasing.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('me_settings'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM, // optional
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_settings().
+ *
+ * Provide a single textbox that allows admins to enter any number of paths containing 'me'
+ */
+function me_settings() {
+  $form['me_aliases'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Aliases to create'),
+    '#default_value' => variable_get('me_aliases', "user/me"),
+    '#cols' => 50,
+    '#rows' => 6 ,
+    '#description' => t('The per-user aliases to create. Each alias must contain the \'me\' fragment or it will be ignored. Enter one alias per line, and do not include trailing or leading slashes.'),
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Forward to same url with proper uid this time.
+ *
+ * The paths have already been checked to contain 'me' in the _menu hook.
+ * We don't have to check node access, drupal_goto will take care of that.
+ */
+function me_relay() {
+  global $user;
+
+  // 
+  // watchdog('me', 'me_relay');
+  watchdog('me', 'me_relay with user: '. $user->uid .' and arg(0): '. arg(0));
+  
+  
+  if ($user->uid > 0) {
+    $index = 0;
+    $destination = '';
+    $fragment = arg(0);
+    while ($fragment) {
+      $destination .= (($destination == '') ? '' : '/') . (($fragment == 'me') ? $user->uid : $fragment);
+      $index++;
+      $fragment = arg($index);
+    }
+    drupal_goto($destination);
+  }
+  else {
+    // user is not logged in
+    drupal_set_message(t('Please login to access this personalised page.'));
+    $destination = "destination=" . drupal_urlencode($_GET['q']);
+    drupal_goto('user/login', $destination);
+  }
+}

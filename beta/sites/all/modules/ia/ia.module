@@ -1,0 +1,2193 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ *
+ */
+
+module_load_include('inc', 'node', 'node.pages');
+
+include('iaparser4php4.php');
+
+define('IA_SOLR', 'http://homeserver7.us.archive.org:8983/solr/select?q=all:1&rows=1000&wt=xml&');
+define('IA_DOWNLOAD_URL', 'http://www.archive.org/download/');
+
+define('IA_DETAILS_URL', 'http://www.archive.org/details-db.php');
+define('IA_IDENTIFIER_CHECK_URL', 'http://www.archive.org/services/check_identifier.php');
+define('IA_NEW_ITEM_URL', 'http://www.archive.org/create.php?xml=1');
+define('IA_DONE_URL', 'http://www.archive.org/checkin.php?xml=1');
+
+/**
+ * Implementation of hook_help().
+ *
+ * Throughout Drupal, hook_help() is used to display help text at the top of
+ * pages. Some other parts of Drupal pages get explanatory text from these hooks
+ * as well. We use it here to illustrate how to add help text to the pages your
+ * module defines.
+ */
+function ia_help($path, $arg) {
+  switch ($path) {
+    case 'ia':
+      return t('Internet Archive media.');
+  }
+}
+
+/**
+ * Implementation of hook_perm().
+ *
+ * Since the access to our new custom pages will be granted based on
+ * special permissions, we need to define what those permissions are here.
+ * This ensures that they are available to enable on the user role
+ * administration pages.
+ */
+// function ia_perm() {
+//   return array('access foo', 'access baz');
+// }
+
+/**
+ * Implementation of hook_menu().
+ *
+ * You must implement hook_menu() to emit items to place in the main menu.
+ * This is a required step for modules wishing to display their own pages,
+ * because the process of creating the links also tells Drupal what
+ * callback function to use for a given URL. The menu items returned
+ * here provide this information to the menu system.
+ *
+ * With the below menu definitions, URLs will be interpreted as follows:
+ *
+ * If the user accesses http://example.com/?q=foo, then the menu system
+ * will first look for a menu item with that path. In this case it will
+ * find a match, and execute ia_foo().
+ *
+ * If the user accesses http://example.com/?q=bar, no match will be found,
+ * and a 404 page will be displayed.
+ *
+ * If the user accesses http://example.com/?q=bar/baz, the menu system
+ * will find a match and execute ia_baz().
+ *
+ * If the user accesses http://example.com/?q=bar/baz/1/2, the menu system
+ * will first look for bar/baz/1/2. Not finding a match, it will look for
+ * bar/baz/1/%. Again not finding a match, it will look for bar/baz/%/2. Yet
+ * again not finding a match, it will look for bar/baz/%/%. This time it finds
+ * a match, and so will execute ia_baz(1, 2). Note the parameters
+ * being passed; this is a very useful technique.
+ */
+function ia_menu() {
+  // This is the minimum information you can provide for a menu item.
+  // $items['foo'] = array(
+  //   'title' => 'Foo',
+  //   'page callback' => 'ia_foo',
+  //   'access arguments' => array('access foo'),
+  //   'type' => MENU_CALLBACK,
+  // );
+
+  $items['ia/test/batch'] = array(
+    'title' => t('Internet Archive batch submission'),
+    'description' => t('Internet Archive media batch submission form'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ia_batch_form'),
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'));
+
+  // form
+  $items['ia/submission'] = array(
+    'title' => t('Internet Archive media submission form'),
+    'description' => t('Internet Archive media submission form'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ia_submission_form'),
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'));
+
+  // ajax
+  $items['ia/ahah/simple_js'] = array(
+    'page callback' => 'ia_ahah_simple_js',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+    'access callback' => TRUE,
+    );
+
+  $items['ia/submission/finish'] = array(
+    'page callback' => 'ia_submission_finish',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+    'access callback' => TRUE,
+    );
+
+  $items['ia/resyncarchive/%'] = array(
+     'title' => 'Resync Intenet Archive details',
+     'page callback' => 'ia_resyncarchive',
+     'page arguments' => array(2),
+     'type' => MENU_CALLBACK,
+     'access arguments' => array('access content'));
+
+  $items['ia/list/%'] = array(
+     'title' => 'Internet Archive contributor published media',
+     'page callback' => 'ia_list_contributor',
+     'page arguments' => array(2),
+     'type' => MENU_CALLBACK,
+     'access arguments' => array('access content'));
+
+  $items['published-media/%'] = array(
+     'title' => 'Internet Archive published media',
+     'page callback' => 'ia_list_contributor',
+     'page arguments' => array(1),
+     'type' => MENU_CALLBACK,
+     'access arguments' => array('access content'));
+
+  $items['ia/download/%'] = array(
+     'title' => 'Internet Archive download',
+     'page callback' => 'ia_download_redirect',
+     'page arguments' => array(2),
+     'type' => MENU_CALLBACK,
+     'access arguments' => array('access content'));
+
+  $items['ia/thumbnail/%'] = array(
+     'title' => 'Internet Archive thumbnail',
+     'page callback' => 'ia_thumbnail_redirect',
+     'page arguments' => array(2),
+     'type' => MENU_CALLBACK,
+     'access arguments' => array('access content'));
+
+  $items['ia/preview/%'] = array(
+     'title' => 'Internet Archive preview',
+     'page callback' => 'ia_preview',
+     'page arguments' => array(2),
+     'type' => MENU_CALLBACK,
+     'access arguments' => array('access content'));
+
+  $items['ia/details/%'] = array(
+     'title' => "Internet Archive Details",
+     'page callback' => '_ia_details',
+     'page arguments' => array(2),
+     'type' => MENU_CALLBACK,
+     'access arguments' => array('access content'));
+
+  $items['ia/serve/%'] = array(
+     'title' => "Internet Archive Files",
+     'page callback' => '_ia_serve',
+     'page arguments' => array(2),
+     'type' => MENU_CALLBACK,
+     'access arguments' => array('access content'));
+
+  // By using the MENU_CALLBACK type, we can register the callback for this
+  // path but not have the item show up in the menu; the admin is not allowed
+  // to enable the item in the menu, either.
+  //
+  // Notice that the 'page arguments' is an array of numbers. These will be
+  // replaced with the corresponding parts of the menu path. In this case a 0
+  // would be replaced by 'bar', a 1 by 'baz', and like wise 2 and 3 will be
+  // replaced by what ever the user provides. These will be passed as arguments
+  // to the ia_baz() function.
+  // $items['bar/baz/%/%'] = array(
+  //   'title' => 'Baz',
+  //   'page callback' => 'ia_baz',
+  //   'page arguments' => array(2, 3),
+  //   'access arguments' => array('access baz'),
+  //   'type' => MENU_CALLBACK,
+  // );
+
+  return $items;
+}
+
+function ia_theme() {
+  return array(
+    'ia_preview' => array(
+      'arguments' => array('identifier' => NULL),
+     // 'template' => 'ourmedia-block-featured-item',
+    ),
+  );
+}
+
+// function ia_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+//   switch ($op) {
+//     case 'insert':
+//       watchdog('ia', "Attempting to submit node: @nid", array('@nid' => $node->nid));
+//       if (drupal_strlen($node->field_identifier) == 0) {
+//         if (!ia_submission($node))
+//           watchdog('ia', 'NodeAPI Insert: Upload to archive.org failed', WATCHDOG_ERROR);
+//       }
+//       break;
+//   }
+// }
+
+// function xxxia_form_alter(&$form, $form_state, $form_id) {
+//   // redirect node add form to submitform
+//   if ($form_id == 'media_node_form' && arg(1) == 'add') {
+//     drupal_goto('ia/submission');
+//   }
+// }
+
+// function ia_get_submission_form() {
+//   return drupal_get_form('ia_submission_form');
+// }
+
+function ia_submission_form($form_state) {
+  if (!user_access('create media content')) {
+    $form['text'] = array(
+      '#prefix' => "<p>",
+      '#value' => t('Please <a href="/user/login">login</a> or <a href="/user/register">register</a> to submit media content.'),
+      '#suffix' => "</p>",
+    );
+    return $form;
+  }
+  return ia_submission_form_page($form_state);
+}
+
+function ia_ahah_simple_js() {
+  drupal_json(array('status' => TRUE, 'data' => '<p style="padding: "><b>Checking title.  Please wait...</b></p>'));
+  exit;
+}
+
+function ia_submission_finish() {
+  print "success!";
+  exit;
+}
+
+function ia_submission_form_page1($form_state) {
+  global $user;
+    $form['heading'] = array(
+      '#class' => 'submission-heading',
+      '#prefix' => "<h2>",
+      '#value' => t("Publish and Share Your Media : Step 1 of 3"),
+      '#suffix' => "</h2>",
+    );
+
+    $form['instructions1a'] = array(
+      '#prefix' => "<p>",
+      '#value' => "Please contribute text, images, audio, and video files that you have the right to share.  The Internet Archive, a non-profit library, will provide free storage and access to them. We reserve the right to remove any submitted material.",
+      '#suffix' => "</p>",
+    );
+
+    $form['instructions1b'] = array(
+      '#prefix' => "<p style='padding: 0 0 20px 0px;text-align: right;'><small>",
+      '#value' => "<a href='http://www.archive.org/account/login.createaccount.php'>Get your virtual library card at the Internet Archive</a>.",
+      '#suffix' => "</small></p>",
+    );
+
+   $form['mail'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Archive.org email'),
+      '#default_value' => $user->mail,
+      '#description' => t("The email address associated with your Internet Archive virtual library card or account."),
+      '#size' => 40,
+      '#maxlength' => 255,
+      '#required' => TRUE,
+    );
+
+    if (isset($user->ia_pass) && drupal_strlen($user->ia_pass))
+      $pass = $user->ia_pass;
+    if (isset($user->profile_ia_pass) && drupal_strlen($user->profile_ia_pass))
+      $pass = $user->profile_ia_pass;
+
+    $form['pass'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Archive.org password'),
+      '#default_value' => $pass,
+      '#description' => t("Enter your Archive.org account password."),
+      '#size' => 40,
+      '#maxlength' => 255,
+      '#required' => TRUE,
+    );
+
+    $form['mediatitle'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Media title'),
+      '#description' => t("Please enter a descriptive title that is relatively unique (e.g., 'Alaska summer vacation video July 2008 Part I')."),
+      '#default_value' => $form_state['values']['mediatitle'],
+      '#size' => 86,
+      '#maxlength' => 255,
+      '#required' => TRUE,
+    );
+
+    $form['instructions1c'] = array(
+      '#prefix' => "<p>",
+      '#value' => "Press the 'continue' button to create storage for your upload at the Internet Archive.  Your title is used to generate a unique identifier. This can take a few moments, so please be patient.",
+      '#suffix' => "</p>",
+    );
+
+    $form['server'] = array(
+      '#type' => 'value',
+      '#value' => array(),
+    );
+
+    $form['field_identifier'] = array(
+      '#type' => 'value',
+      '#value' => array(),
+    );
+
+    // $form['target'] = array(
+    //   '#type' => 'item',
+    //   '#value' => "Press 'Click Me' to change this text using AJAX.",
+    //   '#prefix' => '<div id="target">',
+    //   '#suffix' => '</div>',
+    // );
+
+    // $form['submit2'] = array(
+    //   '#type' => 'button',
+    //   '#value' => t('Click Me'),
+    //   '#ahah' => array(
+    //     'event' => 'click',
+    //     'path' => 'ia/ahah/simple_js',
+    //     'wrapper' => 'target',
+    //     'method' => 'replace',
+    //     'effect' => 'fade',
+    //   ),
+    // );
+
+    // attach throbber on title or title's description?
+    $form['submit'] = array(
+      '#prefix' => "<p style='padding: 10px 0px'>",
+      '#suffix' => "</p>",
+      '#type' => 'submit',
+      '#value' => 'Continue >>',
+      // '#ahah' => array(
+      //   'event' => 'click',
+      //   // 'progress' => array(
+      //   //   'type' => 'throbber',
+      //   //   'message' => t('Please wait...'),
+      //   // ),
+      // '#ahah' => array(
+      //   'event' => 'click',
+      //   'path' => 'ia/ahah/simple_js',
+      //   'wrapper' => 'instructions1c',
+      //   'method' => 'after',
+      //   'effect' => 'fade',
+      // ),
+    );
+
+    //$form['#validate'][] = 'ia_submission_form_validate';
+    return $form;
+}
+
+function ia_submission_form_page2($form_state) {
+  global $user;
+
+  $form['heading'] = array(
+    '#class' => 'submission-heading',
+    '#prefix' => "<h2>",
+    '#value' => t("Publish and Share Your Media : Step 2 of 3"),
+    '#suffix' => "</h2>",
+    '#weight' => -10,
+  );
+
+  $identifier = $form_state['storage'][0]['field_identifier'];
+  $server = $form_state['storage'][0]['server'];
+
+  $form['instructions'] = array(
+    '#prefix' => "<p style='padding: 10px 5px'>",
+    '#value' => "Your files will be stored at the Internet Archive on server $server with identifier $identifier.",
+    '#suffix' => "</p>",
+    '#weight' => -9,
+  );
+
+  // allow title reedit
+
+  $form['main'] = array(
+    '#type' => 'fieldset',
+    '#title' => '',
+    '#weight' => '3',
+  );
+
+  $form['main']['mediatitle'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Enter a title for your work'),
+    '#default_value' => $form_state['values']['mediatitle'],
+    '#description' => t("The title for your media."),
+    '#size' => 60,
+    '#maxlength' => 255,
+    '#required' => TRUE,
+  );
+
+ $form['main']['body'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Description'),
+    '#default_value' => $form_state['values']['body'],
+    '#description' => "Please enter at least five words describing your media contribution...",
+    '#rows' => 6,
+    '#required' => TRUE,
+  );
+  //
+  //  $form['taxonomy']['tags'] = array(
+  //    '#type' => 'textfield',
+  //    '#title' => t('Keywords'),
+  //    '#value' => $form_state['values']['keywords'],
+  //    '#description' => "Please enter descriptive keywords or 'tags'.  Separate phrases by commas.",
+  //    '#size' => 60,
+  //    '#maxlength' => 255,
+  //    '#required' => TRUE,
+  //  );
+
+  // set media form parameters
+  // most of this copied from modules/node/node.pages.inc:node_form()
+  $node = array('uid' => $user->uid,
+                'name' => $user->name,
+                'type' => 'media');
+  if (isset($form_state['values'])) {
+    $node = $form_state['values'] + (array)$node;
+  }
+  $node = (object)$node;
+  foreach (array('body', 'title', 'format') as $key) {
+    if (!isset($node->$key)) {
+      $node->$key = NULL;
+    }
+  }
+  if (!isset($form_state['node_preview'])) {
+    node_object_prepare($node);
+  }
+  else {
+    $node->build_mode = 1; // NODE_BUILD_PREVIEW
+  }
+
+
+  $form['#id'] = 'media-node-form';
+
+
+  foreach (array('nid', 'vid', 'uid', 'created', 'type', 'language') as $key) {
+    $form[$key] = array(
+      '#type' => 'value',
+      '#value' => isset($node->$key) ? $node->$key : NULL,
+    );
+  }
+  $form['changed'] = array(
+    '#type' => 'hidden',
+    '#default_value' => isset($node->changed) ? $node->changed : NULL,
+  );
+  // Get the node-specific bits.
+  if ($extra = node_invoke($node, 'form', $form_state)) {
+    $form = array_merge_recursive($form, $extra);
+  }
+  $form['#node'] = $node;
+
+  taxonomy_form_alter($form, $form_state, 'media_node_form');
+  upload_form_alter($form, $form_state, 'media_node_form');
+  //content_form_alter($form, $form_state, 'media_node_form');
+
+
+  // $form['main']['title'] = $form['title'];
+  unset($form['title']);
+  // $form['main']['body_field'] = $form['body_field'];
+  unset($form['body_field']);
+
+  $form['taxonomy']['tags'][3]['#value'] = $form_state['values']['tags'];
+  $form['taxonomy']['tags'][3]['#required'] = TRUE;
+
+  //  $form['taxonomy'][4] = taxonomy_form(4);
+  $form['taxonomy'][4]['#value'] = $form_state['values'][4];
+  //  $form['taxonomy'][4]['#required'] = TRUE;
+  //
+  //  $form['taxonomy'][5] = taxonomy_form(5);
+  $form['taxonomy'][5]['#value'] = $form_state['values'][5];
+  //  $form['taxonomy'][5]['#required'] = TRUE;
+
+
+  $form['attachments']['#title'] = '';
+  $form['attachments']['#description'] = '';
+  // $form['attachments']['#prefix'] = '<center>';
+  // $form['attachments']['#suffix'] = '</center>';
+  $form['attachments']['#collapsed'] = 0;
+  $form['attachments']['#collapsible'] = 0;
+  $form['attachments']['#weight'] = 6;
+  if (isset($form['attachments']['wrapper']['new'])) {
+    //$form['attachments']['wrapper']['new']['upload']['#title'] = '';
+    //$form['attachments']['wrapper']['new']['upload']['#description'] = 'All uploaded items must be in a .pdf - .swf - .doc - .rtf - .jpeg or .jpg format.<p>Maximum file size is 10 megs.';
+    $form['attachments']['wrapper']['new']['attach']['#value'] = 'Upload File';
+  }
+
+  $form['taxonomy']['#title'] = '';
+  $form['taxonomy']['#collapsed'] = '0';
+  $form['taxonomy']['#collapsible'] = '0';
+  $form['taxonomy']['#weight'] = 5;
+
+
+  $form['submit'] = array(
+    '#prefix' => "<p style='padding: 10px 0px'>",
+    '#suffix' => "</p>",
+    '#type' => 'submit',
+    '#value' => 'Publish',
+    '#weight' => 8,
+  );
+
+  // $form['server'] = array(
+  //   '#type' => 'item',
+  //   '#title' => t('Internet Archive Server'),
+  //   '#prefix' => "<p>",
+  //   '#value' => $form_state['storage'][0]['server'],
+  //   '#suffix' => "</p>",
+  //   '#weight' => 10,
+  // );
+  //
+  // $form['field_identifier'] = array(
+  //   '#type' => 'item',
+  //   '#title' => t('Internet Archive Identifier'),
+  //   '#prefix' => "<p>",
+  //   '#value' => $form_state['storage'][0]['field_identifier'],
+  //   '#suffix' => "</p>",
+  //   '#weight' => 10,
+  // );
+
+  //$form['#validate'][] = 'node_form_validate';
+  return $form;
+}
+
+function ia_submission_form_page($form_state) {
+  if (drupal_strlen($form_state['storage'][0]['field_identifier']) == 0) {
+    $form = ia_submission_form_page1($form_state);
+  }
+  else {
+    $form = ia_submission_form_page2($form_state);
+  }
+  return $form;
+}
+
+function ia_submission_form_validate($form, &$form_state) {
+
+  $clicked = $form_state['clicked_button']['#value'];
+  drupal_set_message('ia_submission_form_validate: '. $clicked);
+
+  //dvm(array('ia_submission_form_validate form' => $form, 'ia_submission_form_validate form_state' => $form_state));
+  dpm(get_defined_vars());
+
+
+
+  if (drupal_strlen($form_state['storage'][0]['field_identifier']) == 0) {
+    $mediatitle = $form_state['values']['mediatitle'];
+    $mail = $form_state['values']['mail'];
+    if (drupal_strlen(trim($mediatitle)) < 6) {
+      form_set_error('mediatitle', t('Please enter a longer title.'));
+      return FALSE;
+    }
+    $url = ia_get_archive_url($mediatitle, $mail);
+    if (!$url) {
+      return FALSE;
+    }
+    else {
+      $explosion = explode('/', $url);
+      if (count($explosion) < 2) {
+        form_set_error('form', t("Unable to parse result from archive.org.  Result is '$url'."));
+        return FALSE;
+      }
+      // todo: change these to store as hidden vars for page 2?
+      // or use form_set_value($form['xxx'], $yyyy);
+      // that requires $form['xxx'] = array('#type' => 'value', '#value' => array());
+      // done - mss
+      //form_set_value($form['server'], $explosion[0], $form_state);
+      //form_set_value($form['field_identifier'], $explosion[1], $form_state);
+      $form_state['values']['server'] = $explosion[0];
+      $form_state['values']['field_identifier'] = $explosion[1];
+      //$form_state['storage']['server'] = $explosion[0];
+      //$form_state['storage']['field_identifier'] = $explosion[1];
+    }
+  }
+  else {
+    $form['values']['status'] == 1; // 0 = Not published
+    $form['values']['title'] == $form_state['values']['mediatitle'];
+    $form['values']['body_field'] == $form_state['values']['body'];
+    $form['values']['field_identifier'] = $form_state['values']['field_identifier'];
+    node_form_validate($form, $form_state);
+    if (empty($form_state['values']['files']) && ($form_state['clicked_button']['#id'] == 'edit-submit')) {
+      form_set_error('file', t('Please attach a media file') );
+      return FALSE;
+    }
+  }
+  return TRUE;
+}
+
+function ia_submission_form_submit($form, &$form_state) {
+
+  $clicked = $form_state['clicked_button']['#value'];
+  //drupal_set_message('ia_submission_form_submit: '. $clicked);
+
+  dpm(array('ia_submission_form_submit form' => $form, 'ia_submission_form_submit form_state' => $form_state));
+
+  switch ($clicked) {
+    case 'Publish':
+      drupal_set_message("Submitting media to the Internet Archive.");
+      $form_state['storage'][1] = $form_state['values'];
+      $form['values']['status'] == 1; // 0 = Not published
+      $form['values']['title'] == $form_state['values']['mediatitle'];
+      $form['values']['body_field'] == $form_state['values']['body'];
+      // $node->field_identifier = $form_state['values']['field_identifier']
+      $form['values']['field_identifier'] = $form_state['values']['field_identifier'];
+
+      node_form_submit($form, $form_state);
+
+      // call ia_submission($node) here or leave it up to hook_node_api?
+      // need to node_load('nid' => $form_state['nid']) for this
+      // also, set $form_state[node]???
+
+      drupal_set_message("Submitting media to the Internet Archive for node ". $form_state['nid'] ." ...");
+      unset($form_state['storage']);
+      $form['#redirect'] = 'ia/submission/finish';
+      // Reset all values to defaults
+      $form_state['rebuild'] = TRUE;
+      unset($form_state['storage']);
+      break;
+    case 'Continue >>':
+    // TO DO: merge array?
+      $form_state['storage'][0] = $form_state['values'];
+      break;
+    case 'Reset':
+      // Reset all values to defaults
+      $form_state['rebuild'] = TRUE;
+      unset($form_state['storage']);
+      break;
+    default:
+      drupal_set_message('This can\'t happen.');
+      break;
+    }
+  return;
+}
+
+function _ia_details($ident = '') {
+  //if (drupal_strlen(arg(2))) {
+  if (drupal_strlen($ident)) {
+    //$ident = strip_tags(arg(2));      // todo: clean more
+    $ident = strip_tags($ident);      // todo: clean more
+    $result = db_query("SELECT nid FROM {content_type_media} WHERE field_identifier_value = '%s'", $ident);
+    if ($result)  {
+      // todo: lookup alias?
+      $data  = db_fetch_object($result);
+      if ($data && $data->nid)
+        drupal_goto('node/'. $data->nid);
+    }
+  }
+  drupal_set_message("Unable to locate media with identifier: ". $ident);
+  drupal_goto('search');
+}
+
+function _ia_serve() {
+  if (drupal_strlen(arg(2))) {
+      $file = strip_tags(arg(2));      // todo: clean more
+      //$result = db_query("SELECT nid FROM {content_type_media} WHERE field_identifier_value = '%s'", $ident);
+      // if ($result)  {
+      //         // todo: lookup alias?
+      //         $data  = db_fetch_object($result);
+      //         if ($data && $data->nid)
+      //           drupal_goto('node/'. $data->nid);
+      // }
+  }
+  drupal_goto('search');
+}
+
+
+function ia_preview() {
+  $identifier = arg(2);
+  $message = (drupal_strlen(arg(3)) ? arg(3) : "");
+  $href = (drupal_strlen(arg(4)) ? urldecode(arg(4)) : "");
+
+  $output = theme('ia_preview', $identifier, $message, $href);
+
+  if ($_GET['js'] == 'yes') {
+    $output = htmlentities(str_replace(array("\n", "\r", "'"), array("", "", "\'"), $output), ENT_QUOTES);
+    $output = "document.write(\"$output\");";
+  }
+
+  print $output;
+}
+
+function ia_thumbnail_redirect() {
+  $identifier = arg(2);
+  $selector = "thumbnail";
+  $counter = ((arg(3) > 0) ? arg(3) : 2);
+
+  drupal_set_header("Location: ". _ia_file_url($identifier, $selector, $counter));
+}
+
+
+function ia_download_redirect() {
+  $identifier = arg(2);
+  $selector = (arg(3) ? arg(3) : "");
+  $counter = ((arg(4) > 0) ? arg(4) : 0);
+
+  drupal_set_header("Location: ". _ia_file_url($identifier, $selector, $counter));
+}
+
+
+function _ia_file_url($identifier, $selector = '', $counter = 0) {
+
+  $retval = "/". path_to_theme() ."/images/default_preview.gif";
+
+  $picture = db_result(db_query("SELECT picture FROM {users} u INNER JOIN {node} n ON u.uid=n.uid INNER JOIN {ia} i ON i.nid=n.nid WHERE i.ia_identifier='%s'", $identifier));
+  if ($picture)
+    $retval = $picture;
+
+  $meta_url = ia_download_url($identifier, $identifier .'_files.xml');
+  ini_set('max_input_time', 120);  // default is 30 seconds
+  $result = drupal_http_request($meta_url);
+  if (($selector > 0) && ($counter == 0)) {
+    $counter = $selector;
+    $selector = "";
+  }
+  $counter = (($counter > 0) ? $counter : 0);
+  $cnt = 0;
+  switch ($result->code) {
+    case '302':
+      // added 2007-12-16-mss
+      $result = drupal_http_request($result->redirect_url);
+
+    case '200':
+      $files_data = ia_parse($result->data);
+      $files = $files_data['FILES'][0]['FILE'];
+    if (is_array($files)) {
+      foreach ($files as $file) {
+      $source = drupal_strtolower($file['ATTRIBUTES']['SOURCE']);
+      //print "selector: $selector, counter: $counter, source: $source";
+      if (($source == 'original') || ((($selector !== '') || ($counter > 0)) && ($source == 'derivative'))) {
+        $filename = $file['ATTRIBUTES']['NAME'];
+      $format = drupal_strtolower($file['FORMAT'][0]['VALUE']);
+      //print ", filename: $filename, format: $format, test: " . strpos($format, $selector);
+      // NOTE: do not return archive metadata files (now marked as source="original")
+      if (($format != "metadata") && ($format != "")) {
+        $stest = (drupal_strlen($selector) ? (strpos($format, $selector) !== FALSE) : TRUE);
+          if ($stest !== FALSE) {
+          $cnt++;
+          $ctest = ($counter ? ($cnt == $counter) : TRUE);
+          //print ", stest: $stest, cnt: $cnt";
+          $retval = ia_download_url($identifier, $filename);
+          if ($ctest) {
+          //print ", cnt: $cnt, ret: ". ia_download_url($identifier, $filename);
+            return $retval;
+          }
+        }
+        }  // if
+      } // if
+      //print "<br/>\n";
+    }  //for
+    } // if
+      //return IA_DOWNLOAD_URL . $identifier .'/'. $files_data['FILES'][0]['FILE'][0]['ATTRIBUTES']['NAME'];
+  } // switch
+  //return "/files/file_missing_$selector.png";
+  //die();
+  return $retval;  // return default or last item found matching selector
+}
+
+
+function ia_download_url($identifier, $filename) {
+  return IA_DOWNLOAD_URL . $identifier .'/'. $filename;
+}
+
+function ia_details_url($identifier) {
+  return IA_DETAILSPAGE_URL . $identifier;
+}
+
+function ia_resyncarchive_url($identifier) {
+  return "/ia/resyncarchive/". $identifier;
+}
+
+function ia_resyncarchive($identifier = NULL) {
+  if (!$identifier) {
+    drupal_set_message('Unable to locate identifier for Intenet Archive re-sync.');
+    return drupal_not_found();
+  }
+  watchdog('ia_re-sync', 'Re-sync '. $identifier);
+  $nid = ia_fetch($identifier, TRUE);
+  if (!$nid) {
+    drupal_set_message('Unable to locate media item to re-sync with Internet Archive.');
+    return drupal_not_found();
+  }
+  drupal_set_message('Media item re-synced with the Internet Archive.');
+  drupal_goto('node/'. $nid);
+}
+
+function ia_list_contributor($uid='') {
+  // init_theme();
+
+  global $base_url;
+  $theme_path = path_to_theme();
+
+  if (drupal_strlen($uid)==0)
+    $uid = $_GET['uid'];
+
+  if (strpos($uid, "@") > 0)
+    $producer = user_load(array("mail" => $uid));
+  elseif ($uid > 0)
+    $producer = user_load(array("uid" => $uid));
+  else
+    $producer = user_load(array("name" => $uid));
+  if (!$producer) {
+    $output .= "<div style='padding: 5px 0 10px 0;'>No Ourmedia member corresponds to that name, address or ID.  If you are this member and think that this is not correct, please contact Ourmedia support.</div>";
+
+    $output .= "<div style='padding: 10px 0;'>No results for that search phrase.</div><div><form action='/ia/list/'><input type='text' name='uid' size='60' value='$uid'/><input type='submit' value='Search producers' /></form></div>";
+
+    drupal_set_title("Search for published media");
+
+    print theme('page', $output);
+    return;
+  }
+  // $url = IA_SOLR .'fq=contributor:'. $producer->mail .'&fl=identifier,title,mediatype,collection,publicdate,downloads,num_reviews,licenseurl,subject,format, description, creator';
+
+  $url = IA_SOLR .'fq=contributor:'. $producer->mail .'&fl=identifier,title,mediatype,collection,publicdate,downloads,num_reviews,licenseurl,description';
+
+  $orderarg = drupal_strtolower($_GET['order']);
+  if (drupal_strlen($orderarg) == 0)
+    $orderarg = "title";
+
+  $sortarg = drupal_strtolower($_GET['sort']);
+  if (drupal_strlen($sortarg) == 0) {
+    if (($orderarg == "downloads") || ($orderarg == "comments"))
+      $sortarg = "desc";
+    else
+      $sortarg = "asc";
+  }
+
+  //ini_set('max_input_time', 120);  // default is 30 seconds
+  $result = drupal_http_request($url);
+  switch ($result->code) {
+    case 200:
+    case 302:
+      $data = ia_parse($result->data);
+      $docs = $data['RESPONSE'][0]['RESULT'][0]['DOC'];
+      if (!is_array($docs)) {
+        $output .= "<div style='padding: 5px 0 10px 0;'>Archive returned no document for this member.  This probably means that the email address on record at Ourmedia for this member does not correspond to a valid Internet Archive account.  If you are this member and think that this is not correct, please contact Ourmedia support.</div>";
+
+        $output .= "<div style='padding: 5px 0 10px 0;'>Enter a producer email, member name or member id number.</div>";
+
+        $output .= "<div style='padding: 5px 0 10px 0;'>Link to this member's <a href='/user/$producer->uid'>profile</a>.</div>";
+
+        $output .= "<div style='padding: 5px 0 10px 0;'><form action='/ia/list/'><input type='text' name='uid' size='70' value='$uid'/><input type='submit' value='Search Producers' /></form></div>";
+
+        drupal_set_title("Search producers");
+        print theme('page', $output);
+        //watchdog('ia_list_contributor', t('No documents found at archive.org for user $uid: '. $producer->name), WATCHDOG_NOTICE);
+        return;
+      }
+      $cnt = 0;
+      $num_found = $data['RESPONSE'][0]['RESULT'][0]['ATTRIBUTES']['NUMFOUND'];
+      foreach ($docs as $doc) {
+        $strs = $doc['STR'];
+        if ($strs) {
+          foreach ($strs as $str) {
+            if ($str['ATTRIBUTES']['NAME'] == "mediatype")
+              $mediatype = _ia_map_type($str['VALUE']);
+            if ($str['ATTRIBUTES']['NAME'] == "licenseurl")
+              $licenseurl = $str['VALUE'];
+            if ($str['ATTRIBUTES']['NAME'] == "description")
+              $description = $str['VALUE'];
+            if ($str['ATTRIBUTES']['NAME'] == "identifier")
+              $identifier = $str['VALUE'];
+            if ($str['ATTRIBUTES']['NAME'] == "title")
+              $title = $str['VALUE'];
+          }
+        }
+        $arrs = $doc['ARR'];
+        if ($arrs) {
+          $formats = "";
+          $tags = "";
+          $collections = "";
+          $creator = "";
+          foreach ($arrs as $arr) {
+            if ($arr['ATTRIBUTES']['NAME'] == 'format') {
+              $strs = $arr['STR'];
+              if ($strs) {
+                foreach ($strs as $str) {
+                  $formats .= (drupal_strlen($formats) ? ", " : "") . $str['VALUE'];
+                }
+              }
+            }
+          }
+          if ($arr['ATTRIBUTES']['NAME'] == 'creator') {
+            $strs = $arr['STR'];
+            if ($strs) {
+              foreach ($strs as $str) {
+                $creator .= (drupal_strlen($creator) ? ", " : "") . $str['VALUE'];
+              }
+            }
+          }
+          if ($arr['ATTRIBUTES']['NAME'] == 'subject') {
+            $strs = $arr['STR'];
+            if ($strs) {
+              foreach ($strs as $str) {
+                $tags .= (drupal_strlen($tags) ? ", " : "") . $str['VALUE'];
+              }
+            }
+          }
+          if ($arr['ATTRIBUTES']['NAME'] == 'collection') {
+            $strs = $arr['STR'];
+            if ($strs) {
+              foreach ($strs as $str) {
+                $collections .= (drupal_strlen($collections) ? "<br/>" : "") . str_replace(array("_", "-"), array(" ", " "), $str['VALUE']);
+              }
+            }
+          }
+        }
+
+
+      }
+
+      $longs = $doc['LONG'];
+      if ($longs) {
+        foreach ($longs as $lng) {
+          if ($lng['ATTRIBUTES']['NAME'] == "downloads")
+            $downloads = $lng['VALUE'];
+        }
+      }
+
+      $ints = $doc['INT'];
+      if ($ints) {
+        foreach ($ints as $int) {
+          if ($int['ATTRIBUTES']['NAME'] == "num_reviews")
+            $num_reviews = $int['VALUE'];
+        }
+      }
+
+      $dates = $doc['DATE'];
+      if ($dates) {
+        foreach ($dates as $date) {
+          if ($date['ATTRIBUTES']['NAME'] == "publicdate")
+            $publicdate = drupal_substr($date['VALUE'], 0, 10);
+        }
+      }
+
+      if (drupal_strlen($mediatype)==0)
+        $mediatype = 'text';
+
+      // set key based on sort order
+      if ($orderarg == "date")
+        $key = $publicdate . $mediatype . drupal_strtolower($title);
+      elseif  ($orderarg == "comments")
+        $key = str_pad($num_reviews, 7, " ", STR_PAD_LEFT);
+      elseif  ($orderarg == "downloads")
+        $key = str_pad($downloads, 7, " ", STR_PAD_LEFT);
+      elseif  ($orderarg == "type")
+        $key = $mediatype . drupal_strtolower($title);
+      elseif  ($orderarg == "collections")
+        $key = $collections;
+      elseif  ($orderarg == "title")
+        $key = drupal_strtolower($title);
+      elseif  ($orderarg == "license")
+        $key = drupal_strtolower($licenseurl);
+      else
+        $key = $mediatype . $publicdate . drupal_strtolower($title);
+
+      // ensure key uniqueness
+      $key .= " ". $cnt++;
+
+      $typeimageurl = "/". $theme_path . _ia_get_mediatype_image($mediatype);
+      //$typeimg = "<input type='checkbox' name='selected_item' />&nbsp;<a href='/ia/details/$identifier'><img src='$typeimageurl' onerror=\"this.src='". _ia_get_mediatype_image() ."'\"/></a>";
+      $typeimg = "<a href='/ia/details/$identifier'><img src='$typeimageurl' onerror=\"this.src='/". $theme_path . _ia_get_mediatype_image() ."'\"/></a>";
+      $olink = "<a href='/ia/details/$identifier'>$title</a>";
+      $alink = "<a href='http://www.archive.org/details/$identifier'>$collections</a>";
+      $ccimageurl = _ia_get_cc_image($licenseurl);
+      $llink = "<a href='$licenseurl'><img src='$ccimageurl' onerror=\"this.src='http://spinxpress.com/images/cc-copyright.gif'\"/></a>";
+
+      // TO DO: validate that all required var have been set or use defaults
+      // e.g. any with drupal_strlen == 0
+
+      if (drupal_strlen($tags)==0)
+        $tags = "none";
+
+      $rows[$key] = array(
+        'data' => array(
+          array('data' => $typeimg, 'title' => $mediatype .': click here to view Ourmedia details page.', 'rowspan' => '1'),
+          array('data' => $olink,  'title' => $mediatype .": ". $description, 'rowspan' => '1'),
+          array('data' => $publicdate, 'class' => ''),
+          /* array('data' => $mediatype, 'style' => 'text-align:center;'), */
+          array('data' => $downloads, 'style' => 'text-align:center;'),
+          array('data' => $num_reviews, 'style' => 'text-align:center;'),
+          array('data' => $alink, 'title' => 'Click here to view Internet Archive details page.'),
+          array('data' => $llink, 'title' => 'Click here to view Creative Commons license page.')
+        ),
+        'style' => 'border:none;');
+
+      // $addurl = '<a href="#'. $identifier .'" title="Click here to add this item to a channel."><img src="$base_url/$theme_path/images/icons/gtk-new.png"/>Add to channel</a>';
+      // $rows[$key.($sortarg=="asc" ? ".1" : "")] = array('data' => array(array('data' => $creator, 'colspan' => '2'),
+      //                     //array('data' => 'Key: '.$key.($sortarg=="asc" ? "" : ".1"), 'colspan' => '2'),
+      //                     array('data' => 'Tags: '.$tags, 'colspan' => '3'),
+      //                     array('data' => 'Formats: '.$formats, 'colspan' => '3'),
+      //                 ),
+      //           'style' => 'border-bottom: thin silver solid;');
+      //
+      break;
+
+    default:
+      //$output .= "<div style='padding: 5px 0 10px 0;'>Archive returned an error (code: $result->code).  This probably means that there is a problem with the connection from our server to the Internet Archive.  Please try again later or contact Ourmedia support for assistance.</div>";
+
+      //$output .= "<div style='padding: 5px 0 10px 0;'>Link to this member's <a href='/user/$producer->uid'>profile</a>.</div>";
+
+      $output .= "<div style='padding: 5px 0 10px 0;'>Enter a producer email, member name or member id number.</div>";
+
+      $output .= "<div style='padding: 5px 0 10px 0;'><form action='/ia/list/'><input type='text' name='uid' size='70' value='$uid'/><input type='submit' value='Search Producers' /></form></div>";
+
+      drupal_set_title("Search producers");
+      print theme('page', $output);
+      return;
+
+    }  // swtich
+
+    if ($rows) {
+      if (($sortarg == "desc") || (($sortarg != "asc") && ($orderarg == "date")))
+        krsort($rows, ( (($orderarg == "downloads") || ($orderarg == "comments")) ? SORT_NUMERIC : SORT_STRING) );
+      else
+        ksort($rows, ( (($orderarg == "downloads") || ($orderarg == "comments")) ? SORT_NUMERIC : SORT_STRING) );
+    }
+    else {
+      $output .= "<div style='padding: 5px 0 10px 0;'>Archive returned no results for this member.</div>";
+
+      $output .= "<div style='padding: 5px 0 10px 0;'>Link to this member's <a href='/user/$producer->uid'>profile</a>.</div>";
+
+      $output .= "<div style='padding: 5px 0 10px 0;'>Enter a producer email, member name or member id number.</div>";
+
+      $output .= "<div style='padding: 5px 0 10px 0;'><form action='/ia/list/'><input type='text' name='uid' size='70' value='$uid'/><input type='submit' value='Search Producers' /></form></div>";
+
+      drupal_set_title("Search producers");
+      print theme('page', $output);
+      return;
+    }
+
+    $header = array(array('data' => 'Type', 'field' => 'mediatype'), array('data' => 'Title', 'field' => 'title'), array('data' => 'Date', 'field' => 'publicdate'), /* array('data' => 'Mediatype', 'field' => 'mediatype'), */ array('data' => 'Downloads', 'field' => 'downloads'), array('data' => 'Comments', 'field' => 'num_reviews'), array('data' => 'Collections', 'field' => 'collections'), array('data' => 'License', 'field' => 'license'));
+
+    if ($producer->uid > 0) {
+      $output .= "<div style='padding: 5px 0 10px 0;'><form action='/ia/list/'><input type='text' name='uid' size='70' value='". ($uid > 0 ? $producer->name : $uid) ."'/><input type='submit' value='Search producers' /></form></div>";
+
+      $output .= "<h3><a href='/user/$producer->uid'><img width='64px' style='padding-right: 5px;' src='/$producer->picture' onerror=\"this.src='$base_url/$theme_path/images/omprofilegreengrassshadow.jpg';\"/>$producer->name ($num_found items)</a><a href='/mediarss/user/$producer->uid' title=''><img style='padding: 0 5px;'  src='/$theme_path/images/icons/rss.gif' title='Media RSS feed for $producer->name'/></a></h3>";
+      //$output .= "<div>$url</div>";
+
+      //$orderarg = $_GET['order'];
+      //$output .= "<div>Sorted by $orderarg $sortarg</div>";
+
+      //$output .= "<form action='channels/publish'>";
+
+      //$output .= "<div style='padding: 10px 0;'>";
+
+      //$output .= "<input type='hidden' name='uid' value='$producer->uid' />";
+      //$output .= "<select id='channelid' name='channelid'>";
+      //$output .= "<option value='0'>This feature is not working yet.  Goming soon.</option> ";
+      // add channels as options here with channel id's as values
+      //$output .= "</select>";
+
+      //$output .= "<input type='submit' value='Add checked items to channel' /> ";
+
+      //$output .= "<a href='#' title='Flip all the checkboxes' onclick='var checks=document.getElementById(\"channelid\").options; var numchecks=checks.length; for(i=0;i++;i<numchecks;) checks[i].checked = !checks[i].checked; return FALSE;'>flip</a> ";
+
+      //$output .= "</div>";
+
+      $output .= theme('table', $header, $rows, array('class' => 'mypage-media', 'style' => 'font-size: 75%;'));
+
+      //$output .= "</form>";
+
+      $output .= "<div style='padding: 5px 0 30px 0;font-size: 60%;'>Please see <a href='http://www.archive.org/iathreads/post-view.php?id=119670' target='_blank'>this note</a> for additional details about Internet Archive download statistics.</div>";
+
+      drupal_set_title("Published media for ". $producer->name);
+    }
+    else {
+      $output .= "<div style='padding: 5px 0 10px 0;'>Enter a producer email, member name or member id number.</div>";
+
+    $output .= "<div style='padding: 5px 0 10px 0;'><form action='/ia/list/'><input type='text' name='uid' size='70' value='$uid'/><input type='submit' value='Search Producers' /></form></div>";
+
+    drupal_set_title("Search producers");
+  }
+  print theme('page', $output);
+}
+
+function _ia_get_cc_image($licenseurl) {
+  if ($licenseurl == 'http://www.copyright.gov/')
+    return "http://spinxpress.com/images/cc-copyright.gif";
+  if ($licenseurl == 'http://creativecommons.org/licenses/publicdomain/')
+    return "http://spinxpress.com/images/cc-publicdomain.gif";
+  $imgurl = str_replace(array("http://creativecommons.org/licenses/", "/2.0/", "/2.5/", "/3.0/"), array("http://spinxpress.com/images/cc-", ".gif", ".gif", ".gif"), $licenseurl);
+  return $imgurl;
+
+}
+
+function _ia_get_mediatype_image($type = "text") {
+  $base = "/images/icons/";
+  if ($type == "audio")
+    return $base ."audio.gif";
+  if ($type == "video")
+    return $base ."video.gif";
+  if ($type == "image")
+    return $base ."image.gif";
+  //  this is the default
+  // if ($type == "text")
+  return $base ."document.gif";
+}
+
+function _ia_map_type($mediatype) {
+  switch (strtolower($mediatype)) {
+    case 'movies':
+    case 'movingimage':
+    case 'video':
+      return 'video';
+    case 'sound':
+    case 'audio':
+      return 'audio';
+    case 'text':
+      return 'text';
+    case 'image':
+      return 'image';
+  }
+  return FALSE;
+}
+
+function _ia_map_license_type($licenseurl) {
+  switch (strtolower($licenseurl)) {
+    case 'movies':
+    case 'movingimage':
+    case 'video':
+      return 'video';
+    case 'sound':
+    case 'audio':
+      return 'audio';
+    case 'text':
+      return 'text';
+    case 'image':
+      return 'image';
+  }
+  return $licenseurl;
+}
+
+function _ia_map_key($mediatype, $key) {
+  switch ($mediatype) {
+    case 'audio':
+      switch ($key) {
+        case 'photo_credit':
+        case 'file_size':
+        case 'length':
+        case 'recording_mode':
+          return $key;
+        case 'sample_rate':
+          return 'sampling_rate';
+      }
+      break;
+    case 'image':
+      switch ($key) {
+        case 'photo_gps':
+          return 'image_gps_coordinates';
+        case 'film_type':
+          return 'image_film_type';
+        case 'bit_depth':
+          return 'image_bit_depth';
+        case 'genre':
+          return 'image_school';
+        case 'medium':
+          return 'image_medium';
+        case 'camera_aperture':
+        case 'camera_shutter_speed':
+        case 'camera_iso_equivalent':
+        case 'camera_focal_length':
+        case 'camera_model':
+        case 'file_size':
+        case 'image_resolution':
+          return $key;
+      }
+      break;
+    case 'text':
+      switch ($key) {
+        case 'photo_credit':
+        case 'file_size':
+          return $key;
+      }
+      break;
+    case 'video':
+      switch ($key) {
+        case 'quicktime_controller':
+        case 'quicktime_loop':
+        case 'quicktime_autoplay':
+        case 'photo_credit':
+        case 'file_size':
+        case 'length':
+        case 'framerate':
+          return $key;
+      }
+      break;
+  }
+  $key = 'metadata_'.strtolower($key);
+  return $key;
+}
+
+function ia_process_archive_xml($identifier, &$nid, &$node, &$account, $type='meta') {
+  $url = ia_download_url($identifier, $identifier .'_'. $type .'.xml');
+  //watchdog('ia_process', 'Requesting:&nbsp;@url', array('@id' => $identifier, '@url' => $url));
+  $result = drupal_http_request($url);
+  switch ($result->code) {
+    case '302':
+      //watchdog('ia_process', 'Request returned 302 for @id and redirect_url: @rurl', array('@id' => $identifier, '@rurl' => $result->redirect_url));
+      $result = drupal_http_request($result->redirect_url);
+      if ($result->code <> 200)
+        return FALSE;
+    case '200':
+      //watchdog('ia_process', 'Request returned 200 for @id and @url', array('@id' => $identifier, '@url' => $url));
+      $data = ia_parse($result->data);
+      if (!is_array($data)) {
+        watchdog('ia_process', 'Unable to parse data from archive.org for @id and @url', array('@id' => $identifier, '@url' => $url), WATCHDOG_WARNING);
+        break;
+      }
+      switch ($type) {
+        case 'files':
+          return ia_process_archive_files_xml($identifier, $node, $data, $result->data);
+        case 'meta':
+        default:
+          return ia_process_archive_meta_xml($identifier, $nid, $node, $account, $data, $result->data);
+      }
+    default:
+      watchdog('ia_process', 'Request failed for @id and @url', array('@id' => $identifier, '@url' => $url), WATCHDOG_WARNING);
+  }
+  return FALSE;
+}
+
+function ia_process_archive_meta_xml($identifier, &$nid, &$node, &$account, $data, $xml) {
+  $metadata = $data['METADATA'][0];
+  if (!is_array($metadata)) {
+    watchdog('ia_meta', 'Unable to find metadata element for @id: @data', array('@id' => $identifier, '@data' => print_r($data, 1)), WATCHDOG_WARNING);
+    return FALSE;
+  }
+  $contributor = $metadata['UPLOADER'][0]['VALUE'];
+  if (strlen($contributor) == 0) {
+    watchdog('ia_meta', 'Unable to read contributor for archive.org item @id', array('@id' => $identifier), WATCHDOG_WARNING);
+    return FALSE;
+  }
+  $account = user_load(array('mail' => $contributor));
+  // 2007-12-17-mss: if not email, check username
+  if (!($account->uid > 0))
+    $account = user_load(array('name' => $contributor));
+
+  // MSS 07/23/2008 - create new user. no notification for now.
+  if (!($account->uid)) {
+    $roles = array();
+    $pass = user_password();
+    if ($p = strpos($contributor, "@"))
+      $namecleaned = substr($contributor, 0, $p);
+    else
+      $namecleaned = $contributor;
+    $cnt = 0;
+    while (user_load(array('name' => $namecleaned . ($cnt ? $cnt : "")))) {
+      $cnt++;
+      if ($cnt > 100) {  // spammer?
+        $cnt = time();
+        break;
+      }
+    }
+    $namecleaned .= ($cnt ? $cnt : "");
+    $account = user_save( '', array('name' => $namecleaned, 'mail' => $contributor, 'status' => 1,  'init' => $contributor, 'roles' => $roles, 'pass' => $pass, 'profile_services' => 'Internet Archive Contributor') );
+    if ($account->uid) {
+      watchdog('ia_meta', "Created account for:&nbsp;@contributor and new node: @identifier", array('@contributor'=>$contributor, '@identifier' => $identifier));
+    }
+  }
+  if (!($account->uid > 0)) {
+    watchdog('ia_meta', 'Unable to load user with name or mail @user for archive item @id', array('@user'=>$contributor, '@id' => $identifier));
+    return FALSE;
+  }
+
+  if ($account->status != 1) {
+    watchdog('ia_meta', 'Cancel load of blocked user with name or mail @user for archive item @id', array('@user'=>$contributor, '@id' => $identifier));
+    return FALSE;
+  }
+
+
+  //watchdog('ia_meta', 'Loaded user:&nbsp;@uid', array('@uid' => $account->uid));
+
+  // load existing node if available
+  // NOTE: avoid overwriting existng data such as descriptions
+  if (($nid>0) && is_object($node) && !is_null($node)) {
+    $node = node_load(array('nid' => $nid));
+    //watchdog('ia_meta', 'Loaded node:&nbsp;@nid', array('@nid' => $nid));
+  }
+
+  $mediatype = _ia_map_type(strtolower($metadata['MEDIATYPE'][0]['VALUE']));  
+  $terms = taxonomy_get_term_by_name($mediatype);
+  foreach($terms as $term) {
+    if ($term->vid == 4) {
+      $node->taxonomy[4] = $term->tid;
+      break;
+    }
+  }
+  //watchdog('ia_meta', " taxonomy_get_term_by_name($mediatype): ". print_r( taxonomy_get_term_by_name($mediatype), 1));
+
+  // TODO: test for valid mediatype (it appears it may be blank at times)
+
+  // foreach ($metadata as $key => $values) {
+  //   //$key = _ia_map_key($mediatype, $key);
+  //   if (count($values) == 1) {
+  //     //$node->$key = $values[0]['VALUE'];
+  //     if ($key == 'subject') {
+  //       $keywords .= ($values[0]['VALUE'] . ",");
+  //     }
+  //   }
+  //   else {
+  //     $value = array();
+  //     foreach ($values as $val) {
+  //       $value[] = $val['VALUE'];
+  //       if ($key == 'subject') {
+  //         $keywords .= ($val['VALUE'] . ",");
+  //       }
+  //     }
+  //     //$node->$key = $value;
+  //   } // else
+  // } // for ($metadata as $key => $values)
+
+  $subject = $metadata['SUBJECT'];
+  if (is_array($subject)) {
+    foreach ($subject as $term)
+      $keywords .= trim($term['VALUE']) .",";
+  }
+  elseif (is_string($subject))
+    $keywords .= $subject;
+  //watchdog('ia_meta', 'keywords:&nbsp;'. $keywords);
+  //$terms = array('tags' => array('vid' => 3, 'vid_value' => $keywords));
+  //taxonomy_node_save($node, $terms);
+  $node->taxonomy['tags'][3] = $keywords;
+
+  $node->type = 'media';
+  if (strlen($node->title) == 0)
+    $node->title = $metadata['TITLE'][0]['VALUE'];
+  if (strlen($node->description) == 0)
+    $node->body = $metadata['DESCRIPTION'][0]['VALUE'];
+  // if (strlen($node->metadata_author) == 0)
+  //   $node->metadata_author = $metadata['CREATOR'][0]['VALUE'];
+  if (!($node->uid)>0)
+    $node->uid = $account->uid;
+  $node->changed = time();
+  if (strlen($metadata['PUBLICDATE'][0]['VALUE']))
+    $node->created = strtotime($metadata['PUBLICDATE'][0]['VALUE']);
+  $node->comment = 2;
+
+  // node_save($node);
+  // $node = node_load($node->nid);
+
+  //watchdog('ia_meta', 'field_identifier: '. print_r($node->field_identifier, 1));
+  $node->field_identifier[0]['value'] = $identifier;
+
+  // if (function_exists('creativecommons_get_license_from_url')) {
+  //   $node->cc = creativecommons_get_license_from_url($metadata['LICENSEURL'][0]['VALUE']);
+  // }
+  $license = $metadata['LICENSEURL'][0]['VALUE'];
+  $licensetype = _ia_map_license_type(strtolower($license));
+  // TODO: use $node->taxonomy[5] instead, requires code
+  $node->field_license[0]['value'] = $license;
+
+  $node->field_xml[0]['value'] = $xml;
+
+  $node->field_reelcategory[0]['value'] = $mediatype;
+  $node->field_host[0]['value'] = "archive.org";
+  $node->field_favorite[0]['value'] = "yes";
+  // $node->field_format[0]['value'] = ;
+  // $node->field_thumbnail[0]['value'] = ;
+  // $node->field_poster[0]['value'] = ;
+
+  //$node = node_submit($node);
+  node_save($node);
+  // cck save? like profile?
+  //content_insert($node);
+  //watchdog('ia_meta', 'Node&nbsp;'. ($nid ? "updated" : "saved") .'&nbsp;with nid:&nbsp;<a href=\'/node/@nid\'>@nid</a> for <a href=\'http://archive.org/details/@id\'>@id</a>, node: @data', array('@nid' => $node->nid, '@id' => $identifier, '@data' => print_r($node, 1)));
+  return ($nid = $node->nid);
+}
+
+function ia_process_archive_files_xml($identifier, &$node, $data, $xml) {
+  $files = $data['FILES'][0]['FILE'];
+  if (!is_array($files)) {
+    watchdog('ia_files', 'Unable to find files element for @id: @data', array('@id' => $identifier, '@data' => print_r($data, 1)), WATCHDOG_WARNING);
+    return FALSE;
+  }
+  if (!count($files)) {
+    // TODO: flag this node with error state? a new field in hosting info
+    watchdog('ia_files', 'No entries in _files metadata from archive.org for @id', array('@id' => $identifier), WATCHDOG_WARNING);
+    return FALSE;
+  }
+  db_query("DELETE upload, files FROM upload INNER JOIN files ON upload.fid=files.fid WHERE nid=%d AND filepath LIKE 'internetarchive/%'", $node->nid);
+  foreach ($files as $file) {
+    $source = $file['ATTRIBUTES']['SOURCE'];
+    $filename = $file['ATTRIBUTES']['NAME'];
+    $format = $file['FORMAT'][0]['VALUE'];
+    $fnm = strtolower($filename);
+    $file_url = ia_download_url($identifier, $filename);
+    $headers = array();
+    $result = drupal_http_request($file_url,$headers, "HEAD");
+    // 2007-12-16-MSS: test for redirect???
+    if ($result->code == 302) {
+      //watchdog('ia_files', 'Request returned 302 for file head: @id, redirect_url: @rurl', array('@id' => $identifier, '@rurl' => $result->redirect_url));
+      $result = drupal_http_request($result->redirect_url, $headers, "HEAD");
+    }
+    //watchdog('ia_files',  "head result: " . print_r($result, 1) );
+    $filesize = $result->headers['Content-Length'];
+    $filemime = $result->headers['Content-Type'];
+    
+    // todo: use $node->files? (unset, then append and save?)
+    db_query("INSERT INTO {files} (uid, filename, filesize, filemime, filepath, status, timestamp) VALUES (%d, '%s', %d, '%s', '%s', %d, %d)", $node->uid, $filename, $filesize, $filemime, "ia/". $source . "/". $format . "/". $identifier . "/". $filename, 1, $node->created);
+    $fid = db_last_insert_id('files', 'fid');
+    db_query("INSERT INTO {upload} (fid, nid, vid, description, list, weight) VALUES (%d, %d, %d, '%s', %d, %d)", $fid, $node->nid, $node->vid, $source ." - ". $format ." - ". $filename, 0, 0);
+    //watchdog('ia_files', '@filename attached to @id (@nid) with fid: @fid', array('@filename' => $filename, '@nid' => $node->nid, '@id' => $identifier, '@fid' => $fid));
+  }  // foreach file
+  
+  $node->field_xml[0]['value'] .= $xml;
+  node_save($node);
+  return TRUE;
+}
+
+function ia_fetch($identifier, $refresh = FALSE) {
+
+  watchdog('ia_fetch', 'Checking for local node identifier: @id', array('@id' => $identifier));
+
+  $nid = db_result(db_query("SELECT m.nid FROM {content_type_media} m, {node} n WHERE n.nid=m.nid AND m.field_identifier_value='%s' AND n.status=1", $identifier));
+  if (($nid > 0) && (!$refresh)) {
+    $node = node_load(array('nid' => $nid));
+    if ($node && $node->uid)
+      $acct = user_load(array('uid' => $node->uid));
+    if (!($acct && $acct->status))
+      return FALSE;
+    return $nid;
+  }
+  ia_process_archive_xml($identifier, $nid, $node, $acct, 'meta');
+  ia_process_archive_xml($identifier, $nid, $node, $acct, 'files');
+  return $nid;
+}
+
+// function ia_fetch_old($identifier, $refresh = FALSE) {
+// 
+//   watchdog('ia_fetch', 'Checking for local node identifier: @id', array('@id' => $identifier));
+// 
+//   //$nid = db_result(db_query("SELECT nid FROM {ia} WHERE ia_identifier='%s' AND status=1", $identifier));
+//   $nid = db_result(db_query("SELECT m.nid FROM {content_type_media} m, {node} n WHERE n.nid=m.nid AND m.field_identifier_value='%s' AND n.status=1", $identifier));
+//   if (($nid > 0) && (!$refresh)) {
+//     $node = node_load(array('nid' => $nid));
+//     if ($node && $node->uid)
+//       $acct = user_load(array('uid' => $node->uid));
+//     if (!($acct && $acct->status))
+//       return FALSE;
+//     return $nid;
+//   }
+// 
+//   watchdog('ia_fetch', 'Fetching metadata from archive.org:  @id', array('@id' => $identifier));
+//   $meta_url = ia_download_url($identifier, $identifier . '_meta.xml');
+//   $result = drupal_http_request($meta_url);
+//   switch ($result->code) {
+//     case '302':
+//       watchdog('ia_fetch', 'Got Result 302: @id, redirect_url: @rurl', array('@id' => $identifier, '@rurl' => $result->redirect_url));
+//       $result = drupal_http_request($result->redirect_url);
+//     case '200':
+//       watchdog('ia_fetch', 'Got Result 200: @id', array('@id' => $identifier));
+//       $data = ia_parse($result->data);
+//       if (!is_array($data)) {
+//         watchdog('ia', 'Unable to parse data from archive.org for @id', array('@id' => $identifier), WATCHDOG_WARNING);
+//         break;
+//       }
+//       
+//       // ia_process_archive_xml($identifier, $type='meta')
+//       
+//       $metadata = $data['METADATA'][0];
+//       if (!is_array($metadata)) {
+//         watchdog('ia', 'Unable to find metadata element for @id (<a href="@url">meta</a>, @data)', array('@id' => $identifier, '@url' => $meta_url, '@data' => htmlentities(var_export($result,1))), WATCHDOG_WARNING);
+//         break;
+//       }
+// 
+//       $contributor = $metadata['UPLOADER'][0]['VALUE'];
+//       if (strlen($contributor) == 0) {
+//         watchdog('ia', 'Unable to read contributor for archive.org item @id', array('@id' => $identifier), WATCHDOG_WARNING);
+//         break;
+//       }
+//       // else {
+//       //   if ($nid === false)
+//       //     db_query("INSERT INTO {ia} (nid, ia_identifier, contributor, status) VALUES (0, '%s', '%s', 0)", $identifier, $contributor);
+//       // }
+// 
+//       $account = user_load(array('mail' => $contributor));
+//       // 2007-12-17-mss: if not email, check username
+//       if (!($account->uid > 0))
+//         $account = user_load(array('name' => $contributor));
+// 
+//       // MSS 07/23/2008 - create new user. no notification for now.
+//       if (!($account->uid)) {
+//         $roles = array();
+//         $pass = user_password();
+//         if ($p = strpos($contributor, "@"))
+//           $namecleaned = substr($contributor, 0, $p);
+//         else
+//           $namecleaned = $contributor;
+// 
+//         $cnt = 0;
+//         while (user_load(array('name' => $namecleaned . ($cnt ? $cnt : "")))) {
+//           $cnt++;
+//           if ($cnt > 100) break;  // spammer?
+//         }
+//         $namecleaned .= ($cnt ? $cnt : "");
+// 
+//         $account = user_save( '', array('name' => $namecleaned, 'mail' => $contributor, 'status' => 1,  'init' => $contributor, 'roles' => $roles, 'pass' => $pass, 'profile_services' => 'Internet Archive Contributor') );
+//         if ($account->uid) {
+//           watchdog('ia_newaccount', "ia_fetch created account for: @contributor and new node: @identifier", array('@contributor'=>$contributor, '@identifier' => $identifier));
+//         }
+//       }
+// 
+//       if (!($account->uid > 0)) {
+//         watchdog('ia', 'Unable to load user with name or mail @user for archive item @id', array('@user'=>$contributor, '@id' => $identifier));
+//         break;
+//       }
+// 
+//       if ($account->status != 1) {
+//         watchdog('ia', 'Cancel load of blocked user with name or mail @user for archive item @id', array('@user'=>$contributor, '@id' => $identifier));
+//         break;
+//       }
+// 
+//       // load existing node if available
+//       // NOTE: avoid overwriting existng data such as descriptions
+//       if ($nid>0)
+//         $node = node_load(array('nid' => $nid));
+// 
+//       $mediatype = _ia_map_type(strtolower($metadata['MEDIATYPE'][0]['VALUE']));
+// 
+//       // TODO: test for valid mediatype (it appears it may be blank at times)
+// 
+//       // 2007-12-11-mss: add subject tags to on-the-fly category for keywords
+// 
+//       foreach ($metadata as $key => $values) {
+//         //$key = _ia_map_key($mediatype, $key);
+//         if (count($values) == 1) {
+//           //$node->$key = $values[0]['VALUE'];
+//           if ($key == 'metadata_subject') {
+//             //$node->{'otf_categories_7'} .= ($values[0]['VALUE'] . "\n");
+//           }
+//         }
+//         else {
+//           $value = array();
+//           foreach ($values as $val) {
+//             $value[] = $val['VALUE'];
+//             if ($key == 'metadata_subject') {
+//               //$node->{'otf_categories_7'} .= ($val['VALUE'] . "\n");
+//             }
+//           }
+//           //$node->$key = $value;
+//         } // else
+//       } // for ($metadata as $key => $values)
+// 
+//       $node->type = 'media';
+//       if (strlen($node->title) == 0)
+//         $node->title = $metadata['TITLE'][0]['VALUE'];
+//       if (strlen($node->description) == 0)
+//         $node->body = $metadata['DESCRIPTION'][0]['VALUE'];
+//       // if (strlen($node->metadata_author) == 0)
+//       //   $node->metadata_author = $metadata['CREATOR'][0]['VALUE'];
+//       if (!($node->uid)>0)
+//         $node->uid = $account->uid;
+//       $node->changed = time();
+//       if (strlen($metadata['PUBLICDATE'][0]['VALUE']))
+//         $node->created = strtotime($metadata['PUBLICDATE'][0]['VALUE']);
+//       //$node->ia_identifier = $identifier;
+//       $node->field_identifier = $identifier;
+//       
+//       $node->comment = 2;
+// 
+// 
+//       // if (function_exists('creativecommons_get_license_from_url')) {
+//       //   $node->cc = creativecommons_get_license_from_url($metadata['LICENSEURL'][0]['VALUE']);
+//       // }
+//       $license = $metadata['LICENSEURL'][0]['VALUE'];
+// 
+//       $node->field_xml_value = $result->data;
+//       $node->field_identifier_value = $identifier;
+//       $node->field_license_value = $license;
+//       $node->field_reelcategory_value = "";
+//       $node->field_host_value = "archive.org";
+//       $node->field_favorite_value = "yes";
+//       // $node->field_format_value = ;
+//       // $node->field_thumbnail_value = ;
+//       // $node->field_poster_value = ;
+// 
+//     // $keywords = $node->metadata_subject;
+//     // foreach ($keywords as $keyword)
+//     //   $node->{'otf_categories_7'} =. $keyword . "\n";
+// 
+//       node_save($node);
+//       $nid = $node->nid;
+//       watchdog('ia_fetch', 'Saved new node @id: @nid', array('@nid' => $nid, '@id' => $identifier));
+//       //if (!($nid>0)) {
+//         // EZ - Not sure if the local $node is getting it's nid updated.
+//         // updated for drupal 6 - now node is passed by ref and nothing is returned
+//         //$nid = node_save($node);
+//        //if ($nid>0) {
+//           // EZ - Update the local $node
+//           //$node->nid = $nid;
+//           // TODO (DONE 2007-11-10 MSS): test if this is necessary (dup) - not necessary if we dissallow nid=0?
+//           // also, how do we know that staus should be 1 at this point?
+// 
+// 
+//           // replace this with node->field assignments and node_save
+//           
+//  
+//         //   $result = db_fetch_object(db_query('SELECT nid FROM {content_type_media} WHERE nid=%d', $nid));
+//         // 
+//         //   if ($result) {
+//         //     $sql = "UPDATE {content_type_media} SET vid = %d, field_xml_value = '%s', field_identifier_value = '%s', field_license_value = '%s', field_reelcategory_value = '%s', field_host_value = '%s', field_favorite_value = '%s', field_format_value = '%s', field_thumbnail_value = '%s', field_poster_value = '%s' WHERE nid = %d";
+//         //     db_query($sql, $nid, "", $identifier, $license, "", "archive.org", "yes", "", "", "");
+//         //   }
+//         //   else {
+//         //     $sql = "REPLACE INTO {content_type_media} (vid, nid, field_xml_value, field_identifier_value, field_license_value, field_reelcategory_value, field_host_value, field_favorite_value, field_format_value, field_thumbnail_value, field_poster_value) VALUES (%d, %d, %s, %s, %s, %s, %s, %s, %s, %s, %s)";
+//         //     db_query($sql, $nid, $nid, $result->data, $identifier, $license, "", "archive.org", "yes", "", "", "");
+//         //     watchdog('ia_fetch', 'Added ia record for node @nid and identifier @id', array('@nid' => $nid, '@id' => $identifier));
+//         //   }
+//         // }
+//         // else {
+//         //   watchdog('ia', 'Unable to fetch, create or save node associated with archive item @id.  No data added.', array('@id' => $identifier), WATCHDOG_WARNING);
+//         //   break;
+//         // }
+//       //}
+// 
+//       watchdog('ia_fetch', 'Getting archive.org file info for: @id', array('@id' => $identifier));
+//       $files_url = ia_download_url($identifier, $identifier . '_files.xml');
+//       $files_result = drupal_http_request($files_url);
+//       // 2007-12-16-MSS: replaced condition and added redirect following
+//       //switch ($result->code) {
+//       switch ($files_result->code) {
+//         case '302':
+//           watchdog('ia_fetch', 'Got File Result 302: @id', array('@id' => $identifier));
+//           //watchdog('ia_fetch', 'Got Result 302 for files metadata: @id, redirect_url: @rurl', array('@id' => $identifier, '@rurl' => $files_result->redirect_url));
+//           $files_result = drupal_http_request($files_result->redirect_url);
+//           // todo: check for error
+//         case '200':
+//           watchdog('ia_fetch', 'Got File Result 200: @id', array('@id' => $identifier));
+//           $files_data = ia_parse($files_result->data);
+//           if (!is_array($files_data)) {
+//             watchdog('ia_fetch', 'Unable to parse _files metadata from archive.org for @id', array('@id' => $identifier), WATCHDOG_WARNING);
+//             break;
+//           }
+//           
+//         // ia_process_archive_xml($identifier, $type='meta')
+//           
+//           // TODO: add AND not a real file on our system (use pathname?)
+//           $files = $files_data['FILES'][0]['FILE'];
+//           if (is_array($files)) {
+//             if (!count($files)) {
+//               // TODO: flag this node with error state? a new field in hosting info
+//               watchdog('ia_fetch', 'No entries in _files metadata from archive.org for @id', array('@id' => $identifier), WATCHDOG_WARNING);
+//               break;
+//             }
+//             // 2007-12-17-mss:  DONE: don't delete until inside sanity checks?
+//             //db_query("DELETE FROM {upload} WHERE nid = %d AND filepath like 'internetarchive/%'", $nid);
+//             //db_query("DELETE FROM {files} WHERE NOT EXISTS (SELECT * FROM {upload} WHERE {upload}.fid = {files}.fid)");
+// 
+//             db_query("DELETE upload, files FROM upload INNER JOIN files ON upload.fid=files.fid WHERE nid=%d AND filepath LIKE 'internetarchive/%'", $nid);
+// 
+//             foreach ($files as $file) {
+//                 $source = $file['ATTRIBUTES']['SOURCE'];
+// 
+//               ////if (strtolower($file['ATTRIBUTES']['SOURCE']) == 'original') {
+//                 $filename = $file['ATTRIBUTES']['NAME'];
+//                 $format = $file['FORMAT'][0]['VALUE'];
+// 
+//                 // NOTE: do not save archive metadata files (now marked as source="original")
+//                 ////if ((strtolower($format) != "metadata") && ((strpos($filename, "_files.xml")===false) && (strpos($filename, "_reviews.xml")===false) && (strpos($filename, "_meta.xml")===false))) {
+//                   // skip images for non-image nodes
+//                   $fnm = strtolower($filename);
+//                   ////if (($node->type <> "imagemedia") && ((strpos($fnm, ".gif") > 0) || (strpos($fnm, ".jpeg") > 0)  || (strpos($fnm, ".jpg") > 0)  || (strpos($fnm, ".png") > 0)) )
+//                   ////  continue;
+//                   $file_url = ia_download_url($identifier,$filename);
+//                   $headers = array();
+//                   $result = drupal_http_request($file_url,$headers,"HEAD");
+//                   // 2007-12-16-MSS: test for redirect???
+//                   if ($result->code == 302) {
+//                     watchdog('ia_fetch', 'Got Result 302 for file head: @id, redirect_url: @rurl', array('@id' => $identifier, '@rurl' => $result->redirect_url));
+//                     $result = drupal_http_request($result->redirect_url,$headers,"HEAD");
+//                   }
+//                   //if ($result->code != 200)
+//                   //  break;
+//                   watchdog('ia_fetch',  "head result: " . htmlentities(var_export($files_result,1)) );
+//                   $filesize = $result->headers['Content-Length'];
+//                   $filemime = $result->headers['Content-Type'];
+//                   watchdog('ia_fetch', "about to insert file record: " . sprintf("INSERT INTO {files} (fid, uid, filename, filesize, filemime, filepath, status) VALUES (%d, %d, '%s', %d, '%s', '%s')", $fid, $account->uid, $filename, $filesize, $filemime, "ia/". $source . "/". $format . "/". $identifier . "/". $filename, 1));
+// 
+//                   db_query("INSERT INTO {files} (uid, filename, filesize, filemime, filepath, status) VALUES (%d, '%s', %d, '%s', '%s', %d)", $account->uid, $filename, $filesize, $filemime, "ia/". $source . "/". $format . "/". $identifier . "/". $filename, 1);
+// 
+//                   //$fid = db_next_id('{files}_fid');
+//                   $fid = db_last_insert_id('files', 'fid');
+// 
+//                   db_query("INSERT INTO {upload} (fid, nid, vid, description, list, weight) VALUES (%d, %d, %d, '%s', %d, %d)", $fid, $nid, $nid, $source ." - ". $format ." - ". $filename, 0, 0);
+//                   // MSS: TODO: what is this updating? is this in use?
+//                   //$GLOBALS['fid_'.$mediatype] = $fid;
+//                   ////$GLOBALS['fid_media'] = $fid;
+//                   watchdog('ia_fetch', 'added file @filename for @id to files and upload tables with fid: @fid', array('@filename' => $filename, '@id' => $identifier, '@fid' => $fid));
+//                   // MSS: update node and exit loop since we only support one original source file
+//                   ////$mediaformat = $mediatype . 'format';
+//                   ////$node->$mediaformat = $format;
+//                   // mss: update media record fileid - note, i had to extend nodeapi to update this field
+//                   ////$mediafileid = $mediatype . '_fileid';
+//                   ////$node->$mediatype->$mediafileid = $fid;
+//                   ////$nid = node_save($node);
+//                   //watchdog('ia_fetch', 'Updated node @id: @nid', array('@nid' => $nid, '@id' => $identifier));
+//                   //break;
+//                 ////}  // if metadata
+//               ////} // if original
+//             }  // foreach file
+//           } // if files
+//           else {
+//             watchdog('ia', 'Unable to find files element for @id (<a href="@url">meta</a>, @data)', array('@id' => $identifier, '@url' => $files_url, '@data' => htmlentities(var_export($files_result,1))), WATCHDOG_WARNING);
+//           }
+//           return $nid;
+//         default:
+//           watchdog('ia_fetch', 'Unable to fetch _file information from archive.org for @id', array('@id' => $identifier), WATCHDOG_WARNING);
+//       } //switch
+//       break;
+//     default:
+//       watchdog('ia_fetch', 'Unable to fetch _meta information from archive.org for @id at @url', array('@id' => $identifier, '@url' => $meta_url), WATCHDOG_WARNING);
+//   }
+//   return FALSE;
+// }
+
+function ia_submission($node) {
+  $account = user_load(array('uid' => $node->uid));
+  profile_load_profile($account);
+  $files = $node->files;
+  if (count($files) == 0) {
+    watchdog('ia', "No files found for node: @nid", array('@nid' => $node->nid));
+    return FALSE;
+  }
+  // *both* ia_get_archive_url and ia_get_identifier may perform repeated http requests
+  set_time_limit(600);
+
+  // mss - move set_time_limit to methods that need it?
+  // also, may need to reset it, depending on size of upload?
+  //$identifier = ia_get_identifier($node);
+
+  // $url = ia_get_archive_url($node->title, $account->mail);
+  // if (!$url) {
+  //   watchdog('ia', "Could not get archive url for '@mail' and '@title' node: @nid", array('@nid' => $node->nid, '@title' => $node->title, '@mail' => $account->mail));
+  //   return FALSE;
+  // }
+
+  // todo: get from storage and make this part of submit.
+  // ia_get_archive_url($title, $mail)
+  // $explosion = explode('/', $url);
+  // $ftp_url = $explosion[0];
+  // $identifier = $explosion[1];
+  // if (!$ftp_url || !$identifier) {
+  //   watchdog('ia', "Could not parse ftp url and indentifier returned from archive.org for node: @nid", array('@nid' => $node->nid));
+  //   return FALSE;
+  // }
+
+  $mediatype = strtolower($node->taxonomy[21]['name']);
+
+  // if (function_exists('metadata_get_fields')) {
+  //   $data = metadata_get_fields($node);
+  //    if (is_array($data)) {
+  //    foreach($data as $name => $field) {
+  //        $name = str_replace('metadata_', '', $name);
+  //        $metadata[$name] = $field['value'];
+  //    }
+  //    }
+  // }
+
+  // TODO: add license, keywords, other?
+
+  $metadata['collection'] = variable_get('ia_collection', 'ourmedia');
+  $metadata['title'] = $node->title;
+  $metadata['mediatype'] = $mediatype;
+  $metadata['uploader'] = $account->mail;
+
+// todo: add keywords, license, etc
+
+  $metadata_xml = _ia_metadata_xml($metadata);
+  if (!$metadata_xml) {
+    watchdog('ia', "Metadata error for node: @nid", array('@nid' => $node->nid));
+    return FALSE;
+  }
+
+  $files_xml = _ia_files_xml($files);
+  $server = $ftp_url;
+  $conn = ftp_connect($server);
+
+  // TODO: what to do about ia_pass? move to profile field? (take from either for now?)
+  if (isset($account->profile_ia_pass))
+    $pass = $account->profile_ia_pass;
+  if (!strlen($pass) && isset($account->ia_pass))
+    $pass = $account->ia_pass;
+  if (!strlen($pass)) {
+    // todo: prompt user for password (add to form?) or route to account creation
+    watchdog('ia', "No password for user: @uid and node: @nid", array('@nid' => $node->nid, '@uid' => $account->uid));
+    return FALSE;
+  }
+
+  $result = ftp_login($conn, $account->mail, $pass);
+  // IMPORTANT!!! turn passive mode on
+  ftp_pasv($conn, TRUE);
+
+  if (!$conn || !$result) {
+    watchdog('ia', 'Submission: failed to upload to @server for @mail', array('@server' => $server, '@mail' => $account->mail), WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  //  ftp_mkdir($conn, $identifier);
+  ftp_chdir($conn, $identifier);
+
+  // put the metadata xml
+  $tmpfname = tempnam(file_create_path(variable_get('file_directory_temp', '')), 'ia');
+  $fp = fopen($tmpfname, 'w');
+  fwrite($fp, $metadata_xml);
+  fclose($fp);
+  $ret = ftp_put($conn, $identifier.'_meta.xml', $tmpfname, FTP_ASCII);
+  @unlink($tmpfname);
+  if (!$ret) {
+    watchdog('ia', 'Submission: failed to send @file', array('@file' => $identifier .'_meta.xml' ), WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  // store the _files.xml as well
+  $tmpfname = tempnam(file_create_path(variable_get('file_directory_temp', '')), 'ia');
+  $fp = fopen($tmpfname, 'w');
+  fwrite($fp, $files_xml);
+  fclose($fp);
+  $ret = ftp_put($conn, $identifier.'_files.xml', $tmpfname, FTP_ASCII);
+  @unlink($tmpfname);
+  if (!$ret) {
+    watchdog('ia', 'Submission: failed to send @file', array('@file' => $identifier .'_files.xml'), WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  // files upload
+  if (is_array($files)) {
+    foreach ($files as $file) {
+      $ret = ftp_put($conn, $file->filename, file_create_path($file->filepath), FTP_BINARY);
+      if (!$ret) {
+        watchdog('ia', 'Submission: failed to send @file', array('@file' => $file->filename ), WATCHDOG_ERROR);
+        return FALSE;
+      }
+      else {
+        /*
+        $ret = file_delete(file_create_path($file->filepath));
+        if (!$ret) {
+          watchdog('ia_submission', t('failed to delete @file', array('@file' => $file->filename )));
+        }
+        else {
+          watchdog('ia_submission', t('deleted local cache file @file', array('@file' => $file->filename )));
+        }
+        */
+      }
+    }
+  }
+
+  ftp_close($conn);
+  /*
+  $importurl = 'http://www.archive.org/services/contrib-submit.php?server='.$server.'&user_email='.urlencode($account->mail).'&dir='.$identifier;
+  $result = drupal_http_request($importurl);
+  */
+  ini_set('max_input_time', 600);  // default is 30 seconds
+  $result = drupal_http_request(IA_DONE_URL .'&identifier='. $identifier .'&user='. urlencode($account->mail));
+  $response = ia_parse($result->data);
+  // keep track of the identifier
+
+  // // mss 2007-11-10 - check for existing entry
+  // $result = db_fetch_object(db_query('SELECT nid FROM {ia} WHERE nid=%d', $nid));
+  // if (!$result)
+  //   db_query("REPLACE INTO {ia} (nid, ia_identifier, status) VALUES (%d, '%s', 1)", $node->nid, $identifier)
+
+  if ($response['RESULT'][0]['ATTRIBUTES']['TYPE'] == 'success') {
+    $node->field_identifier = $identifier;
+    node_save($node);
+    return TRUE;
+  }
+  else {
+    watchdog('ia', "Did not receive success result from archive.org node: @nid, response: @response", array('@nid' => $node->nid, '@response' => $response['RESULT']));
+    return FALSE;
+  }
+}
+
+function _ia_metadata_xml($metadata) {
+  $required = array('collection', 'title', 'mediatype');
+  foreach ($required as $key) {
+    if (!array_key_exists($key, $metadata)) {
+      return FALSE;
+    }
+  }
+  $output = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n";
+  $output.= "<metadata>\n";
+  $output .= "<upload_application appid=\"Ourmedia\" version=\"1.00.0000\"/>\n";
+  $output .= "<uploadLibrary name=\"ourmedia.org/ia\" version=\"1.00.0000\"/>\n";
+  if (is_array($metadata)) {
+    foreach ($metadata as $key => $val) {
+      $output.= "<$key>". htmlspecialchars($val, ENT_NOQUOTES)."</$key>\n";
+    }
+  }
+  $output.= "</metadata>\n";
+  return $output;
+}
+
+function _ia_files_xml($files) {
+  $output = '<?xml version="1.0" encoding="UTF-8" ?>';
+  $output.= "\n<files>\n";
+  if (is_array($files)) {
+    foreach ($files as $file) {
+      list($major, $minor) = explode('/', $file->filemime);
+      $hash = md5(file_get_contents(file_create_path($file->filepath)));
+      $output.= '<file name="'. $file->filename .'" source="original">';
+      $output.= '<format>'. $minor ."</format>\n";
+      $output.= '<md5>'. $hash . "</md5>\n";
+      $output.= "</file>\n";
+    }
+  }
+  $output.= "</files>\n";
+  return $output;
+}
+
+function _ia_date($time) {
+  return date('Y-m-d\TH:i:s\Z', $time);
+}
+
+function ia_get_archive_url($title, $mail) {
+  $identifier = str_replace(' ', '_', $title);
+  $identifier = preg_replace('/[^A-Za-z0-9._]/', '', $identifier);
+
+  $url = "ftpserver123456.archive.org/". $identifier;
+
+  // $orig = $identifier;
+  // for ($i = 1; $i < 11; $i++) {
+  //   //set_time_limit(600);
+  //   ini_set('max_input_time', 120);  // default is 30 seconds
+  //   $result = drupal_http_request(IA_NEW_ITEM_URL .'&identifier='. $identifier .'&user='. urlencode($mail));
+  //   $response = ia_parse($result->data);
+  //   if ($response['RESULT'][0]['ATTRIBUTES']['TYPE'] == 'success') {
+  //     $url = $response['RESULT'][0]['URL'][0]['VALUE'];
+  //     break;
+  //   }
+  //   else {
+  //     if ($i < 10)
+  //       $identifier = $orig .'_'. $i;
+  //     else
+  //       $identifier = $orig .'_'. time();
+  //   }
+  // }
+  // $res = $response['RESULT'][0]['MESSAGE'][0]['VALUE'];
+  //drupal_set_message("Archive response ($i request". ($i>1 ? "s" : "") ."): ". $res);
+  //drupal_set_message("Last Archive.org identifier: $identifier");
+  return $url;
+}
+
+
+function ia_batch_form($form_state) {
+ $form['title'] = array(
+    '#type' => 'markup',
+    '#prefix' => '<h2>',
+    '#suffix' => '</h2>',
+    '#value' => t('Batch Test'),
+  );
+
+ // $form['name'] = array(
+ //    '#type' => 'textfield',
+ //    '#title' => t('Name'),
+ //  );
+ // 
+ $form['db'] = array(
+    '#type' => 'select',
+    '#title' => t('Database'),
+    '#default_value' => t('ourmedia'),
+    '#options' => array('channels' => 'channels', 'ourmedia' => 'ourmedia'),
+  );
+  
+ $form['type'] = array(
+    '#type' => 'select',
+    '#title' => t('Type'),
+    '#default_value' => t('media'),
+    '#options' => array('channel' => 'channel', 'channelitem' => 'channelitem', 'media' => 'media', 'tool' => 'tool'),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Submit',
+  );  
+  return $form;  
+}
+
+function ia_batch_form_submit($form, &$form_state) {
+    //$name = $form_state['values']['name'];
+    $db = $form_state['values']['db'];
+    $type = $form_state['values']['type'];
+    unset($form_state['storage']);
+    ia_batch_test($type, $db, NULL, NULL);
+    drupal_set_message(t('The batch job has been submitted.'));
+}
+
+/**
+* The $batch can include the following values. Only 'operations'
+* and 'finished' are required, all others will be set to default values.
+*
+* @param operations
+*   An array of callbacks and arguments for the callbacks.
+*   There can be one callback called one time, one callback
+*   called repeatedly with different arguments, different
+*   callbacks with the same arguments, one callback with no
+*   arguments, etc.
+*
+* @param finished
+*   A callback to be used when the batch finishes.
+*
+* @param title
+*   A title to be displayed to the end user when the batch starts.
+*
+* @param init_message
+*   An initial message to be displayed to the end user when the batch starts.
+*
+* @param progress_message
+*   A progress message for the end user. Placeholders are available.
+*   Placeholders note the progression by operation, i.e. if there are
+*   2 operations, the message will look like:
+*    'Processed 1 out of 2.'
+*    'Processed 2 out of 2.'
+*   Placeholders include:
+*     @current, @remaining, @total and @percent
+*
+* @param error_message
+*   The error message that will be displayed to the end user if the batch
+*   fails.
+*
+*/
+function ia_batch_test($type, $db, $options3, $options4) {
+  $batch = array(
+    'operations' => array(
+      array('ia_batch_process', array($type, $db)),
+      //array('ia_batch_process', array($options3, $options4)),
+      ),
+    'finished' => 'ia_batch_finished',
+    'title' => t('Processing Test Batch'),
+    'init_message' => t('Test Batch is starting.'),
+    'progress_message' => t('Processed @current out of @total.'),
+    'error_message' => t('Test Batch has encountered an error.'),
+  );
+  batch_set($batch);
+
+  // If this function was called from a form submit handler, stop here,
+  // FAPI will handle calling batch_process().
+
+  // If not called from a submit handler, add the following,
+  // noting the url the user should be sent to once the batch
+  // is finished.
+  
+  //batch_process('node/1');
+}
+
+/**
+* Batch Operation Callback
+*
+* Each batch operation callback will iterate over and over until
+* $context['finished'] is set to 1. After each pass, batch.inc will
+* check its timer and see if it is time for a new http request,
+* i.e. when more than 1 minute has elapsed since the last request.
+*
+* An entire batch that processes very quickly might only need a single
+* http request even if it iterates through the callback several times,
+* while slower processes might initiate a new http request on every
+* iteration of the callback.
+*
+* This means you should set your processing up to do in each iteration
+* only as much as you can do without a php timeout, then let batch.inc
+* decide if it needs to make a fresh http request.
+*
+* @param options1, options2
+*   If any arguments were sent to the operations callback, they
+*   will be the first argments available to the callback.
+*
+* @param context
+*   $context is an array that will contain information about the
+*   status of the batch. The values in $context will retain their
+*   values as the batch progresses.
+*
+* @param $context['sandbox']
+*   Use the $context['sandbox'] rather than $_SESSION to store the
+*   information needed to track information between successive calls.
+*   The values in the sandbox will be stored and updated in the database
+*   between http requests until the batch finishes processing. This will
+*   avoid problems if the user navigates away from the page before the
+*   batch finishes.
+*
+* @param $context['results']
+*   The array of results gathered so far by the batch processing.
+*   The current operation can append its own.
+*
+* @param $context['message']
+*   A text message displayed in the progress page.
+*
+* @param $context['finished']
+*   A float number between 0 and 1 informing the processing engine
+*   of the completion level for the operation.
+*
+*   1 (or no value explicitly set) means the operation is finished
+*   and the batch processing can continue to the next operation.
+*/
+function ia_batch_process($type = 'media', $db = 'default', &$context) {
+  
+  $where = "type = '". $type ."' AND status<>0";
+  
+  if (!isset($context['sandbox']['progress'])) {
+    $context['sandbox']['progress'] = 0;
+    $context['sandbox']['current_node'] = 0;
+    $context['sandbox']['max'] = db_result(db_query("SELECT COUNT(DISTINCT nid) FROM {node} WHERE nid > 0 AND $where"));
+  }
+
+  // For this test, we decide that we can safely process
+  // 5 nodes at a time without a timeout.
+  $limit = 5;
+
+  // With each pass through the callback, retrieve the next group of nids.
+
+  //watchdog('ia_batch', 'processing @nid with @filenum files.', array('@nid' => $node->nid, '@filenum' => $filenum));
+
+  
+  $previousdb = db_set_active($db);
+  $result = db_query_range("SELECT nid FROM {node} WHERE nid > %d AND $where ORDER BY nid ASC", $context['sandbox']['current_node'], 0, $limit);
+  while ($row = db_fetch_array($result)) {
+    
+    // Here we actually perform our processing on the current node.
+    $node = node_load($row['nid'], NULL, TRUE);
+    
+    $changed = FALSE;
+    
+    $files = $node->files;
+    $filenum = count($files);
+    
+    watchdog('ia_batch', 'processing @nid with @filenum files.', array('@nid' => $node->nid, '@filenum' => $filenum));
+
+    if ($filenum == 1) {
+      // check that file is .jpg or .png?
+      // create thumb
+      // assign $node->field_thumbnail
+      // $changed = TRUE;
+      
+    }
+    elseif ($filenum == 2) {
+      // check that files are .jpg and .gif?
+      // replace smaller file with new thumb
+      // assign $node->field_thumbnail
+    }
+    elseif ($filenum > 2) {
+      
+    }
+    else {
+      // no files
+    }
+    
+    //$node->value1 = $options1;
+    //$node->value2 = $options2;
+      
+    if ($changed)
+      node_save($node);
+
+    // Store some result for post-processing in the finished callback.
+    $context['results'][] = $node->title;
+
+    // Update our progress information.
+    $context['sandbox']['progress']++;
+    $context['sandbox']['current_node'] = $node->nid;
+    $context['message'] = t('Now processing %node', array('%node' => $node->title));
+  }
+  db_set_active($previousdb);
+
+  // Inform the batch engine that we are not finished,
+  // and provide an estimation of the completion level we reached.
+  if ($context['sandbox']['progress'] != $context['sandbox']['max']) {
+    $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['max'];
+  }
+}
+
+/**
+* Batch 'finished' callback
+*/
+function ia_batch_finished($success, $results, $operations) {
+  if ($success) {
+    // Here we do something meaningful with the results.
+    $message = count($results) .' processed.';
+    $message .= theme('item_list', $results);
+  }
+  else {
+    // An error occurred.
+    // $operations contains the operations that remained unprocessed.
+    $error_operation = reset($operations);
+    $message = 'An error occurred while processing '. $error_operation[0] .' with arguments :'. print_r($error_operation[0], TRUE);
+  }
+  drupal_set_message($message);
+}
+
+

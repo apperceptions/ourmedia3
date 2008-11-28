@@ -1,0 +1,7 @@
+; $Id$
+name = MediaRSS
+description = Ourmedia MediaRSS.
+core = 6.x
+
+
+
