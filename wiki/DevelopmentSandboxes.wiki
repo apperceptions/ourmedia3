@@ -8,11 +8,13 @@ svn export http://ourmedia3.googlecode.com/svn/trunk/omdev.sql.gz
 
 == Custom Modules and Theme ==
 
-Beta versions are now in the [[http://code.google.com/p/ourmedia3/source/browse trunk/beta]]
+Beta versions are now in the [http://code.google.com/p/ourmedia3/source/browse trunk/beta]
 
 == Downloads ==
 
 I just added a zipped version of the sites/all folder to downloads and committed the beta versions of our custom mods and theme to the source codie repository under svn/trunk/beta.
+
+See http://code.google.com/p/ourmedia3/downloads/list
 
 == Distribution ==
 
