@@ -24,11 +24,11 @@ Ultimately, I would like to create a Drupal distribution profile.
 
 You will need to 
 
-# create a mysql database for the ourmedia site (CREATE DATABASE OM)
-# download, untar and import the sample database (\. ~/omdev.sql)
-# download and untar drupal
-# download and untar ourmedia_all.tar.gz
-# edit sites/default/settings.php to set db_urls and base_urls
+ # create a mysql database for the ourmedia site (CREATE DATABASE OM)
+ # download, untar and import the sample database (\. ~/omdev.sql)
+ # download and untar drupal
+ # download and untar ourmedia_all.tar.gz
+ # edit sites/default/settings.php to set db_urls and base_urls
 
 Notes:
-# menus and content still reference beta.ourmedia.org
+ # menus and content still reference beta.ourmedia.org
