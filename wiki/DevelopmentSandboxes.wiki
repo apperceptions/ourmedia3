@@ -1,0 +1,5 @@
+Eric's been working on a sample database for the ourmedia beta.  He submitted it to the source tree and I will add one to the downloads when it is ready.
+
+I just added a zipped version of the sites/all folder to downloads and committed the beta versions of our custom mods and theme to the source codie repository under svn/trunk/beta.
+
+Ultimately, I would like to create a Drupal distribution profile.
