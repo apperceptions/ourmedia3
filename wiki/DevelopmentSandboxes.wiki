@@ -12,7 +12,7 @@ Beta versions are now in the [http://code.google.com/p/ourmedia3/source/browse t
 
 == Downloads ==
 
-I just added a zipped version of the sites/all folder to downloads and committed the beta versions of our custom mods and theme to the source codie repository under svn/trunk/beta.
+I just added a zipped version of the sites/all folder to downloads and committed the beta versions of our custom mods and theme to the source code repository under svn/trunk/beta.
 
 See http://code.google.com/p/ourmedia3/downloads/list
 
