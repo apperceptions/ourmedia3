@@ -32,3 +32,4 @@ You will need to
 
 Notes:
  # menus and content still reference beta.ourmedia.org
+ # all of this is at an early stage, please add any additional notes as needed.
