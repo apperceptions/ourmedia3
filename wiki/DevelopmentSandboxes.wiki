@@ -31,4 +31,4 @@ You will need to
 # edit sites/default/settings.php to set db_urls and base_urls
 
 Notes:
-* menus and content still reference beta.ourmedia.org
+# menus and content still reference beta.ourmedia.org
