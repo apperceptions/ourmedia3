@@ -8,7 +8,7 @@ svn export http://ourmedia3.googlecode.com/svn/trunk/omdev.sql.gz
 
 == Custom Modules and Theme ==
 
-Beta versions are now in the trunk/beta.
+Beta versions are now in the [[http://code.google.com/p/ourmedia3/source/browse trunk/beta]]
 
 == Downloads ==
 
