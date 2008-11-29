@@ -1,7 +1,19 @@
 #summary Development sandboxes and distributions
 
-Eric's been working on a sample database for the ourmedia beta.  He submitted it to the source tree and I will add one to the downloads when it is ready.
+== Sample Database ==
+
+Eric's been working on a sample database for the ourmedia beta.  He submitted it to the source tree and I will add one to the downloads when it is ready.  For now, you can grab a copy using: 
+
+svn export http://ourmedia3.googlecode.com/svn/trunk/omdev.sql.gz 
+
+== Custom Modules and Theme ==
+
+Beta versions are now in the trunk/beta.
+
+== Downloads ==
 
 I just added a zipped version of the sites/all folder to downloads and committed the beta versions of our custom mods and theme to the source codie repository under svn/trunk/beta.
+
+== Distribution ==
 
 Ultimately, I would like to create a Drupal distribution profile.
