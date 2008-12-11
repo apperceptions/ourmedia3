@@ -1,0 +1,21 @@
+Feedback on making channels on the Ourmedia beta site.
+
+== November 2008 ==
+
+Cheryl's initial feedback during creation/adding content to Indigenous Issues" channel: http://beta.channels.ourmedia.org/indigenous-issues
+
+ * *double login* still required - I log in to beta.ourmedia.org and click "Post to a Channel" and the site requires me to login again
+
+ * *left sidebar content is confusing* - when logged into my channel, "Thru the Bible" came up in my left sidebar. No idea what that is or why it's there. It's not related to my channel. Also when I got to the "post to this channel" form it looked like it was identifying me as producer GUSAUS2. This is totally confusing. First thought is that something is wrong, I'm not logged in as me.
+
+ * *link duplication & error* - When I go to <a href="http://beta.channels.ourmedia.org">Channels</a>, in the right sidebar under *New Channels*, Indigenous Issues is listed & hyperlinked twice. The first one is correct and links to http://beta.channels.ourmedia.org. The second one links to http://indigenous-issues/ which doesn't (and shouldn't) load. Also, when on the form to add to the channel, I get two "Indigenous Issues" checkboxes to choose from.
+
+ * *miscellaneous site-wide Firefox issue?* - my firefox status bar still endlessly says "Transferring data from beta.ourmedia.org" while browsing/working on the site
+
+ * *Channel pages populated with unrelated info, very confusing* - So on the <a href="http://beta.channels.ourmedia.org/indigenous-issues">Indigenous Issues</a> channel I posted two video items (_Idaho's Forgotten War_ and _Osama Likes Frybread_). Those appear in the channel player and in the "Channel Talk" area underneath. But a whole lot of unrelated stuff also appears in the Channel Talk area. As a channel moderator, I desperately want to get rid of it. It's not related to my content and it's confusing. Why is it there, how do I delete it, or how can I make it explicitly clear that it's NOT part of my channel? I'd like to see it completely go away, but if it can't then I'd like to see it be much more visually distinct and separated from my channel content and any discussion. Otherwise it's just too random and I want to navigate somewhere else where I can have a more coherent experience.
+
+ * *embedded YouTube videos don't fit in the playback area* - perhaps this has to do with YouTube recently going widescreen? In any case, YouTube videos get cropped off the top, bottom & sides and it's very ugly. It's especially awful in the channel viewer popup.
+
+ * *channel viewer popup* looks like it has not been styled yet? everything is illegible over the background tiling image. link colors need to be changed from the default. I'm sure you're aware of this and it's down on the list from functionality, somewhere in the "make pretty and fine-tune" area
+
+ * *channel voting* only goes one way? I'm used to seeing thumbs up/thumbs down - you can vote the item up or down. why only vote one way? I'd like to see either in tool-tip text or actual text near the vote widget what voting actually means, why should I do it?
