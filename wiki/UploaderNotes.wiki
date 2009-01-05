@@ -1,57 +1,57 @@
 draft notes about uploader.  please pardon any misunderstandings, this is early draft based on first use.
 
-  *background: Eric Zimmerman has created an http-based, uploader service for use with archive.org.  Markus has created a Drupal module that integrates that service into Ourmedia.
+  * background: Eric Zimmerman has created an http-based, uploader service for use with archive.org.  Markus has created a Drupal module that integrates that service into Ourmedia.
 
-  *Currently, the service allows anyone to upload a single media file to archive.org.
+  * Currently, the service allows anyone to upload a single media file to archive.org.
 
-  *d=dave, e=eric, g=gus, m=markus denotes who comment/question is best directed to.  + denotes higher priority issue than .
+  * d=dave, e=eric, g=gus, m=markus denotes who comment/question is best directed to.  + denotes higher priority
 
-  *de brand spinxpress uploader or ezuploader?
-  *de open source the server side of upload service?
-  *dm additional pro services: transcode, distribute to several hosting services, save to archive, public/private sharing of files, download page, ads/revenue, ssl extra?
+  * de brand spinxpress uploader or ezuploader?
+  * de open source the server side of upload service?
+  * dm additional pro services: transcode, distribute to several hosting services, save to archive, public/private sharing of files, download page, ads/revenue, ssl extra?
 
-  *e+ baseurl applied to email
-  *e+ how cancel upload?
-  *e how recharge for amazon fees?
-  *e+ make redirect optional.  email too.
-  *e uploads to flickr, youtube and blip?
-  *e what is the cost of this service?
-  *e how check status of upload if not immediately transfered to archive.org?
-  *e what is format for keywords? subject?  csv?
+  * e+ baseurl applied to email
+  * e+ how cancel upload?
+  * e how recharge for amazon fees?
+  * e+ make redirect optional.  email too.
+  * e uploads to flickr, youtube and blip?
+  * e what is the cost of this service?
+  * e how check status of upload if not immediately transfered to archive.org?
+  * e what is format for keywords? subject?  csv?
 
-  *em can we replace need for javascript id call?  better to use a domain or api key?  GUID?
-  *em+ control over email message content (should be site based)
-  *em+ customizable/replaceable messages
-  *em support for multi-file upload
-  *em+ allow addition of keywords (subject?)
-  *em+ use drupal ahah for updates? (format is here:  http://api.drupal.org/api/file/developer/topics/forms_api_reference.html#ahah)
-  *em+ move all styles to css, including red and green colors
+  * em can we replace need for javascript id call?  better to use a domain or api key?  GUID?
+  * em+ control over email message content (should be site based)
+  * em+ customizable/replaceable messages
+  * em support for multi-file upload
+  * em+ allow addition of keywords (subject?)
+  * em+ use drupal ahah for updates? (format is here:  http://api.drupal.org/api/file/developer/topics/forms_api_reference.html#ahah)
+  * em+ move all styles to css, including red and green colors
 
-  *g compare with blip for UI and ease of use
-  *g relationship to kaltura?
+  * g compare with blip for UI and ease of use
+  * g relationship to kaltura?
 
-  *m upload block to show helpful information (use adv help?) (first pass is done)
-  *m add CAPTCHA to upload form?
-  *m allow prefill of keywords and other metadata from channels?
-  *m anti-spam flags: +1 for each upload in last hour, +1 for each day since user create date, +1 for each upload prior to today
-  *m call local javascript as much as possible
-  *m filter for [ezuploader] for use in channels?
-  *m have jay, ry, cheryl test
-  *m+ instead of assigning styles, assign classes
-  *m make work on beta (module)
-  *m more testing of theming
-  *m+ move select to our own form, not CC?  Better performance.
-  *m pro version: add uploader to your own blog with redirects to your own blog.  embed? upload-in-a-box for channels, members, specific site
-  *m upload options: our new form, spinxpress client, ftp client, cc pulisher, blip uploader, others?
-  *m paid/pro/subscription version
-  *m+ archive sync progress meter
-  *m+ add submit handler to add user
-  *m+ add general instructions. add instructions on how to get archive library card
-  *m+ privacy policy and link
-  *m+ handle archive errors
-  *m+ separate Ourmedia logic from module so as to be generic
+  * m upload block to show helpful information (use adv help?) (first pass is done)
+  * m add CAPTCHA to upload form?
+  * m allow prefill of keywords and other metadata from channels?
+  * m anti-spam flags: +1 for each upload in last hour, +1 for each day since user create date, +1 for each upload prior to today
+  * m call local javascript as much as possible
+  * m filter for [ezuploader] for use in channels?
+  * m have jay, ry, cheryl test
+  * m+ instead of assigning styles, assign classes
+  * m make work on beta (module)
+  * m more testing of theming
+  * m+ move select to our own form, not CC?  Better performance.
+  * m pro version: add uploader to your own blog with redirects to your own blog.  embed? upload-in-a-box for channels, members, specific site
+  * m upload options: our new form, spinxpress client, ftp client, cc pulisher, blip uploader, others?
+  * m paid/pro/subscription version
+  * m+ archive sync progress meter
+  * m+ add submit handler to add user
+  * m+ add general instructions. add instructions on how to get archive library card
+  * m+ privacy policy and link
+  * m+ handle archive errors
+  * m+ separate Ourmedia logic from module so as to be generic
 
-  *m+ beta bug found while testing: clean up comment links on media page
-  *m+ beta bug found while testing: fix add media to channel on media page (appears to be a problem with prepopulate module)
+  * m+ beta bug found while testing: clean up comment links on media page
+  * m+ beta bug found while testing: fix add media to channel on media page (appears to be a problem with prepopulate module)
 
-  *note: node/166 is old uploader 
+  * note: node/166 is old uploader 
