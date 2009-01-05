@@ -1,5 +1,4 @@
 #summary Notes on new uploader service and module
-=Draft notes about uploader=
 
 (please pardon any misunderstandings, this is early draft based on first use)
 
