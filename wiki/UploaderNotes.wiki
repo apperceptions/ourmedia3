@@ -5,10 +5,16 @@
 ==Summary==
 Eric Zimmerman has created an http-based, uploader service for use with archive.org.  Markus Sandy has created a Drupal module that integrates that service into Ourmedia.
 
-Currently, the service allows anyone to upload a single media file to archive.org.
+Currently, the service allows anyone to upload a single media file to archive.org.  The module displays the form uses a customizable drupal template to display the form at url designated via Drupal administration screens (default is 'upload').  The target archive.org collection can be set (default is 'ourmedia').   The module also manages the inclusion of scripts and style sheets and autofills the current user's email address into the upload form (and assists them in logging in first if needed).
+
+These notes are mainly ideas for enhancements/improvements.
 
 ==Legend==
-d=dave, e=eric, g=gus, m=markus denotes who comment/question is best directed to.  + denotes higher priority
+While potentially of interest to everyone, I have tried to indicate who might best discuss a given point.
+
+d=dave, e=eric, g=gus, m=markus.
+
+a plus sign denotes what I (markus) think of as a higher priority.  Again, please keep in mind these are rough notes.
 
 ==Notes==
   * all additional pro services (or subscription): transcode, distribute to several hosting services, save to archive, public/private sharing of files, download page, ads/revenue, ssl extra?
