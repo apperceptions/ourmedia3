@@ -1,6 +1,6 @@
 #summary Notes on new uploader service and module
 
-(please pardon any misunderstandings, this is early draft based on first use)
+(please pardon any misunderstandings, this is an early draft based on first use)
 
 ==Summary==
 
