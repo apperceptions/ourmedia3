@@ -1,9 +1,9 @@
+#summary Notes on new uploader service and module
 =Draft notes about uploader=
 
 (please pardon any misunderstandings, this is early draft based on first use)
 
 ==Summary==
-#summary Notes on new uploader service and module
 
 Eric Zimmerman has created an http-based, uploader service for use with archive.org.  Markus Sandy has created a Drupal module that integrates that service into Ourmedia.
 
