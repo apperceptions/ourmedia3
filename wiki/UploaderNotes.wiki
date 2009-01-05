@@ -11,9 +11,10 @@ Currently, the service allows anyone to upload a single media file to archive.or
 d=dave, e=eric, g=gus, m=markus denotes who comment/question is best directed to.  + denotes higher priority
 
 ==Notes==
-  * de brand spinxpress uploader or ezuploader?
+  * all additional pro services: transcode, distribute to several hosting services, save to archive, public/private sharing of files, download page, ads/revenue, ssl extra?
+
+  * de brand spinxpress uploader or ezuploader or what?
   * de open source the server side of upload service?
-  * dm additional pro services: transcode, distribute to several hosting services, save to archive, public/private sharing of files, download page, ads/revenue, ssl extra?
 
   * e+ baseurl applied to email
   * e+ how cancel upload?
