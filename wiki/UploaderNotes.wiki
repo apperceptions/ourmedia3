@@ -1,11 +1,16 @@
-draft notes about uploader.  please pardon any misunderstandings, this is early draft based on first use.
+=Draft notes about uploader=
 
-  * background: Eric Zimmerman has created an http-based, uploader service for use with archive.org.  Markus has created a Drupal module that integrates that service into Ourmedia.
+(please pardon any misunderstandings, this is early draft based on first use)
 
-  * Currently, the service allows anyone to upload a single media file to archive.org.
+==Summary==
+Eric Zimmerman has created an http-based, uploader service for use with archive.org.  Markus Sandy has created a Drupal module that integrates that service into Ourmedia.
 
-  * d=dave, e=eric, g=gus, m=markus denotes who comment/question is best directed to.  + denotes higher priority
+Currently, the service allows anyone to upload a single media file to archive.org.
 
+==Legend==
+d=dave, e=eric, g=gus, m=markus denotes who comment/question is best directed to.  + denotes higher priority
+
+==Notes==
   * de brand spinxpress uploader or ezuploader?
   * de open source the server side of upload service?
   * dm additional pro services: transcode, distribute to several hosting services, save to archive, public/private sharing of files, download page, ads/revenue, ssl extra?
