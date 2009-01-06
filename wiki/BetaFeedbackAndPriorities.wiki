@@ -1,5 +1,4 @@
-#summary Beta feedback and priorities
+#summary Action items and priorities
 
-This 'live' doc is an overview of priority tasks the need to be resolved before we launch.
-
-[http://docs.google.com/Doc?id=dg9292rd_266gj79jk4t Beta feedback and priorities]
+Check out this extranet for an overview of priority issues and action items:
+http://sites.google.com/site/ourmediaredesign/
