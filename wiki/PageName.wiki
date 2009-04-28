@@ -7,9 +7,12 @@ The following is a list of potential projects and project areas for Ourmedia.
   * System
     * LAMP Upgrade
     * Maintenance and Updates
+    * Scalability
   * Services
     * Subscriptions
     * Premium Channels
+      * Remove Ads
+      * Custom CSS and domain
   * Support
     * Learning Center
     * IRC
