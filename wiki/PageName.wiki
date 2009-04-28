@@ -4,10 +4,6 @@
 
 The following is a list of potential projects and project areas for Ourmedia.
 
-  * System
-    * LAMP Upgrade
-    * Maintenance and Updates
-    * Scalability
   * Services
     * Subscriptions
     * Premium Channels
@@ -23,6 +19,10 @@ The following is a list of potential projects and project areas for Ourmedia.
     * Open Source
     * Forum
     * Mentor/Intern
+  * System
+    * LAMP Upgrade
+    * Maintenance and Updates
+    * Scalability
   * UI
     * New Channels
     * Front-page vs. Home-page
