@@ -4,20 +4,20 @@
 
 The following is a list of potential projects and project areas for Ourmedia.
 
-  * Services
-    * Subscriptions
+  * Services - Added value features that members are willing to pay for and help sustain the site.
     * Premium Channels
-      * Remove Ads
-      * Custom CSS and domain
+      * Manage branding and ads
+      * Recurring payments for subscriptions
   * Support
     * Learning Center
-    * IRC
+       * How-To's (Screencasts)
+    * Chat rooms or forums
   * Content
     * Programming Channels
     * Blog
   * Community
     * Open Source
-    * Forum
+    * Forums
     * Mentor/Intern
   * System
     * LAMP Upgrade
