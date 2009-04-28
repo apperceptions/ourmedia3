@@ -4,24 +4,22 @@
 
 The following is a list of potential projects and project areas for Ourmedia.
 
-==System==
-===LAMP Upgrade===
-===Maintenance and Updates===
-==Services==
-===Subscriptions===
-====Premium Channels===
-  * remove ads
-  * custom CSS
-  * custom domain
-==Support==
-===Learning Center===
-===IRC===
-==Content==
-===Programming Channels===
-===Blog===
-==Community==
-===Open Source===
-===Forum===
-==UI==
-===New Channels===
-===Front-page vs. Home-page===
+  * System
+    * LAMP Upgrade
+    * Maintenance and Updates
+  * Services
+    * Subscriptions
+    * Premium Channels
+  * Support
+    * Learning Center
+    * IRC
+  * Content
+    * Programming Channels
+    * Blog
+  * Community
+    * Open Source
+    * Forum
+    * Mentor/Intern
+  * UI
+    * New Channels
+    * Front-page vs. Home-page
