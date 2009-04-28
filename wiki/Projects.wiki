@@ -8,21 +8,20 @@ The following is a list of potential projects and project areas for Ourmedia.
     * Premium Channels
       * Manage branding and ads
       * Recurring payments for subscriptions
-  * Support
+  * Support - Helping users get things done
+    * User Experience
+      * Front-page vs. Home-page
     * Learning Center
        * How-To's (Screencasts)
     * Chat rooms or forums
-  * Content
+  * Content - Encouraging compelling media production and curation
     * Programming Channels
     * Blog
-  * Community
-    * Open Source
+  * Community - Fostering community interaction and leveraging resources
+    * Open Source 
     * Forums
     * Mentor/Intern
-  * System
+  * System - Managing system resources 
     * LAMP Upgrade
     * Maintenance and Updates
     * Scalability
-  * UI
-    * New Channels
-    * Front-page vs. Home-page
